@@ -1,3 +1,6 @@
+# Instaling node modules
+Use `npm i <node module> --save` to install a node module so it will automatically be saved on package.json so when others pull the repo it will save the needed module
+
 # MonsterAngularLite
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.0.1.
