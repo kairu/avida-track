@@ -19,6 +19,14 @@ export const ROUTES: RouteInfo[] = [
     submenu: []
   },
   {
+    path: '/component/access-control',
+    title: 'Access Control',
+    icon: 'bi bi-universal-access',
+    class: '',
+    extralink: false,
+    submenu: []
+  },
+  {
     path: '/component/alert',
     title: 'Alert',
     icon: 'bi bi-bell',

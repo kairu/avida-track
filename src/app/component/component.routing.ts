@@ -9,6 +9,7 @@ import { NgbdButtonsComponent } from './buttons/buttons.component';
 import { CardsComponent } from './card/card.component';
 import { TableComponent } from './table/table.component';
 import { ManageUsersComponent } from './manage-users/manage-users.component';
+import { AccessControlComponent } from './access-control/access-control.component';
 
 export const ComponentsRoutes: Routes = [
 	{
@@ -33,6 +34,10 @@ export const ComponentsRoutes: Routes = [
 			{
 				path: 'manage-users',
 				component: ManageUsersComponent
+			},
+			{
+				path: 'access-control',
+				component: AccessControlComponent
 			},
 			{
 				path: 'alert',

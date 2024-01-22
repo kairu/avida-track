@@ -22,6 +22,7 @@ import { AppComponent } from './app.component';
 import { SpinnerComponent } from './shared/spinner.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { ManageUsersComponent } from './component/manage-users/manage-users.component';
+// import { AccessControlComponent } from './access-control/access-control.component';
 // import { ManageUsersComponent } from './component/manage-users/manage-users.component';
 
 
@@ -30,6 +31,7 @@ import { ManageUsersComponent } from './component/manage-users/manage-users.comp
     AppComponent,
     SpinnerComponent,
     ManageUsersComponent,
+    // AccessControlComponent,
     // ManageUsersComponent,
   ],
   imports: [
