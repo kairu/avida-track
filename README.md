@@ -1,3 +1,9 @@
+# Git
+`git add .`
+`git commit -m "<message>"`
+`git rebase origin main`
+`git push origin main`
+
 # Instaling node modules
 Use `npm i <node module> --save` to install a node module so it will automatically be saved on package.json so when others pull the repo it will save the needed module
 
