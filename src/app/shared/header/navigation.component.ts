@@ -1,5 +1,6 @@
-import { Component, AfterViewInit, EventEmitter, Output } from '@angular/core';
+import { Component, AfterViewInit, EventEmitter, Output, inject } from '@angular/core';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AuthService } from 'src/app/auth.service';
 
 declare var $: any;
 
@@ -11,13 +12,20 @@ declare var $: any;
 })
 export class NavigationComponent implements AfterViewInit {
   @Output() toggleSidebar = new EventEmitter<void>();
-
+  auth = inject (AuthService);
+  name = JSON.parse(sessionStorage.getItem("loggedInUser")!).name;
+  userProfileImg = JSON.parse(sessionStorage.getItem("loggedInUser")!).picture;
+  
+  signOut() {
+    sessionStorage.removeItem("loggedInUser");
+    this.auth.signOut();
+  }
 
   public showSearch = false;
 
   constructor(private modalService: NgbModal) {
   }
-
+  
   // This is for Notifications
   notifications: Object[] = [
     {
@@ -112,4 +120,5 @@ export class NavigationComponent implements AfterViewInit {
   }]
 
   ngAfterViewInit() { }
+  
 }

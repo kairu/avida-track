@@ -1,0 +1,23 @@
+<!-- user-form.component.html -->
+<form *ngIf="isFirstTimeUser" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <label for="towerNumber">Tower Number</label>
+    <input type="text" formControlName="towerNumber" />
+  
+    <label for="unitNumber">Unit Number</label>
+    <input type="text" formControlName="unitNumber" />
+  
+    <label for="floorNumber">Floor Number</label>
+    <input type="text" formControlName="floorNumber" />
+  
+    <label for="firstName">First Name</label>
+    <input type="text" formControlName="firstName" />
+  
+    <label for="lastName">Last Name</label>
+    <input type="text" formControlName="lastName" />
+  
+    <label for="mobileNumber">Mobile Number</label>
+    <input type="text" formControlName="mobileNumber" />
+  
+    <button type="submit">Submit</button>
+  </form>
+  

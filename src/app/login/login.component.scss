@@ -1,0 +1,42 @@
+
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: url('../../assets/images/bg/condobg.jpg') center center/cover no-repeat; 
+    
+  }
+  
+
+.login-container {
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 80%;
+    font-size: 20px;
+    font-family: 'Your Font Name', sans-serif;
+    font-weight: bold;
+    color: #333;
+    
+  }
+  
+  @media screen and (max-width: 600px) {
+    .login-container {
+      width: 90%; /* Adjust the width for smaller screens */
+    }
+  }
+  
+  #google-btn{
+    padding-top: 10px;
+  }
+ 
+  
+
+  
+
+  
+  

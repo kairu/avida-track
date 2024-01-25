@@ -22,6 +22,9 @@ import { AppComponent } from './app.component';
 import { SpinnerComponent } from './shared/spinner.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { ManageUsersComponent } from './component/manage-users/manage-users.component';
+import { UserDataService } from './user-data.service';
+import { UserFormComponent } from './user-form/user-form.component';
+
 // import { AccessControlComponent } from './access-control/access-control.component';
 // import { ManageUsersComponent } from './component/manage-users/manage-users.component';
 
@@ -31,6 +34,8 @@ import { ManageUsersComponent } from './component/manage-users/manage-users.comp
     AppComponent,
     SpinnerComponent,
     ManageUsersComponent,
+    UserFormComponent
+    
     // AccessControlComponent,
     // ManageUsersComponent,
   ],
@@ -57,7 +62,9 @@ import { ManageUsersComponent } from './component/manage-users/manage-users.comp
     {
       provide: LocationStrategy,
       useClass: PathLocationStrategy
+      
     },
+    UserDataService,
   ],
   bootstrap: [AppComponent]
 })
