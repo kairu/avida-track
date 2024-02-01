@@ -28,68 +28,68 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/component/alert',
-    title: 'Alert',
-    icon: 'bi bi-bell',
+    title: 'Tenant Lease Module',
+    icon: 'bi bi-file-check',
     class: '',
     extralink: false,
     submenu: []
   },
   {
     path: '/component/badges',
-    title: 'Badges',
-    icon: 'bi bi-patch-check',
+    title: 'History and Invoice',
+    icon: 'bi bi-receipt-cutoff',
     class: '',
     extralink: false,
     submenu: []
   },
   {
     path: '/component/buttons',
-    title: 'Button',
-    icon: 'bi bi-hdd-stack',
+    title: 'Validation',
+    icon: 'bi bi-card-checklist',
     class: '',
     extralink: false,
     submenu: []
   },
   {
     path: '/component/card',
-    title: 'Card',
-    icon: 'bi bi-card-text',
+    title: 'Feedback and Complaint',
+    icon: 'bi bi-journal',
     class: '',
     extralink: false,
     submenu: []
   },
   {
     path: '/component/dropdown',
-    title: 'Dropdown',
-    icon: 'bi bi-menu-app',
+    title: 'Events Reservation',
+    icon: 'bi bi-files-alt',
     class: '',
     extralink: false,
     submenu: []
   },
   {
     path: '/component/pagination',
-    title: 'Pagination',
-    icon: 'bi bi-dice-1',
+    title: 'Maintenance',
+    icon: 'bi bi-hammer',
     class: '',
     extralink: false,
     submenu: []
   },
   {
     path: '/component/nav',
-    title: 'Nav',
-    icon: 'bi bi-pause-btn',
+    title: 'System Maintenance',
+    icon: 'bi bi-gear',
     class: '',
     extralink: false,
     submenu: []
   },
-  {
-    path: '/component/table',
-    title: 'Table',
-    icon: 'bi bi-layout-split',
-    class: '',
-    extralink: false,
-    submenu: []
-  },
+  // {
+  //   // path: '/component/table',
+  //   // title: 'Table',
+  //   // icon: 'bi bi-layout-split',
+  //   // class: '',
+  //   // extralink: false,
+  //   // submenu: []
+  // },
   {
     path: '/about',
     title: 'About',
