@@ -13,7 +13,7 @@ export class MyProfileComponent{
   }
 
   fetchAllUsers(){
-    this.backendService.getAllUsers().subscribe({
+    this.backendService.getUsers().subscribe({
       next: (data: any) => {
         console.log('List of users:', data);
       },
