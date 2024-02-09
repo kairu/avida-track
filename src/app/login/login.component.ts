@@ -3,7 +3,6 @@ import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { BackendServiceService } from '../backend-service.service';
 
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -39,16 +38,18 @@ export class LoginComponent implements OnInit {
       sessionStorage.setItem('loggedInUser', JSON.stringify(payLoad));
       this.backendService.getUser(payLoad.email).subscribe({
         next: (data: any) =>{
-          console.log(data);
+          //navigate to dashboard
+          this.ngZone.run(() => {
+            this.router.navigate(['dashboard']);
+          });
         },
         error: (data: any) => {
-          console.log('Error fetching user:', data)
+          this.ngZone.run(() => {
+            this.router.navigate(['user-form']);
+          });
         }
       })
-      //navigate to dashboard
-      // this.ngZone.run(() => {
-      //   this.router.navigate(['dashboard']);
-      // });
+      
     }
   }
 

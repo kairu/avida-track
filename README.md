@@ -1,7 +1,7 @@
 # Git
 `git add .`
 `git commit -m "<message>"`
-`git rebase main`
+`git rebase origin/main`
 `git push origin main`
 
 # Instaling node modules

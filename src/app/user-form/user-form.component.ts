@@ -1,7 +1,7 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserDataService } from '../user-data.service';
-
+import { BackendServiceService } from '../backend-service.service';
 
 @Component({
   selector: 'app-user-form',
@@ -14,7 +14,8 @@ export class UserFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private userDataService: UserDataService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private backendService: BackendServiceService
   ) {}
 
   ngOnInit() {
@@ -31,21 +32,28 @@ export class UserFormComponent implements OnInit {
 
   initForm() {
     this.userForm = this.fb.group({
-      towerNumber: ['', Validators.required],
-      unitNumber: ['', Validators.required],
-      floorNumber: ['', Validators.required],
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      mobileNumber: ['', Validators.required],
+      tower_number: ['', Validators.required],
+      floor_number: ['', Validators.required],
+      unit_number: ['', Validators.required],
+      first_name: ['', Validators.required],
+      last_name: ['', Validators.required],
+      mobile_number: ['', Validators.required],
     });
   }
 
   onSubmit() {
     if (this.userForm.valid) {
       const userData = this.userForm.value;
-      this.userDataService.addUser(userData);
-      console.log('User submitted:', userData);
-      this.userForm.reset();
+      this.backendService.createUser(userData).subscribe(
+        (response: any) => {
+          // Handle the response from the backend (if needed)
+          console.log('User created successfully:', response);
+        },
+        (error: any) => {
+          // Handle any errors (if needed)
+          console.error('Error creating user:', error);
+        }
+      );
     }
   }
 }

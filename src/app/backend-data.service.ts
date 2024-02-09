@@ -41,10 +41,11 @@ enum BILL_TYPE{
 }
 
 enum USER{
-    SUPER_ADMIN,
+    SUPER_ADMIN = 1,
     ADMIN,
     OWNER,
-    TENANT
+    TENANT,
+    GUEST
 }
 
 @Injectable({
@@ -116,26 +117,29 @@ export class BackendDataService {
     return data;
   }
 
-  unitData(tower_number: number, floor_number: number, unit_number: number, sq_foot: number, number_of_bedrooms: number, number_of_bathrooms: number, parking_slot: string, remaning_balance: number){
+  unitData(user_id: number, tower_number: number, floor_number: number, unit_number: number, sq_foot?: number, number_of_bedrooms?: number, number_of_bathrooms?: number, parking_slot?: string, remaining_balance?: number){
     const data={
+      user_id: user_id,
       tower_number: tower_number,
       floor_number: floor_number,
       unit_number: unit_number,
-      sq_foot: sq_foot,
-      number_of_bedrooms: number_of_bedrooms,
-      number_of_bathrooms: number_of_bathrooms,
-      parking_slot: parking_slot,
-      remaning_balance: remaning_balance
+      sq_foot: sq_foot || null,
+      number_of_bedrooms: number_of_bedrooms || null,
+      number_of_bathrooms: number_of_bathrooms || null,
+      parking_slot: parking_slot || null,
+      remaining_balance: remaining_balance || null
     };
 
     return data;
   }
 
-  userData(first_name: string, last_name: string, mobile_number: string){
+  userData(first_name: string, last_name: string, mobile_number: string, email?: any, user_type?: USER){
     const data = {
       first_name: first_name,
       last_name: last_name,
-      mobile_number: mobile_number
+      mobile_number: mobile_number,
+      email: email || null,
+      user_type: user_type || USER.GUEST,
     };
 
     return data;
