@@ -21,15 +21,28 @@ export class UserFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    const storedUser = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
+    // console.log(storedUser.email || 'User data not found in session storage.');
+    this.backendService.getUser(storedUser.email).subscribe({
+      next: (response: any) => {
+        // Return has email on backend
+        if(response.hasOwnProperty('email')) {
+          this.ngZone.run(() => {
+            this.router.navigate(['dashboard']);
+          });
+          return;
+        }
+        this.initForm();
+      }
+    })
     this.isFirstTimeUser = !this.userDataService.getUserData();
 
     if (this.isFirstTimeUser) {
       this.initForm();
-      console.log('First Time User - Show form');
-    } else {
-      console.log('Returning User - No form needed');
-      
-    }
+      // console.log('First Time User - Show form');
+   } //else {
+      // console.log('Returning User - No form needed');  
+    // }
   }
 
   initForm() {
