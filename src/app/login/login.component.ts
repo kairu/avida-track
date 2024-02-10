@@ -3,6 +3,7 @@ import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { BackendServiceService } from '../backend-service.service';
 
+window.Buffer = window.Buffer || require("buffer").Buffer; 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -36,23 +37,24 @@ export class LoginComponent implements OnInit {
       const payLoad = this.decodeToken(response.credential);
       //store
       sessionStorage.setItem('loggedInUser', JSON.stringify(payLoad));
+
       this.backendService.getUser(payLoad.email).subscribe({
-        next: (data: any) =>{
-          //navigate to dashboard
+        next: (response: any) => {
+          if(!response.hasOwnProperty('email')){
+            this.ngZone.run(() => {
+              this.router.navigate(['user-form']);
+            });
+            return;
+          }
           this.ngZone.run(() => {
             this.router.navigate(['dashboard']);
           });
-        },
-        error: (data: any) => {
-          this.ngZone.run(() => {
-            this.router.navigate(['user-form']);
-          });
         }
-      })
-      
+      });
     }
   }
 
   private decodeToken(token: string) {
-    return JSON.parse(atob(token.split('.')[1]));  }
-}
+    // return JSON.parse(atob(token.split('.')[1]));  }
+    return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('ascii'));}
+  }

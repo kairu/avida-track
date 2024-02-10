@@ -19,7 +19,8 @@
           "options": {
             "allowedCommonJsDependencies": [
               "ng-apexcharts",
-              "apexcharts"
+              "apexcharts",
+              "buffer"
             ],
             "outputPath": "dist/monster-angular-lite",
             "index": "src/index.html",
