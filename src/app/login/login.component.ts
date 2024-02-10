@@ -47,6 +47,7 @@ export class LoginComponent implements OnInit {
             return;
           }
           this.ngZone.run(() => {
+            sessionStorage.setItem('backendUserData', JSON.stringify(response));
             this.router.navigate(['dashboard']);
           });
         }

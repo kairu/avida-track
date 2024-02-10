@@ -18,6 +18,7 @@ export class NavigationComponent implements AfterViewInit {
   
   signOut() {
     sessionStorage.removeItem("loggedInUser");
+    sessionStorage.removeItem("backendUserData");
     this.auth.signOut();
   }
 

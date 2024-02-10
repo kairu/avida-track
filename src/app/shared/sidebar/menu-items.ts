@@ -8,7 +8,17 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-speedometer2',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['ADMIN', 'OWNER', 'TENANT', 'GUEST']
+  },
+  {
+    path: '/component/bulletin-board',
+    title: 'Bulletin Board',
+    icon: 'bi bi-clipboard',
+    class: '',
+    extralink: false,
+    submenu: [],
+    roles: ['ADMIN', 'OWNER', 'TENANT', 'GUEST']
   },
   {
     path: '/component/manage-users',
@@ -16,7 +26,8 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-people',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['ADMIN']
   },
   {
     path: '/component/access-control',
@@ -24,7 +35,8 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-universal-access',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['SUPER_ADMIN']
   },
   {
     path: '/component/tenant-lease',
@@ -32,7 +44,8 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-file-check',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['TENANT']
   },
   {
     path: '/component/history-invoice',
@@ -40,7 +53,8 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-receipt-cutoff',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['OWNER', 'TENANT']
   },
   {
     path: '/component/validation',
@@ -48,7 +62,8 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-card-checklist',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['OWNER', 'TENANT']
   },
   {
     path: '/component/feedback-complaint',
@@ -56,7 +71,8 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-journal',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['OWNER', 'TENANT']
   },
   {
     path: '/component/events-reservation',
@@ -64,7 +80,8 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-files-alt',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['OWNER','TENANT']
   },
   {
     path: '/component/maintenance',
@@ -72,7 +89,8 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-hammer',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['OWNER', 'TENANT']
   },
   {
     path: '/component/system-maintenance',
@@ -80,7 +98,8 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-gear',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['SUPER_ADMIN']
   },
   // {
   //   path: '/component/alert',
@@ -152,6 +171,7 @@ export const ROUTES: RouteInfo[] = [
     icon: 'bi bi-people',
     class: '',
     extralink: false,
-    submenu: []
+    submenu: [],
+    roles: ['ADMIN', 'OWNER', 'TENANT', 'GUEST']
   }
 ];
