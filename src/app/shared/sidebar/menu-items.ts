@@ -27,7 +27,7 @@ export const ROUTES: RouteInfo[] = [
     submenu: []
   },
   {
-    path: '/component/alert',
+    path: '/component/tenant-lease',
     title: 'Tenant Lease Module',
     icon: 'bi bi-file-check',
     class: '',
@@ -35,7 +35,7 @@ export const ROUTES: RouteInfo[] = [
     submenu: []
   },
   {
-    path: '/component/badges',
+    path: '/component/history-invoice',
     title: 'History and Invoice',
     icon: 'bi bi-receipt-cutoff',
     class: '',
@@ -43,7 +43,7 @@ export const ROUTES: RouteInfo[] = [
     submenu: []
   },
   {
-    path: '/component/buttons',
+    path: '/component/validation',
     title: 'Validation',
     icon: 'bi bi-card-checklist',
     class: '',
@@ -51,7 +51,7 @@ export const ROUTES: RouteInfo[] = [
     submenu: []
   },
   {
-    path: '/component/card',
+    path: '/component/feedback-complaint',
     title: 'Feedback and Complaint',
     icon: 'bi bi-journal',
     class: '',
@@ -59,7 +59,7 @@ export const ROUTES: RouteInfo[] = [
     submenu: []
   },
   {
-    path: '/component/dropdown',
+    path: '/component/events-reservation',
     title: 'Events Reservation',
     icon: 'bi bi-files-alt',
     class: '',
@@ -67,7 +67,7 @@ export const ROUTES: RouteInfo[] = [
     submenu: []
   },
   {
-    path: '/component/pagination',
+    path: '/component/maintenance',
     title: 'Maintenance',
     icon: 'bi bi-hammer',
     class: '',
@@ -75,13 +75,69 @@ export const ROUTES: RouteInfo[] = [
     submenu: []
   },
   {
-    path: '/component/nav',
+    path: '/component/system-maintenance',
     title: 'System Maintenance',
     icon: 'bi bi-gear',
     class: '',
     extralink: false,
     submenu: []
   },
+  // {
+  //   path: '/component/alert',
+  //   title: 'Tenant Lease Module',
+  //   icon: 'bi bi-file-check',
+  //   class: '',
+  //   extralink: false,
+  //   submenu: []
+  // },
+  // {
+  //   path: '/component/badges',
+  //   title: 'History and Invoice',
+  //   icon: 'bi bi-receipt-cutoff',
+  //   class: '',
+  //   extralink: false,
+  //   submenu: []
+  // },
+  // {
+  //   path: '/component/buttons',
+  //   title: 'Validation',
+  //   icon: 'bi bi-card-checklist',
+  //   class: '',
+  //   extralink: false,
+  //   submenu: []
+  // },
+  // {
+  //   path: '/component/card',
+  //   title: 'Feedback and Complaint',
+  //   icon: 'bi bi-journal',
+  //   class: '',
+  //   extralink: false,
+  //   submenu: []
+  // },
+  // {
+  //   path: '/component/dropdown',
+  //   title: 'Events Reservation',
+  //   icon: 'bi bi-files-alt',
+  //   class: '',
+  //   extralink: false,
+  //   submenu: []
+  // },
+  // {
+  //   path: '/component/pagination',
+  //   title: 'Maintenance',
+  //   icon: 'bi bi-hammer',
+  //   class: '',
+  //   extralink: false,
+  //   submenu: []
+  // },
+  // {
+  //   path: '/component/nav',
+  //   title: 'System Maintenance',
+  //   icon: 'bi bi-gear',
+  //   class: '',
+  //   extralink: false,
+  //   submenu: []
+  // },
   // {
   //   // path: '/component/table',
   //   // title: 'Table',

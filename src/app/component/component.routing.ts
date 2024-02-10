@@ -10,6 +10,13 @@ import { CardsComponent } from './card/card.component';
 import { TableComponent } from './table/table.component';
 import { ManageUsersComponent } from './manage-users/manage-users.component';
 import { AccessControlComponent } from './access-control/access-control.component';
+import { TenantLeaseComponent } from './tenant-lease/tenant-lease.component';
+import { HistoryInvoiceComponent } from './history-invoice/history-invoice.component';
+import { ValidationComponent } from './validation/validation.component';
+import { FeedbackComplaintComponent } from './feedback-complaint/feedback-complaint.component';
+import { EventsReservationComponent } from './events-reservation/events-reservation.component';
+import { MaintenanceComponent } from './maintenance/maintenance.component';
+import { SystemMaintenanceComponent } from './system-maintenance/system-maintenance.component';
 
 export const ComponentsRoutes: Routes = [
 	{
@@ -38,6 +45,34 @@ export const ComponentsRoutes: Routes = [
 			{
 				path: 'access-control',
 				component: AccessControlComponent
+			},
+			{
+				path: 'tenant-lease',
+				component: TenantLeaseComponent
+			},
+			{
+				path: 'history-invoice',
+				component: HistoryInvoiceComponent
+			},
+			{
+				path: 'validation',
+				component: ValidationComponent
+			},
+			{
+				path: 'feedback-complaint',
+				component: FeedbackComplaintComponent
+			},
+			{
+				path: 'events-reservation',
+				component: EventsReservationComponent
+			},
+			{
+				path: 'maintenance',
+				component: MaintenanceComponent
+			},
+			{
+				path: 'system-maintenance',
+				component: SystemMaintenanceComponent
 			},
 			{
 				path: 'alert',

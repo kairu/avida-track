@@ -25,9 +25,6 @@ import { ManageUsersComponent } from './component/manage-users/manage-users.comp
 import { UserDataService } from './user-data.service';
 import { UserFormComponent } from './user-form/user-form.component';
 
-// import { AccessControlComponent } from './access-control/access-control.component';
-// import { ManageUsersComponent } from './component/manage-users/manage-users.component';
-
 
 @NgModule({
   declarations: [
@@ -35,9 +32,7 @@ import { UserFormComponent } from './user-form/user-form.component';
     SpinnerComponent,
     ManageUsersComponent,
     UserFormComponent
-    
-    // AccessControlComponent,
-    // ManageUsersComponent,
+
   ],
   imports: [
     CommonModule,
