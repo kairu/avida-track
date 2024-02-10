@@ -21,6 +21,7 @@ export class UserFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.isFirstTimeUser = !this.userDataService.getUserData();
     const storedUser = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
     // console.log(storedUser.email || 'User data not found in session storage.');
     this.backendService.getUser(storedUser.email).subscribe({
@@ -35,12 +36,12 @@ export class UserFormComponent implements OnInit {
         this.initForm();
       }
     })
-    this.isFirstTimeUser = !this.userDataService.getUserData();
+    
 
-    if (this.isFirstTimeUser) {
-      this.initForm();
+    // if (this.isFirstTimeUser) {
+      // this.initForm();
       // console.log('First Time User - Show form');
-   } //else {
+  //  } else {
       // console.log('Returning User - No form needed');  
     // }
   }
