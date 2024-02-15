@@ -20,10 +20,22 @@ export class UserFormComponent implements OnInit {
     private router: Router
   ) {}
 
+  initForm() {
+    this.userForm = this.fb.group({
+      tower_number: ['', Validators.required],
+      floor_number: ['', Validators.required],
+      unit_number: ['', Validators.required],
+      first_name: ['', Validators.required],
+      last_name: ['', Validators.required],
+      mobile_number: ['', Validators.required],
+    });
+  }
+
   ngOnInit() {
     this.isFirstTimeUser = !this.userDataService.getUserData();
     const storedUser = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
     // console.log(storedUser.email || 'User data not found in session storage.');
+    this.initForm();
     this.backendService.getUser(storedUser.email).subscribe({
       next: (response: any) => {
         // Return has email on backend
@@ -33,7 +45,6 @@ export class UserFormComponent implements OnInit {
           });
           return;
         }
-        this.initForm();
       }
     })
     
@@ -46,16 +57,7 @@ export class UserFormComponent implements OnInit {
     // }
   }
 
-  initForm() {
-    this.userForm = this.fb.group({
-      tower_number: ['', Validators.required],
-      floor_number: ['', Validators.required],
-      unit_number: ['', Validators.required],
-      first_name: ['', Validators.required],
-      last_name: ['', Validators.required],
-      mobile_number: ['', Validators.required],
-    });
-  }
+
 
   onSubmit() {
     if (this.userForm.valid) {
