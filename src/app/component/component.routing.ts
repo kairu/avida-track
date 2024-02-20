@@ -18,6 +18,7 @@ import { EventsReservationComponent } from './events-reservation/events-reservat
 import { MaintenanceComponent } from './maintenance/maintenance.component';
 import { SystemMaintenanceComponent } from './system-maintenance/system-maintenance.component';
 import { BulletinBoardComponent } from './bulletin-board/bulletin-board.component';
+import { routeGuard } from '../route-guard.guard';
 
 export const ComponentsRoutes: Routes = [
 	{
@@ -41,43 +42,53 @@ export const ComponentsRoutes: Routes = [
 			// },
 			{ // Admin + Tenant + Owner + GUEST
 				path: 'bulletin-board',
-				component: BulletinBoardComponent
+				component: BulletinBoardComponent,
+				canActivate: [routeGuard]
 			},
 			{ // Admin
 				path: 'manage-users',
-				component: ManageUsersComponent
+				component: ManageUsersComponent,
+				canActivate: [routeGuard]
 			},
 			{ // Super Admin
 				path: 'access-control',
-				component: AccessControlComponent
+				component: AccessControlComponent,
+				canActivate: [routeGuard]
 			},
 			{ // Tenant
 				path: 'tenant-lease',
-				component: TenantLeaseComponent
+				component: TenantLeaseComponent,
+				canActivate: [routeGuard]
 			},
 			{ // Owner + Tenant
 				path: 'history-invoice',
-				component: HistoryInvoiceComponent
+				component: HistoryInvoiceComponent,
+				canActivate: [routeGuard]
 			},
 			{ // Owner + Tenant
 				path: 'validation',
-				component: ValidationComponent
+				component: ValidationComponent,
+				canActivate: [routeGuard]
 			},
 			{ // Owner + Tenant
 				path: 'feedback-complaint',
-				component: FeedbackComplaintComponent
+				component: FeedbackComplaintComponent,
+				canActivate: [routeGuard]
 			},
 			{ // Owner + Tenant
 				path: 'events-reservation',
-				component: EventsReservationComponent
+				component: EventsReservationComponent,
+				canActivate: [routeGuard]
 			},
 			{ // Owner + Tenant
 				path: 'maintenance',
-				component: MaintenanceComponent
+				component: MaintenanceComponent,
+				canActivate: [routeGuard]
 			},
 			{ // Super Admin
 				path: 'system-maintenance',
-				component: SystemMaintenanceComponent
+				component: SystemMaintenanceComponent,
+				canActivate: [routeGuard]
 			},
 			// {
 			// 	path: 'alert',

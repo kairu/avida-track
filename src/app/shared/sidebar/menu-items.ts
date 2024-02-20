@@ -172,6 +172,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: [],
-    roles: ['ADMIN', 'OWNER', 'TENANT', 'GUEST']
+    roles: ['SUPER_ADMIN','ADMIN', 'OWNER', 'TENANT', 'GUEST']
   }
 ];
