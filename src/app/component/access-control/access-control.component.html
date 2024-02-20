@@ -1,1 +1,52 @@
-<p>access-control works!</p>
+<div class="container">
+    <div class="row bg-primary text-white text-center py-2">
+        <div class="col-sm"></div>
+        <div class="col-sm"><h2>Super Admin</h2></div>
+        <div class="col-sm"><h2>Admin</h2></div>
+        <div class="col-sm"><h2>Owner</h2></div>
+        <div class="col-sm"><h2>Tenant</h2></div>
+        <div class="col-sm"><h2>Guest</h2></div>
+    </div>
+</div>
+<div class="container" *ngFor="let component of components">
+    <div class="row border-bottom py-2 align-items-center">
+        <div class="col-sm">
+            <h2>{{component.module_name}}</h2>
+        </div>
+        <!-- Super Admin -->
+        <div class="col-sm text-center">
+            <label class="switch">
+                <input type="checkbox" [(ngModel)]="component.super_admin" (ngModelChange)="onChange('super_admin', component.module_name, component.super_admin)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <!-- Admin  -->
+        <div class="col-sm text-center">
+            <label class="switch">
+                <input type="checkbox" [(ngModel)]="component.admin" (ngModelChange)="onChange('admin', component.module_name, component.admin)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <!-- Owner -->
+        <div class="col-sm text-center">
+            <label class="switch">
+                <input type="checkbox" [(ngModel)]="component.owner" (ngModelChange)="onChange('owner', component.module_name, component.owner)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <!-- Tenant -->
+        <div class="col-sm text-center">
+            <label class="switch">
+                <input type="checkbox" [(ngModel)]="component.tenant" (ngModelChange)="onChange('tenant', component.module_name, component.tenant)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <!-- Guest -->
+        <div class="col-sm text-center">
+            <label class="switch">
+                <input type="checkbox" [(ngModel)]="component.guest" (ngModelChange)="onChange('guest', component.module_name, component.guest)">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+</div>

@@ -18,6 +18,12 @@ export class BackendServiceService {
     'Content-Type': 'application/json'
   });
 
+  updateAccessControls(data: any): Observable<any>{
+    return this.http.put(`${this.backendUrl}/accesscontrol`, JSON.stringify(data), {
+      headers: this.headers
+    })
+  }
+
   createUser(user: any): Observable<any>{
     const rawBody = JSON.parse(JSON.stringify(user));
     const userData = this.backendData.userData(
@@ -53,5 +59,9 @@ export class BackendServiceService {
   }
   getUser(user: string): Observable<any> {
     return this.http.get(`${this.backendUrl}/user/${user}`, {headers: this.headers});
+  }
+
+  getAccessControls(): Observable<any> {
+    return this.http.get(`${this.backendUrl}/accesscontrol`);
   }
 }

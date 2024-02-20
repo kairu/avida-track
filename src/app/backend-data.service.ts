@@ -145,4 +145,17 @@ export class BackendDataService {
     return data;
   }
 
+  accessControlData(module_name: string, super_admin: boolean, admin: boolean, owner: boolean, tenant: boolean, guest: boolean){
+    const data = {
+      module_name: module_name,
+      super_admin: super_admin,
+      admin: admin,
+      owner: owner,
+      tenant: tenant,
+      guest: guest
+    };
+
+    return data;
+  }
+
 }

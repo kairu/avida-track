@@ -24,6 +24,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { ManageUsersComponent } from './component/manage-users/manage-users.component';
 import { UserDataService } from './user-data.service';
 import { UserFormComponent } from './user-form/user-form.component';
+import { AccessControlComponent } from './component/access-control/access-control.component';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { UserFormComponent } from './user-form/user-form.component';
     AppComponent,
     SpinnerComponent,
     ManageUsersComponent,
-    UserFormComponent
+    UserFormComponent,
+    AccessControlComponent
 
   ],
   imports: [
