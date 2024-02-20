@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 declare var google: any;
 import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
@@ -82,17 +81,3 @@ export class LandingPageComponent implements OnInit {
 }
 
 
-=======
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-landing-page',
-  standalone: true,
-  imports: [],
-  templateUrl: './landing-page.component.html',
-  styleUrl: './landing-page.component.scss'
-})
-export class LandingPageComponent {
-
-}
->>>>>>> 3913994 (Landing Page initial design)
