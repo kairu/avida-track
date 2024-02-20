@@ -111,31 +111,31 @@ body {
   text-decoration: underline;
 }
 
-.container1{
-  display: flex;
-  justify-content: space-between; /* Align items to each end */
-  margin-top: 70px;
+// .container1{
+//   display: flex;
+//   justify-content: space-between; /* Align items to each end */
+//   margin-top: 70px;
   
-}
+// }
 
-.information {
-  flex: 1; /* Take up remaining space */
-  padding: 0 20px; /* Add spacing */
-  color: white;
+// .information {
+//   flex: 1; /* Take up remaining space */
+//   padding: 0 20px; /* Add spacing */
+//   color: white;
 
-}
+// }
 
-.picture {
-  flex: 1; /* Take up remaining space */
-}
+// .picture {
+//   flex: 1; /* Take up remaining space */
+// }
 
-.picture img {
-  width: 50%; /* Ensure image doesn't exceed container width */
-  height: 50%;
-}
+// .picture img {
+//   width: 50%; /* Ensure image doesn't exceed container width */
+//   height: 50%;
+// }
 
-.info{
-  color: white;
-  margin-top: 50px;
-  font-weight: bold;
-}
+// .info{
+//   color: white;
+//   margin-top: 50px;
+//   font-weight: bold;
+// }
