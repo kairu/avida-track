@@ -1,17 +1,12 @@
-<<<<<<< HEAD
 .body {
-=======
-body {
->>>>>>> 3913994 (Landing Page initial design)
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-<<<<<<< HEAD
-    // height: 100vh;
-    background: url('../../assets/images/bg/nightbg.gif') center center/cover no-repeat;
-    
-  }
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  // height: 100vh;
+  background: url('../../assets/images/bg/nightbg.gif') center center/cover no-repeat;
+  
+}
 
 .login-container {
   background-color: rgba(255, 255, 255, 0.7);
@@ -30,6 +25,17 @@ body {
 #google-btn{
   padding-top: 10px;
 }
+<<<<<<< HEAD
+
+.landing-page {
+  text-align: center; /* Center-align text within the landing page */
+  @media only screen and (max-width: 768px) {
+    margin-top: 60px;
+  }
+  margin-top: 10%;
+}
+=======
+>>>>>>> 4a99f72 (New landing page (for revision))
 
 .landing-page {
   text-align: center; /* Center-align text within the landing page */
@@ -39,64 +45,48 @@ body {
   margin-top: 10%;
 }
 
-  .intro{
-    margin-left: 30px;
-    margin-right: 30px;
-=======
-    height: 100vh;
-    background: url('../../assets/images/bg/nightbg.gif') center center/cover no-repeat;
-  }
-  
-  .landing-page {
-    text-align: center; /* Center-align text within the landing page */
-    
-  }
-  .intro{
-    margin: 30px;
->>>>>>> 3913994 (Landing Page initial design)
-    font-size: 20px;
-  }
-  
+.intro{
+  margin-left: 30px;
+  margin-right: 30px;
+  font-size: 20px;
+}
 
-  .greetings{
-    color: white;
-    font-size: 45px;
-    font-weight: bold;
-<<<<<<< HEAD
-    // margin-top: 20%;
-=======
->>>>>>> 3913994 (Landing Page initial design)
-  }
-  
-  /* Base button styles */
-  .button {
-    display: inline-block;
-    padding: 10px 20px;
-    border: 2px solid #4CAF50; /* Green border */
-    background-color: #4CAF50; /* Green background */
-    color: white; /* White text color */
-    font-size: 16px;
-    text-decoration: none;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-  }
-  
-  /* Hover effect */
-  .button:hover {
-    background-color: white; /* White background */
-    color: #4CAF50; /* Green text color */
-  }
-  
-  /* Active/focus effect */
-  .button:focus,
-  .button:active {
-    outline: none; /* Remove default focus outline */
-    background-color: #45a049; /* Darker green background */
-    border-color: #45a049; /* Darker green border */
-  }
-<<<<<<< HEAD
-  
+
+.greetings{
+  color: white;
+  font-size: 45px;
+  font-weight: bold;
+  // margin-top: 20%;
+}
+
+/* Base button styles */
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 2px solid #4CAF50; /* Green border */
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text color */
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* Hover effect */
+.button:hover {
+  background-color: white; /* White background */
+  color: #4CAF50; /* Green text color */
+}
+
+/* Active/focus effect */
+.button:focus,
+.button:active {
+  outline: none; /* Remove default focus outline */
+  background-color: #45a049; /* Darker green background */
+  border-color: #45a049; /* Darker green border */
+}
+
 
 /* Base styles */
 .about-section {
@@ -191,14 +181,9 @@ opacity: 1; /* Show caption on hover */
 @media screen and (max-width: 768px) {
 .image-grid {
   grid-template-columns: 1fr; /* Make images stack on mobile */
-}
+<<<<<<< HEAD
 }
 =======
-
-// #avida {
-//     width: 300px; /* Adjust the width as needed */
-//     float: right;
-//     margin-left: 20px; /* Adjust the margin as needed */
-//   }
-  
->>>>>>> 3913994 (Landing Page initial design)
+>>>>>>> 4a99f72 (New landing page (for revision))
+}
+}
