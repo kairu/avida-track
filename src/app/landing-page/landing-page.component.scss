@@ -5,14 +5,17 @@ body {
     align-items: center;
     height: 100vh;
     background: url('../../assets/images/bg/nightbg.gif') center center/cover no-repeat;
+    overflow: hidden;
   }
   
   .landing-page {
     text-align: center; /* Center-align text within the landing page */
-    
+    // margin-bottom: 30px;
   }
+
   .intro{
-    margin: 30px;
+    margin-left: 30px;
+    margin-right: 30px;
     font-size: 20px;
   }
   
@@ -21,6 +24,7 @@ body {
     color: white;
     font-size: 45px;
     font-weight: bold;
+    // margin-top: 20%;
   }
   
   /* Base button styles */
@@ -50,10 +54,88 @@ body {
     background-color: #45a049; /* Darker green background */
     border-color: #45a049; /* Darker green border */
   }
-
-// #avida {
-//     width: 300px; /* Adjust the width as needed */
-//     float: right;
-//     margin-left: 20px; /* Adjust the margin as needed */
-//   }
   
+
+/* Base styles */
+.about-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.social-media {
+  margin-left: 40px;
+}
+
+.social-media a {
+  margin-right: 10px; /* Add space between social media links */
+}
+
+.social-media i {
+  font-size: 25px; /* Resize the icons */
+}
+
+.social-media p {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.privacy-policy {
+  margin-left: 50px;
+}
+
+.privacy-policy h2 {
+  font-size: 24px;
+}
+
+.privacy-policy p {
+  margin-bottom: 10px;
+}
+
+.privacy-policy ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.privacy-policy li {
+  margin-bottom: 5px;
+}
+
+.privacy-policy li a {
+  color: #333; /* Adjust link color */
+  text-decoration: none;
+}
+
+.privacy-policy li a:hover {
+  text-decoration: underline;
+}
+
+.container1{
+  display: flex;
+  justify-content: space-between; /* Align items to each end */
+  margin-top: 70px;
+  
+}
+
+.information {
+  flex: 1; /* Take up remaining space */
+  padding: 0 20px; /* Add spacing */
+  color: white;
+
+}
+
+.picture {
+  flex: 1; /* Take up remaining space */
+}
+
+.picture img {
+  width: 50%; /* Ensure image doesn't exceed container width */
+  height: 50%;
+}
+
+.info{
+  color: white;
+  margin-top: 50px;
+  font-weight: bold;
+}
