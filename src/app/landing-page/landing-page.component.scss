@@ -132,6 +132,7 @@ text-decoration: none;
 text-decoration: underline;
 }
 
+<<<<<<< HEAD
 .image-grid {
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); /* Adjust as needed */
@@ -172,3 +173,33 @@ opacity: 1; /* Show caption on hover */
   grid-template-columns: 1fr; /* Make images stack on mobile */
 }
 }
+=======
+// .container1{
+//   display: flex;
+//   justify-content: space-between; /* Align items to each end */
+//   margin-top: 70px;
+  
+// }
+
+// .information {
+//   flex: 1; /* Take up remaining space */
+//   padding: 0 20px; /* Add spacing */
+//   color: white;
+
+// }
+
+// .picture {
+//   flex: 1; /* Take up remaining space */
+// }
+
+// .picture img {
+//   width: 50%; /* Ensure image doesn't exceed container width */
+//   height: 50%;
+// }
+
+// .info{
+//   color: white;
+//   margin-top: 50px;
+//   font-weight: bold;
+// }
+>>>>>>> bd23843 (Added forward slash for css in case of use)
