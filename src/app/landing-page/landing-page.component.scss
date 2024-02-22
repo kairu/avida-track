@@ -3,14 +3,17 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    // height: 100vh;
     background: url('../../assets/images/bg/nightbg.gif') center center/cover no-repeat;
-    overflow: hidden;
+    
   }
   
   .landing-page {
     text-align: center; /* Center-align text within the landing page */
-    // margin-bottom: 30px;
+    @media only screen and (max-width: 768px) {
+      margin-top: 60px;
+    }
+    margin-top: 10%;
   }
 
   .intro{
@@ -111,31 +114,43 @@ body {
   text-decoration: underline;
 }
 
-// .container1{
-//   display: flex;
-//   justify-content: space-between; /* Align items to each end */
-//   margin-top: 70px;
-  
-// }
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); /* Adjust as needed */
+  gap: 10px; /* Adjust the gap between images */
+  margin-bottom: 10%;
+}
 
-// .information {
-//   flex: 1; /* Take up remaining space */
-//   padding: 0 20px; /* Add spacing */
-//   color: white;
+.image-container {
+  position: relative;
+  margin: 30px;
+}
 
-// }
+.image-container img {
+  width: 100%;
+  height: auto;
+}
 
-// .picture {
-//   flex: 1; /* Take up remaining space */
-// }
+.caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  color: white;
+  padding: 5px;
+  font-size: 12px;
+  text-align: center;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.3s ease;
+}
 
-// .picture img {
-//   width: 50%; /* Ensure image doesn't exceed container width */
-//   height: 50%;
-// }
+.image-container:hover .caption {
+  opacity: 1; /* Show caption on hover */
+}
 
-// .info{
-//   color: white;
-//   margin-top: 50px;
-//   font-weight: bold;
-// }
+@media screen and (max-width: 768px) {
+  .image-grid {
+    grid-template-columns: 1fr; /* Make images stack on mobile */
+  }
+}
