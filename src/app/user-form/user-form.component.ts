@@ -1,7 +1,7 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UserDataService } from '../user-data.service';
-import { BackendServiceService } from '../backend-service.service';
+import { UserDataService } from '../services/user-data.service';
+import { BackendServiceService } from '../services/backend-service.service';
 import { Router } from '@angular/router';
 
 @Component({

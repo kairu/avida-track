@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { BackendServiceService } from "../backend-service.service";
+import { BackendServiceService } from "../services/backend-service.service";
 
 
 @Component({

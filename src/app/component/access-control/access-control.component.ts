@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BackendServiceService } from 'src/app/backend-service.service';
+import { BackendServiceService } from 'src/app/services/backend-service.service';
 
 @Component({
   selector: 'app-access-control',

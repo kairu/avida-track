@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, EventEmitter, Output, inject } from '@angular/core';
 import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from 'src/app/auth.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 declare var $: any;
 

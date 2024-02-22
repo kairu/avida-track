@@ -1,7 +1,7 @@
 declare var google: any;
 import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
-import { BackendServiceService } from '../backend-service.service';
+import { BackendServiceService } from '../services/backend-service.service';
 
 window.Buffer = window.Buffer || require("buffer").Buffer; 
 @Component({

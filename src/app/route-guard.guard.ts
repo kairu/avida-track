@@ -1,6 +1,6 @@
 import { ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { MenuService } from './menu-service.service';
+import { MenuService } from './services/menu-service.service';
 
 export const routeGuard = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const router = inject(Router);

@@ -3,8 +3,8 @@ import { ROUTES } from './menu-items';
 import { RouteInfo } from './sidebar.metadata';
 import { RouterModule } from '@angular/router';
 import { CommonModule, NgIf } from '@angular/common';
-import { BackendServiceService } from 'src/app/backend-service.service';
-import { MenuService } from 'src/app/menu-service.service';
+import { BackendServiceService } from 'src/app/services/backend-service.service';
+import { MenuService } from 'src/app/services/menu-service.service';
 
 @Component({
   selector: 'app-sidebar',

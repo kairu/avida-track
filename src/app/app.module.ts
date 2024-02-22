@@ -22,10 +22,10 @@ import { AppComponent } from './app.component';
 import { SpinnerComponent } from './shared/spinner.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { ManageUsersComponent } from './component/manage-users/manage-users.component';
-import { UserDataService } from './user-data.service';
+import { UserDataService } from './services/user-data.service';
 import { UserFormComponent } from './user-form/user-form.component';
 import { AccessControlComponent } from './component/access-control/access-control.component';
-import { MenuService } from './menu-service.service';
+import { MenuService } from './services/menu-service.service';
 
 @NgModule({
   declarations: [
