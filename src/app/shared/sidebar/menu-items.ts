@@ -9,7 +9,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['SUPER_ADMIN','ADMIN', 'OWNER', 'TENANT', 'GUEST']
   },
   {
     path: '/component/bulletin-board',
@@ -18,7 +17,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['ADMIN', 'OWNER', 'TENANT', 'GUEST']
   },
   {
     path: '/component/manage-users',
@@ -27,7 +25,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['ADMIN']
   },
   {
     path: '/component/access-control',
@@ -36,7 +33,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['SUPER_ADMIN']
   },
   {
     path: '/component/tenant-lease',
@@ -45,7 +41,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['TENANT']
   },
   {
     path: '/component/history-invoice',
@@ -54,7 +49,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['OWNER', 'TENANT']
   },
   {
     path: '/component/validation',
@@ -63,7 +57,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['OWNER', 'TENANT']
   },
   {
     path: '/component/feedback-complaint',
@@ -72,7 +65,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['OWNER', 'TENANT']
   },
   {
     path: '/component/events-reservation',
@@ -81,7 +73,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['OWNER','TENANT']
   },
   {
     path: '/component/maintenance',
@@ -90,7 +81,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['OWNER', 'TENANT']
   },
   {
     path: '/component/system-maintenance',
@@ -99,7 +89,6 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['SUPER_ADMIN']
   },
   // {
   //   path: '/component/alert',
@@ -172,6 +161,5 @@ export const ROUTES: RouteInfo[] = [
     class: '',
     extralink: false,
     submenu: []
-    // roles: ['SUPER_ADMIN','ADMIN', 'OWNER', 'TENANT', 'GUEST']
   }
 ];
