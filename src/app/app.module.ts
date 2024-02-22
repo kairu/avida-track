@@ -4,6 +4,7 @@ import {
   CommonModule, LocationStrategy,
   PathLocationStrategy
 } from '@angular/common';
+import { NgToastModule } from 'ng-angular-popup';
 import { NgModule, isDevMode } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
@@ -49,6 +50,7 @@ import { MenuService } from './services/menu-service.service';
     FullComponent,
     NavigationComponent,
     SidebarComponent,
+    NgToastModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable
