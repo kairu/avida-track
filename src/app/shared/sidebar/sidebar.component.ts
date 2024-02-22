@@ -3,18 +3,19 @@ import { ROUTES } from './menu-items';
 import { RouteInfo } from './sidebar.metadata';
 import { RouterModule } from '@angular/router';
 import { CommonModule, NgIf } from '@angular/common';
-//declare var $: any;
+import { BackendServiceService } from 'src/app/backend-service.service';
+import { MenuService } from 'src/app/menu-service.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports:[RouterModule, CommonModule, NgIf],
+  imports: [RouterModule, CommonModule, NgIf],
   templateUrl: './sidebar.component.html'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent{
   showMenu = '';
   showSubMenu = '';
-  public sidebarnavItems:RouteInfo[]=[];
+  public sidebarnavItems: RouteInfo[] = [];
   // this is for the open close
   addExpandClass(element: string) {
     if (element === this.showMenu) {
@@ -24,27 +25,30 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  menus: any =[];
-  filteredMenus: any [] = [];
+  menus: any = [];
+  filteredMenus: any[] = [];
   role: string = '';
-  constructor() {
-    this.menus = ROUTES;
-    const userData = sessionStorage.getItem('backendUserData');
-    if(userData!=null){
-      const parseObj = JSON.parse(userData);
-      this.role = parseObj.user_type;
-    }
-    this.menus.forEach((element: any) => {
-      const isRolePresent = element.roles.find((role:any) => role == this.role);
-      if(isRolePresent != undefined){
-        this.filteredMenus.push(element);
+  access!: any[];
+  constructor(private backendService: BackendServiceService, private menuService: MenuService) {
+    // get access controls from the backend service
+    this.backendService.getAccessControls().subscribe({
+      next: (response: any) => {
+        this.access = response;
+        this.menus = ROUTES;
+        const userData = sessionStorage.getItem('backendUserData');
+        if (userData != null) {
+          const parseObj = JSON.parse(userData);
+          this.role = parseObj.user_type;
+        }
+        this.filteredMenus = this.menus.filter((menu: { title: any; }) => {
+          const accessControl = this.access.find(control => control.module_name === menu.title);
+          return accessControl && accessControl[this.role.toLowerCase()];
+        });
+        this.menuService.setMenus(this.filteredMenus);
+        this.sidebarnavItems = this.filteredMenus;
       }
     });
   }
-
-  // End open close
-  ngOnInit() {
-    // this.sidebarnavItems = ROUTES.filter(sidebarnavItem => sidebarnavItem);
-    this.sidebarnavItems = this.filteredMenus;
-  }
 }
+
+

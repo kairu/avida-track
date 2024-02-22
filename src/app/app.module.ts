@@ -25,7 +25,7 @@ import { ManageUsersComponent } from './component/manage-users/manage-users.comp
 import { UserDataService } from './user-data.service';
 import { UserFormComponent } from './user-form/user-form.component';
 import { AccessControlComponent } from './component/access-control/access-control.component';
-
+import { MenuService } from './menu-service.service';
 
 @NgModule({
   declarations: [
@@ -34,6 +34,7 @@ import { AccessControlComponent } from './component/access-control/access-contro
     ManageUsersComponent,
     UserFormComponent,
     AccessControlComponent
+   
 
   ],
   imports: [

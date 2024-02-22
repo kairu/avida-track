@@ -19,6 +19,7 @@ import { MaintenanceComponent } from './maintenance/maintenance.component';
 import { SystemMaintenanceComponent } from './system-maintenance/system-maintenance.component';
 import { BulletinBoardComponent } from './bulletin-board/bulletin-board.component';
 import { routeGuard } from '../route-guard.guard';
+import { AboutComponent } from '../about/about.component';
 
 export const ComponentsRoutes: Routes = [
 	{
@@ -106,6 +107,11 @@ export const ComponentsRoutes: Routes = [
 			// 	path: 'buttons',
 			// 	component: NgbdButtonsComponent
 			// }
+			{
+				path: 'about',
+				component: AboutComponent,
+				canActivate: [routeGuard]
+			}
 		]
 	}
 ];
