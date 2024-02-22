@@ -22,7 +22,11 @@ describe('LandingPageComponent', () => {
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 });
 =======
 });
 >>>>>>> 3913994 (Landing Page initial design)
+=======
+});
+>>>>>>> 103901a (Landing Page design done)

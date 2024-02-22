@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .body {
   margin: 0;
   display: flex;
@@ -7,6 +8,25 @@
   background: url('../../assets/images/bg/nightbg.gif') center center/cover no-repeat;
   
 }
+=======
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    // height: 100vh;
+    background: url('../../assets/images/bg/nightbg.gif') center center/cover no-repeat;
+    
+  }
+  
+  .landing-page {
+    text-align: center; /* Center-align text within the landing page */
+    @media only screen and (max-width: 768px) {
+      margin-top: 60px;
+    }
+    margin-top: 10%;
+  }
+>>>>>>> 103901a (Landing Page design done)
 
 .login-container {
   background-color: rgba(255, 255, 255, 0.7);
@@ -144,6 +164,7 @@ text-decoration: underline;
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 .image-grid {
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); /* Adjust as needed */
@@ -195,26 +216,54 @@ opacity: 1; /* Show caption on hover */
 //   margin-top: 70px;
   
 // }
+=======
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); /* Adjust as needed */
+  gap: 10px; /* Adjust the gap between images */
+  margin-bottom: 10%;
+}
+>>>>>>> 103901a (Landing Page design done)
 
-// .information {
-//   flex: 1; /* Take up remaining space */
-//   padding: 0 20px; /* Add spacing */
-//   color: white;
+.image-container {
+  position: relative;
+  margin: 30px;
+}
 
-// }
+.image-container img {
+  width: 100%;
+  height: auto;
+}
 
-// .picture {
-//   flex: 1; /* Take up remaining space */
-// }
+.caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  color: white;
+  padding: 5px;
+  font-size: 12px;
+  text-align: center;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.3s ease;
+}
 
-// .picture img {
-//   width: 50%; /* Ensure image doesn't exceed container width */
-//   height: 50%;
-// }
+.image-container:hover .caption {
+  opacity: 1; /* Show caption on hover */
+}
 
+<<<<<<< HEAD
 // .info{
 //   color: white;
 //   margin-top: 50px;
 //   font-weight: bold;
 // }
 >>>>>>> bd23843 (Added forward slash for css in case of use)
+=======
+@media screen and (max-width: 768px) {
+  .image-grid {
+    grid-template-columns: 1fr; /* Make images stack on mobile */
+  }
+}
+>>>>>>> 103901a (Landing Page design done)
