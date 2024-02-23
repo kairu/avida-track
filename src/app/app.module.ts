@@ -26,15 +26,16 @@ import { ManageUsersComponent } from './component/manage-users/manage-users.comp
 import { UserDataService } from './services/user-data.service';
 import { UserFormComponent } from './user-form/user-form.component';
 import { AccessControlComponent } from './component/access-control/access-control.component';
-import { MenuService } from './services/menu-service.service';
-
+import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule} from 'primeng/button';
 @NgModule({
   declarations: [
     AppComponent,
     SpinnerComponent,
     ManageUsersComponent,
     UserFormComponent,
-    AccessControlComponent
+    AccessControlComponent,
    
 
   ],
@@ -51,6 +52,9 @@ import { MenuService } from './services/menu-service.service';
     NavigationComponent,
     SidebarComponent,
     NgToastModule,
+    CardModule,
+    DialogModule,
+    ButtonModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable

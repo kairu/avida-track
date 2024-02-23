@@ -1,1 +1,40 @@
-<p>bulletin-board works!</p>
+<div *ngIf="isAdmin" class="d-flex flex-row-reverse">
+    <p-button pRipple (click)="addContent()" label="Add Content"></p-button>
+    <p-dialog header="Add a new Content" [(visible)]="visible" [style]="{'width': '35vw', 'height': '70vh'}" [modal]="true"
+        [dismissableMask]="true">
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+            ea commodo
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+            est laborum.
+        </p>
+    </p-dialog>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div *ngFor="let item of items; index as i" class="col-md-4">
+            <div class="card-container">
+                <div class="card-wrapper">
+                    <p-card pRipple (click)="showDialog(item)" subheader={{item.subtitle}} [style]="{'background-color': '#f0f0f0'}">
+                        <p-header class="text-center">
+                            <h2 style="color: #007bff;">{{item.title}}</h2>
+                        </p-header>
+                        <p style="color: #6c757d;">{{item.content}}</p>
+                    </p-card>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog [(visible)]="display" [style]="{'width': '25vw', 'height': '50vh'}" [modal]="true" [dismissableMask]="true"
+    [draggable]="false">
+    <p-header>
+        <h2 style="color: #007bff;">{{selectedItem?.title}}</h2>
+        <p>{{selectedItem?.subtitle}}</p>
+    </p-header>
+    <p style="color: #6c757d;">{{selectedItem?.content}}</p>
+</p-dialog>

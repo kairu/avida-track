@@ -17,8 +17,7 @@ export class NavigationComponent implements AfterViewInit {
   userProfileImg = JSON.parse(sessionStorage.getItem("loggedInUser")!).picture;
   
   signOut() {
-    sessionStorage.removeItem("loggedInUser");
-    sessionStorage.removeItem("backendUserData");
+    sessionStorage.clear();
     this.auth.signOut();
   }
 
