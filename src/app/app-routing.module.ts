@@ -3,11 +3,12 @@ import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { FullComponent } from './layouts/full/full.component';
 import { UserFormComponent } from './user-form/user-form.component';
+import { LandingPageComponent } from './landing-page/landing-page.component';
 
 
 export const Approutes: Routes = [
-  
-  {path: '',  component: LoginComponent},
+  {path: '', component: LandingPageComponent},
+  {path: 'login',  component: LoginComponent},
   {path: 'user-form', component: UserFormComponent},
 
   {
