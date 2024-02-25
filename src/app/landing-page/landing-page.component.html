@@ -1,31 +1,41 @@
-<body>
-    <div class="landing-page">
-    <p class="greetings" style="color:white">Welcome to Avida-Track</p>
-      <p class="intro" style="color: white">Avida-Track is a software application designed for Avida Towers New Manila, 
-        aimed at streamlining the processes involved in managing transactions for both owners and tenants. 
-       </p>
-      <a href="/login" class="button" style="position: absolute; top: 10px; right: 10px;">Get Started</a>
-      
-      <div class="image-grid">
-        <div class="image-container">
-          <img src="assets/images/Avidapics/avida1.jpg" alt="Avida 1">
-          <div class="caption">Towers in Avida</div>
-        </div>
-        <div class="image-container">
-          <img src="assets/images/Avidapics/avida2.jpg" alt="Avida 2">
-          <div class="caption">Entrance in Avida</div>
-        </div>
-        <div class="image-container">
-          <img src="assets/images/Avidapics/avida3.jpg" alt="Avida 3">
-          <div class="caption">Initial Lobby Design in Avida</div>
+<div class="body">
+  <div class="position-absolute top-0 end-0 p-3">
+    <p-button pRipple (click)="login('top-right')" label="Get Started"></p-button>
+    <p-dialog header="Sign in to Avida" [(visible)]="visible" [draggable]="false" [resizable]="false" [modal]="true"
+      [dismissableMask]="true">
+      <div class="google-signin-container">
+        <div class="login-container">
+          <div id="google-btn"></div>
         </div>
       </div>
-      
-      
-</div>
-  
+    </p-dialog>
+  </div>
+  <div class="landing-page">
+    <p class="greetings" style="color:white">Welcome to Avida-Track</p>
+    <p class="intro" style="color: white">Avida-Track is a software application designed for Avida Towers New Manila,
+      aimed at streamlining the processes involved in managing transactions for both owners and tenants.
+    </p>
 
-  </body>
+    <!-- <a href="/login" class="button" style="position: absolute; top: 10px; right: 10px;">Get Started</a> -->
+
+    <div class="image-grid">
+      <div class="image-container">
+        <img src="assets/images/Avidapics/avida1.jpg" alt="Avida 1">
+        <div class="caption">Towers in Avida</div>
+      </div>
+      <div class="image-container">
+        <img src="assets/images/Avidapics/avida2.jpg" alt="Avida 2">
+        <div class="caption">Entrance in Avida</div>
+      </div>
+      <div class="image-container">
+        <img src="assets/images/Avidapics/avida3.jpg" alt="Avida 3">
+        <div class="caption">Initial Lobby Design in Avida</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
   <div class="about-section">
     <!-- Social media links -->
     <div class="social-media">
@@ -36,10 +46,13 @@
     <!-- Privacy Policy and Terms of Service -->
     <div class="privacy-policy">
       <h2>About Us</h2>
-      <p>Avida Towers New Manila is a condominium establishment who is wholly-owned subsidiary of Ayala Land Inc. (ALI) </p>
+      <p>Avida Towers New Manila is a condominium establishment who is wholly-owned subsidiary of Ayala Land Inc.
+        (ALI)
+      </p>
       <ul>
-      <li><a href="#">Privacy Policy</a></li>
-      <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
       </ul>
     </div>
   </div>
+</footer>
