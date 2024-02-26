@@ -29,6 +29,7 @@
     "buffer": "^6.0.3",
     "ng-angular-popup": "^0.5.2",
     "ng-apexcharts": "^1.7.6",
+    "primeicons": "^6.0.1",
     "primeng": "^17.8.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

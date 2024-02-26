@@ -12,3 +12,14 @@
 .card-wrapper:hover {
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
+p-button {
+    margin-right: 10px; // Add space between buttons
+    &:hover {
+        transform: scale(1.05); // Make the button slightly larger when hovered
+        transition: transform 0.3s ease-in-out;
+    }
+}
+
+p-dialog-header-close{
+    display: none;
+}
