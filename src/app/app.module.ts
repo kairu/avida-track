@@ -4,7 +4,6 @@ import {
   CommonModule, LocationStrategy,
   PathLocationStrategy
 } from '@angular/common';
-import { NgToastModule } from 'ng-angular-popup';
 import { NgModule, isDevMode } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
@@ -29,6 +28,9 @@ import { AccessControlComponent } from './component/access-control/access-contro
 import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule} from 'primeng/button';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 @NgModule({
   declarations: [
     AppComponent,
@@ -51,10 +53,11 @@ import { ButtonModule} from 'primeng/button';
     FullComponent,
     NavigationComponent,
     SidebarComponent,
-    NgToastModule,
     CardModule,
     DialogModule,
     ButtonModule,
+    ToggleButtonModule,
+    ToastModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable
@@ -69,6 +72,7 @@ import { ButtonModule} from 'primeng/button';
       
     },
     UserDataService,
+    MessageService,
   ],
   bootstrap: [AppComponent]
 })

@@ -24,44 +24,86 @@
         icon="pi pi-wrench"></p-button>
 </div>
 
-
 <div class="container">
-    <div class="row">
+    <div class="row" *ngIf="datas">
         <ng-container *ngFor="let item of pagedItems; index as i">
-            <div class="col-md-4" *ngIf="!filter || item.subtitle === filter">
+            <div class="col-md-4" *ngIf="!filter || capitalizeFirstLetter(item.cms_type) === filter">
                 <div class="card-container">
                     <div class="card-wrapper">
-                        <p-card pRipple (click)="showDialog(item)" subheader={{item.subtitle}}
+                        <p-card pRipple (click)="showDialog(item)" subheader={{capitalizeFirstLetter(item.cms_type)}}
                             [style]="{'background-color': '#f0f0f0'}">
+
                             <ng-template pTemplate="header">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 style="color: #007bff; text-align: center; flex-grow: 1;">{{item.title}}</h2>
                                     <!-- TODO: Use image if available -->
                                     <!-- <img alt="Card" src="https://primefaces.org/cdn/primeng/images/usercard.png" /> -->
-                                    <div *ngIf="isAdmin" (click)="editItem(item, $event)" [style]="{'flex-grow': '0'}">
-                                        <p-button pRipple icon="pi pi-pencil"
-                                            [style]="{'width': '100%', 'height':'100%' ,'z-index': '5'}"></p-button>
-                                    </div>
                                 </div>
                             </ng-template>
-                            <p style="color: #6c757d;">{{item.content}}</p>
+                            <div class="d-flex flex-row-reverse">
+                                {{ item.date_posted}}
+                                {{ item.time_posted | convertFrom24To12Format}}
+                            </div>
+                            <p style="color: #6c757d;">{{item.description}}</p>
                         </p-card>
                     </div>
                 </div>
             </div>
         </ng-container>
     </div>
+    <p-paginator *ngIf="totalRecords > 9" [rows]="9" [totalRecords]="totalRecords"
+        (onPageChange)="paginate($event)"></p-paginator>
 </div>
 
-<p-paginator *ngIf="totalRecords > 9" [rows]="9" [totalRecords]="totalRecords"
-    (onPageChange)="paginate($event)"></p-paginator>
+<p-dialog [(visible)]="display" [style]="{'width': '35vw',}" [breakpoints]="{ '960px': '90vw' }" [modal]="true" [dismissableMask]="true" [draggable]="false"
+    (onHide)="onCloseButton()">
+    <ng-template pTemplate="header">
+        <!-- Edit Title -->
+        <div *ngIf="contentEdit">
+            <span class="p-float-label my-1">
+                <input type="text" id="title" [style]="{'width': '30vw'}" pInputText [(ngModel)]="editTitle" />
+                <label for="title">Title</label>
+            </span>
+        </div>
+        <!-- Title -->
+        <div *ngIf="!contentEdit">
+            <h2 style="color: #007bff;">{{selectedItem?.title}}</h2>
+        </div>
+    </ng-template>
 
+    <!-- Edit Type and Description -->
+    <div *ngIf="contentEdit">
+        <span class="my-1">
+            <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="editCms"
+                placeholder="{{displayCmsType(selectedItem?.cms_type)}}" [required]="true"></p-dropdown>
+        </span>
+        <span class="p-float-label mt-4">
+            <textarea [style]="{'width': '100%'}" rows="5" cols="30" pInputTextarea [autoResize]="true"
+                [(ngModel)]="editDescription"></textarea>
+            <label for="float-label">Description</label>
+        </span>
+    </div>
 
-<p-dialog [(visible)]="display" [style]="{'width': '35vw', 'height': '65vh'}" [modal]="true" [dismissableMask]="true"
-    [draggable]="false">
-    <p-header>
-        <h2 style="color: #007bff;">{{selectedItem?.title}}</h2>
-        <p>{{selectedItem?.subtitle}}</p>
-    </p-header>
-    <p style="color: #6c757d;">{{selectedItem?.content}}</p>
+    <!-- Type, Time and Description -->
+    <div *ngIf="!contentEdit">
+        <p>{{ displayCmsType(selectedItem?.cms_type) }}
+        </p>
+        <div class="d-flex flex-row-reverse">
+            {{ selectedItem?.date_posted}}
+            {{ selectedItem?.time_posted | convertFrom24To12Format }}
+        </div>
+        <div>
+            <p style="color: #6c757d;">{{selectedItem?.description}}</p>
+        </div>
+    </div>
+
+    <!-- Admin Buttons -->
+    <ng-template *ngIf="isAdmin" pTemplate="footer">
+        <div>
+            <p-button *ngIf="!contentEdit" icon="pi pi-pencil" (click)="editItem(selectedItem, $event)"
+                [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
+            <p-button *ngIf="contentEdit" icon="pi pi-check" (click)="updateAll(selectedItem)"
+                [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
+        </div>
+    </ng-template>
 </p-dialog>

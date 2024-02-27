@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { BackendServiceService } from 'src/app/services/backend-service.service';
-import { NgToastService } from 'ng-angular-popup';
+import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-access-control',
   templateUrl: './access-control.component.html',
@@ -9,7 +9,7 @@ import { NgToastService } from 'ng-angular-popup';
 
 export class AccessControlComponent {
   components!: any[];
-  constructor(private backendService: BackendServiceService, private toast: NgToastService) {
+  constructor(private messageService: MessageService, private backendService: BackendServiceService) {
     this.backendService.getAccessControls().subscribe({
       next: (response: any) => {
         this.components = response;
@@ -27,7 +27,7 @@ export class AccessControlComponent {
         // Add notif that the access has been updated.
         // console.log(response);
         // https://www.npmjs.com/package/ng-angular-popup
-        this.toast.success({detail:"SUCCESS",summary:response.message,duration:3000});
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message});
       }
     });
   }

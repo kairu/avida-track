@@ -47,14 +47,6 @@ export class UserFormComponent implements OnInit {
         }
       }
     })
-    
-
-    // if (this.isFirstTimeUser) {
-      // this.initForm();
-      // console.log('First Time User - Show form');
-  //  } else {
-      // console.log('Returning User - No form needed');  
-    // }
   }
 
 

@@ -50,18 +50,27 @@ export class BackendServiceService {
   }
 
   getEmail(): Observable<string | null> {
-    const storedEmail = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
-    return storedEmail; // Return an Observable with the email or null
+    return JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
   }
   
   getUsers(): Observable<any> {
     return this.http.get(`${this.backendUrl}/user`);
   }
-  getUser(user: string): Observable<any> {
+  getUser(user: any): Observable<any> {
     return this.http.get(`${this.backendUrl}/user/${user}`, {headers: this.headers});
   }
 
   getAccessControls(): Observable<any> {
     return this.http.get(`${this.backendUrl}/accesscontrol`);
+  }
+
+  getCMS(): Observable<any> {
+    return this.http.get(`${this.backendUrl}/cms`);
+  }
+
+  updateCMS(cms_id: number, data: any): Observable<any> {
+    return this.http.put(`${this.backendUrl}/cms/${cms_id}`, JSON.stringify(data), {
+      headers: this.headers
+    })
   }
 }

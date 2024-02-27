@@ -1,11 +1,21 @@
 <div class="container">
     <div class="row bg-primary text-white text-center py-2">
         <div class="col-sm"></div>
-        <div class="col-sm"><h2>Super Admin</h2></div>
-        <div class="col-sm"><h2>Admin</h2></div>
-        <div class="col-sm"><h2>Owner</h2></div>
-        <div class="col-sm"><h2>Tenant</h2></div>
-        <div class="col-sm"><h2>Guest</h2></div>
+        <div class="col-sm">
+            <h2>Super Admin</h2>
+        </div>
+        <div class="col-sm">
+            <h2>Admin</h2>
+        </div>
+        <div class="col-sm">
+            <h2>Owner</h2>
+        </div>
+        <div class="col-sm">
+            <h2>Tenant</h2>
+        </div>
+        <div class="col-sm">
+            <h2>Guest</h2>
+        </div>
     </div>
 </div>
 <div class="container" *ngFor="let component of components">
@@ -15,38 +25,28 @@
         </div>
         <!-- Super Admin -->
         <div class="col-sm text-center">
-            <label class="switch">
-                <input type="checkbox" [(ngModel)]="component.super_admin" (ngModelChange)="onChange('super_admin', component.module_name, component.super_admin)">
-                <span class="slider"></span>
-            </label>
+            <p-toggleButton onIcon="pi pi-check" offIcon="pi pi-times" [(ngModel)]="component.super_admin"
+                (ngModelChange)="onChange('super_admin', component.module_name, component.super_admin)"></p-toggleButton>
         </div>
         <!-- Admin  -->
         <div class="col-sm text-center">
-            <label class="switch">
-                <input type="checkbox" [(ngModel)]="component.admin" (ngModelChange)="onChange('admin', component.module_name, component.admin)">
-                <span class="slider"></span>
-            </label>
+            <p-toggleButton onIcon="pi pi-check" offIcon="pi pi-times" [(ngModel)]="component.admin"
+                (ngModelChange)="onChange('admin', component.module_name, component.admin)"></p-toggleButton>
         </div>
         <!-- Owner -->
         <div class="col-sm text-center">
-            <label class="switch">
-                <input type="checkbox" [(ngModel)]="component.owner" (ngModelChange)="onChange('owner', component.module_name, component.owner)">
-                <span class="slider"></span>
-            </label>
+            <p-toggleButton onIcon="pi pi-check" offIcon="pi pi-times" [(ngModel)]="component.owner"
+                (ngModelChange)="onChange('owner', component.module_name, component.owner)"></p-toggleButton>
         </div>
         <!-- Tenant -->
         <div class="col-sm text-center">
-            <label class="switch">
-                <input type="checkbox" [(ngModel)]="component.tenant" (ngModelChange)="onChange('tenant', component.module_name, component.tenant)">
-                <span class="slider"></span>
-            </label>
+            <p-toggleButton onIcon="pi pi-check" offIcon="pi pi-times" [(ngModel)]="component.tenant"
+                (ngModelChange)="onChange('tenant', component.module_name, component.tenant)"></p-toggleButton>
         </div>
         <!-- Guest -->
         <div class="col-sm text-center">
-            <label class="switch">
-                <input type="checkbox" [(ngModel)]="component.guest" (ngModelChange)="onChange('guest', component.module_name, component.guest)">
-                <span class="slider"></span>
-            </label>
+            <p-toggleButton onIcon="pi pi-check" offIcon="pi pi-times" [(ngModel)]="component.guest"
+                (ngModelChange)="onChange('guest', component.module_name, component.guest)"></p-toggleButton>
         </div>
     </div>
 </div>
