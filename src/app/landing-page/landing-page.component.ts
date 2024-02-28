@@ -16,7 +16,6 @@ window.Buffer = window.Buffer || require("buffer").Buffer;
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.scss'
 })
-<<<<<<< HEAD
 export class LandingPageComponent implements OnInit {
   visible: boolean = false;
   position: string = 'center';
@@ -82,9 +81,3 @@ export class LandingPageComponent implements OnInit {
 }
 
 
-=======
-export class LandingPageComponent {
-  
-}
-
->>>>>>> 103901a (Landing Page design done)
