@@ -1,1 +1,21 @@
-<p>my profile component works!</p>
+<form [formGroup]="userDataForm" (ngSubmit)="updateUserData()" class="container mt-4">
+  <div class="form-group" style="margin: 10px;">
+    <label for="first_name" style="margin-right: 10px;">First Name:</label>
+    <input type="text" id="first_name" formControlName="first_name" class="form-control mb-4">
+  </div>
+
+  <div class="form-group" style="margin: 10px;">
+    <label for="last_name" style="margin-right: 10px;">Last Name:</label>
+    <input type="text" id="last_name" formControlName="last_name" class="form-control mb-4">
+  </div>
+  
+  <div class="form-group" style="margin: 10px;">
+    <label for="mobile_number" style="margin-right: 10px;">Mobile Number:</label>
+    <input type="text" id="mobile_number" formControlName="mobile_number" class="form-control mb-4">
+  </div>
+
+<div class="flex justify-content-center" style="text-align: center;">
+  <button pButton pRipple label="Submit" class="p-button-success" style="border-radius: 12px;"></button>
+</div>
+
+</form> 
