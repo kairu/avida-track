@@ -11,6 +11,14 @@ export const ROUTES: RouteInfo[] = [
     submenu: []
   },
   {
+    path: '/component/analytics',
+    title: 'Analytics',
+    icon: 'bi bi-graph-up',
+    class: '',
+    extralink: false,
+    submenu: []
+  },
+  {
     path: '/component/bulletin-board',
     title: 'Bulletin Board',
     icon: 'bi bi-clipboard',

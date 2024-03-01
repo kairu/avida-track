@@ -20,6 +20,7 @@ import { SystemMaintenanceComponent } from './system-maintenance/system-maintena
 import { BulletinBoardComponent } from './bulletin-board/bulletin-board.component';
 import { routeGuard } from '../route-guard.guard';
 import { AboutComponent } from '../about/about.component';
+import { AnalyticsComponent } from './analytics/analytics.component';
 
 export const ComponentsRoutes: Routes = [
 	{
@@ -41,6 +42,11 @@ export const ComponentsRoutes: Routes = [
 			// 	path: 'badges',
 			// 	component: BadgeComponent
 			// },
+			{ // Admin + Tenant + Owner + GUEST
+				path: 'analytics',
+				component: AnalyticsComponent,
+				canActivate: [routeGuard]
+			},
 			{ // Admin + Tenant + Owner + GUEST
 				path: 'bulletin-board',
 				component: BulletinBoardComponent,
