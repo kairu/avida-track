@@ -40,7 +40,6 @@ export class UserFormComponent implements OnInit {
   ngOnInit() {
     this.isFirstTimeUser = !this.userDataService.getUserData();
     const storedUser = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
-    // console.log(storedUser.email || 'User data not found in session storage.');
     this.initForm();
     this.backendService.getUser(storedUser.email).subscribe({
       next: (response: any) => {
@@ -49,8 +48,10 @@ export class UserFormComponent implements OnInit {
           this.ngZone.run(() => {
             this.router.navigate(['dashboard']);
           });
-          return;
+        }else if(Object.keys(storedUser).length === 0){
+          this.router.navigate(['/']);
         }
+        return;
       }
     })
   }
