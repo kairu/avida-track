@@ -1,15 +1,34 @@
 <div *ngIf="isAdmin" class="d-flex flex-row-reverse">
-    <p-button pRipple (click)="addContent()" label="Add Content"></p-button>
-    <p-dialog header="Add a new Content" [(visible)]="visible" [style]="{'width': '35vw', 'height': '70vh'}"
+    <p-button pRipple (click)="visibleContent()" label="Add Content"></p-button>
+    <p-dialog [(visible)]="visible" [style]="{'width': '35vw', 'height': '70vh'}" [breakpoints]="{ '960px': '90vw' }"
         [modal]="true" [dismissableMask]="true">
-        <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-            ea commodo
-            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-            est laborum.
-        </p>
+        <ng-template pTemplate="header">
+            <div>
+                <span class="p-float-label my-1">
+                    <input required="true" type="text" id="title" [style]="{'width': '30vw'}" pInputText [(ngModel)]="addTitle" />
+                    <label for="float-label">Title</label>
+                </span>
+            </div>
+        </ng-template>
+
+        <span class="p-float-label my-1">
+            <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="addCms"
+                placeholder="Content Type" [required]="true"></p-dropdown>
+                <label for="float-label">Content Type</label>
+        </span>
+        <span class="p-float-label mt-4">
+            <textarea required="true" [style]="{'width': '100%', 'height': '100%'}" rows="5" cols="30" pInputTextarea [autoResize]="true"
+                [(ngModel)]="addDescription"></textarea>
+            <label for="float-label">Description</label>
+        </span>
+
+        <ng-template pTemplate="footer">
+            <div>
+                <p-button icon="pi pi-check" (click)="addContent()"
+                    [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
+            </div>
+        </ng-template>
+
     </p-dialog>
 </div>
 
@@ -61,7 +80,7 @@
         <!-- Edit Title -->
         <div *ngIf="contentEdit">
             <span class="p-float-label my-1">
-                <input type="text" id="title" [style]="{'width': '30vw'}" pInputText [(ngModel)]="editTitle" />
+                <input required="true" type="text" id="title" [style]="{'width': '30vw'}" pInputText [(ngModel)]="editTitle" />
                 <label for="title">Title</label>
             </span>
         </div>
@@ -78,7 +97,7 @@
                 placeholder="{{displayCmsType(selectedItem?.cms_type)}}" [required]="true"></p-dropdown>
         </span>
         <span class="p-float-label mt-4">
-            <textarea [style]="{'width': '100%'}" rows="5" cols="30" pInputTextarea [autoResize]="true"
+            <textarea required="true" [style]="{'width': '100%', 'height': '100%'}" rows="5" cols="30" pInputTextarea [autoResize]="true"
                 [(ngModel)]="editDescription"></textarea>
             <label for="float-label">Description</label>
         </span>

@@ -31,8 +31,11 @@ export class BulletinBoardComponent {
   datas: any;
   selectedCmsType: any;
   editTitle!: string;
+  addTitle!: string;
   editCms: any;
+  addCms: any;
   editDescription!: string;
+  addDescription!: string;
   cms_id!: number;
   filter: string = '';
   cmsTypeOptions = [
@@ -65,7 +68,7 @@ export class BulletinBoardComponent {
     this.display = true;
   }
 
-  addContent() {
+  visibleContent() {
     this.visible = true;
   }
 
@@ -103,32 +106,66 @@ export class BulletinBoardComponent {
     this.contentEdit = false
   }
 
-  updateAll(item: any): void {
-    this.contentEdit = false;
+  addContent(): void {
+    if(!this.addTitle || !this.addDescription || !this.addCms) {
+      this.messageService.add({severity: 'error', summary: 'Caution', detail: 'Title, Description or the Content must not be left blank.'})
+      return;
+    }
     let userID: number;
     const email = this.backendservice.getEmail();
-    this.backendservice.getUser(email).subscribe({
+    this.backendservice.getUser(email).subscribe({ 
       next: (response: any) => {
         userID = response.user_id;
         const cmsData = this.backenddata.cmsData(
           userID,
-          this.editTitle,
-          this.editDescription,
-          this.editCms.toUpperCase()
+          this.addTitle,
+          this.addDescription,
+          this.addCms.toUpperCase()
         );
-        this.backendservice.updateCMS(this.cms_id, cmsData).subscribe({
-          next: (response: any) => {
-            this.messageService.add( { severity: 'success', summary: 'Success', detail: response.message});
-            this.getCmsData()
-            this.selectedItem.title = this.editTitle;
-            this.selectedItem.cms_type = this.editCms;
-            this.selectedItem.description = this.editDescription;
-            this.selectedItem.date_posted = response.date_posted;
-            this.selectedItem.time_posted = response.time_posted;
-          }
-        });
+          this.backendservice.addCMS(cmsData).subscribe({
+            next: (response:any) => {
+              this.messageService.add( { 
+                severity: 'success', 
+                summary: 'Success', 
+                detail: response.message
+              });
+              this.getCmsData();
+            }
+          });
       }
     });
-
   }
+
+  updateAll(item: any): void {
+    this.contentEdit = false;
+    const email = this.backendservice.getEmail();
+    this.backendservice.getUser(email).subscribe({
+        next: (response: any) => {
+            const userID = response.user_id;
+            const cmsData = this.backenddata.cmsData(
+                userID,
+                this.editTitle,
+                this.editDescription,
+                this.editCms.toUpperCase()
+            );
+            this.backendservice.updateCMS(this.cms_id, cmsData).subscribe({
+                next: (response: any) => {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: response.message
+                    });
+                    this.getCmsData();
+                    Object.assign(item, {
+                        title: this.editTitle,
+                        cms_type: this.editCms,
+                        description: this.editDescription,
+                        date_posted: response.date_posted,
+                        time_posted: response.time_posted
+                    });
+                }
+            });
+        }
+    });
+}
 }

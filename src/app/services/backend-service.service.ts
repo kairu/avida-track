@@ -69,9 +69,15 @@ export class BackendServiceService {
     return this.http.get(`${this.backendUrl}/cms`);
   }
 
+  addCMS(data: any): Observable<any> {
+    return this.http.post(`${this.backendUrl}/cms`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
+
   updateCMS(cms_id: number, data: any): Observable<any> {
     return this.http.put(`${this.backendUrl}/cms/${cms_id}`, JSON.stringify(data), {
       headers: this.headers
-    })
+    });
   }
 }
