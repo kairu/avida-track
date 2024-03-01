@@ -21,7 +21,7 @@ import { MessageService } from 'primeng/api';
   styleUrl: './bulletin-board.component.scss',
 })
 export class BulletinBoardComponent {
-  isAdmin: boolean = true;
+  isAdmin: boolean = false;
   display: boolean = false;
   visible: boolean = false;
   contentEdit: boolean = false;
@@ -46,6 +46,14 @@ export class BulletinBoardComponent {
   ];
   constructor(private messageService: MessageService, private backenddata: BackendDataService, private backendservice: BackendServiceService, private primengConfig: PrimeNGConfig) { }
   ngOnInit() {
+    const email = this.backendservice.getEmail();
+    this.backendservice.getUser(email).subscribe({
+      next: (response: any) => {
+        if(response.user_type == 'ADMIN' || response.user_type == 'SUPER_ADMIN'){
+          this.isAdmin = true;
+        }
+      }
+    });
     this.primengConfig.ripple = true;
     this.getCmsData()
   }
