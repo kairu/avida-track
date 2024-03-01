@@ -25,7 +25,8 @@
         </div>
         <!-- Super Admin -->
         <div class="col-sm text-center">
-            <p-toggleButton [disabled]="component.module_name === 'Access Control'" onIcon="pi pi-check" offIcon="pi pi-times" [(ngModel)]="component.super_admin"
+            <p-toggleButton [disabled]="component.module_name === 'Access Control'" onIcon="pi pi-check"
+                offIcon="pi pi-times" [(ngModel)]="component.super_admin"
                 (ngModelChange)="onChange('super_admin', component.module_name, component.super_admin)"></p-toggleButton>
         </div>
         <!-- Admin  -->

@@ -31,6 +31,7 @@ import { ButtonModule} from 'primeng/button';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { DropdownModule } from 'primeng/dropdown';
 @NgModule({
   declarations: [
     AppComponent,
@@ -58,6 +59,7 @@ import { MessageService } from 'primeng/api';
     ButtonModule,
     ToggleButtonModule,
     ToastModule,
+    DropdownModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable

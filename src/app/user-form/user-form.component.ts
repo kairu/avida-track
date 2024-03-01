@@ -11,6 +11,11 @@ import { Router } from '@angular/router';
 export class UserFormComponent implements OnInit {
   userForm!: FormGroup;
   isFirstTimeUser!: boolean;
+  userTypeOptions = [
+    { label: 'Owner', value: 'Owner' },
+    { label: 'Tenant', value: 'Tenant' },
+    { label: 'Guest', value: 'Guest' },
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -28,6 +33,7 @@ export class UserFormComponent implements OnInit {
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
       mobile_number: ['', Validators.required],
+      userType: ['', Validators.required]
     });
   }
 
@@ -53,6 +59,7 @@ export class UserFormComponent implements OnInit {
 
   onSubmit() {
     if (this.userForm.valid) {
+      this.userForm.value.userType = this.userForm.value.userType.toUpperCase();
       const userData = this.userForm.value;
       this.backendService.createUser(userData).subscribe({
         next: (response: any) => {

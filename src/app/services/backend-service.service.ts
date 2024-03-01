@@ -31,6 +31,7 @@ export class BackendServiceService {
       rawBody.last_name, 
       rawBody.mobile_number,
       this.getEmail(),
+      rawBody.userType
     );
     return this.http.post(this.backendUrl + '/user', userData, { 
       headers: this.headers 

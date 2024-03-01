@@ -1,33 +1,38 @@
-
-
 <form *ngIf="isFirstTimeUser" [formGroup]="userForm" (ngSubmit)="onSubmit()" class="container mt-4">
-    <img src="assets/images/logos/avidatowersnewmnl2.png" alt="Logo" class="logo mx-auto d-block mb-3"/>
+    <img src="assets/images/logos/avidatowersnewmnl2.png" alt="Logo" class="logo mx-auto d-block mb-3" />
     <div class="mb-3 text-center">
-    <h1 class="text-center">Avida-Track Register Form</h1>
+        <h1 class="text-center">Avida-Track Register Form</h1>
     </div>
     <div class="mb-3">
-    
-    <label for="tower_number" class="fw-bold">Tower Number</label>
-    <input type="text" formControlName="tower_number" class="form-control mb-4" />
 
-    <label for="floor_number" class="fw-bold">Floor Number</label>
-    <input type="text" formControlName="floor_number" class="form-control mb-4" />
-    
-    <label for="unit_number" class="fw-bold">Unit Number</label>
-    <input type="text" formControlName="unit_number" class="form-control mb-4" />
+        <label for="tower_number" class="fw-bold">Tower Number</label>
+        <input type="text" formControlName="tower_number" class="form-control mb-4" />
 
-    <label for="first_name" class="fw-bold">First Name</label>
-    <input type="text" formControlName="first_name" class="form-control mb-4" />
+        <label for="floor_number" class="fw-bold">Floor Number</label>
+        <input type="text" formControlName="floor_number" class="form-control mb-4" />
 
-    <label for="last_name" class="fw-bold">Last Name</label>
-    <input type="text" formControlName="last_name" class="form-control mb-4" />
+        <label for="unit_number" class="fw-bold">Unit Number</label>
+        <input type="text" formControlName="unit_number" class="form-control mb-4" />
 
-    <label for="mobile_number" class="fw-bold">Mobile Number</label>
-    <input type="text" formControlName="mobile_number" class="form-control mb-4" />
+        <label for="first_name" class="fw-bold">First Name</label>
+        <input type="text" formControlName="first_name" class="form-control mb-4" />
+
+        <label for="last_name" class="fw-bold">Last Name</label>
+        <input type="text" formControlName="last_name" class="form-control mb-4" />
+
+        <label for="mobile_number" class="fw-bold">Mobile Number</label>
+        <input type="text" formControlName="mobile_number" class="form-control mb-4" />
+
+        <span class="p-float-label">
+            <p-dropdown [options]="userTypeOptions" formControlName="userType" placeholder="User Type"
+                [required]="true"></p-dropdown>
+            <label for="float-label">User Type</label>
+        </span>
+
     </div>
 
     <div class="text-center">
-    <button type="submit" class="btn btn-rounded btn-success">Submit</button>
+        <button type="submit" class="btn btn-rounded btn-success">Submit</button>
     </div>
 
 </form>
