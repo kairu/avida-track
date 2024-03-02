@@ -53,6 +53,14 @@ export class BackendServiceService {
   getEmail(): Observable<string | null> {
     return JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
   }
+
+  getUnits(): Observable<any> {
+    return this.http.get(`${this.backendUrl}/unit`);
+  }
+
+  getBills(): Observable<any> {
+    return this.http.get(`${this.backendUrl}/bill`);
+  }
   
   getUsers(): Observable<any> {
     return this.http.get(`${this.backendUrl}/user`);
@@ -80,4 +88,6 @@ export class BackendServiceService {
       headers: this.headers
     });
   }
+
+  
 }

@@ -1,1 +1,41 @@
-<p>analytics works!</p>
+<div class="card">
+    <h2 class="text-center">Monthly Revenue</h2>
+    <p-table [value]="monthlyRevenues">
+        <ng-template pTemplate="header">
+          <tr>
+            <th *ngFor="let column of monthlyRevenues[0] | keys">{{ column }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData>
+          <tr>
+            <td *ngFor="let column of monthlyRevenues[0] | keys">
+              <!-- Apply the custom pipe to the avgFloorNumber -->
+              <span *ngIf="column === 'Tower Number'">{{ rowData[column]}}</span>
+              <!-- Other columns without formatting -->
+              <span *ngIf="column !== 'Tower Number'" [ngClass]="{'negative-revenue': column === 'Revenue' && rowData[column] < 0}">{{ rowData[column] | decimalFormat}}</span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+</div>
+
+<div class="card">
+    <h2 class="text-center">Overall Data</h2>
+<p-table [value]="groupedData">
+    <ng-template pTemplate="header">
+      <tr>
+        <th *ngFor="let column of groupedData[0] | keys">{{ column }}</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData>
+      <tr>
+        <td *ngFor="let column of groupedData[0] | keys">
+          <!-- Apply the custom pipe to the avgFloorNumber -->
+          <span *ngIf="column === 'Tower Number'">{{ rowData[column]}}</span>
+          <!-- Other columns without formatting -->
+          <span *ngIf="column !== 'Tower Number'" [ngClass]="{'negative-revenue': column === 'Revenue' && rowData[column] < 0}">{{ rowData[column] | decimalFormat}}</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
