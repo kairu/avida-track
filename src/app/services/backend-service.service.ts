@@ -7,9 +7,11 @@ import { BackendDataService } from './backend-data.service';
   providedIn: 'root'
 })
 export class BackendServiceService {
+ 
   // Temporary
   private backendUrl = 'http://127.0.0.1:5000';
   updateUser: any;
+  
 
   constructor(private http: HttpClient, private backendData: BackendDataService) {}
 
@@ -22,7 +24,7 @@ export class BackendServiceService {
   updateAccessControls(data: any): Observable<any>{
     return this.http.put(`${this.backendUrl}/accesscontrol`, JSON.stringify(data), {
       headers: this.headers
-    })
+    });
   }
 
   createUser(user: any): Observable<any> {
@@ -60,8 +62,6 @@ export class BackendServiceService {
   
     return this.http.put(`${this.backendUrl}/user/${email}`, updatedUserData, { headers: this.headers });
   }
-  
-
 
   getEmail(): Observable<string | null> {
     return of(JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email);
@@ -70,6 +70,7 @@ export class BackendServiceService {
   getUsers(): Observable<any> {
     return this.http.get(`${this.backendUrl}/user`);
   }
+
   getUser(user: any): Observable<any> {
     return this.http.get(`${this.backendUrl}/user/${user}`, {headers: this.headers});
   }
@@ -85,8 +86,11 @@ export class BackendServiceService {
   updateCMS(cms_id: number, data: any): Observable<any> {
     return this.http.put(`${this.backendUrl}/cms/${cms_id}`, JSON.stringify(data), {
       headers: this.headers
-    })
+    });
+  }
+
+  getBills(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.backendUrl}/bill`);
   }
 }
-
 

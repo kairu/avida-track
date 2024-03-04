@@ -70,11 +70,9 @@ export class MyProfileComponent implements OnInit {
   
     this.backendService.updateUserData(userData).subscribe({
       next: (data: any) => {
-        console.log('User data updated successfully:', data);
         this.showSuccess(); 
       },
       error: (error: any) => {
-        console.error('Error updating user data:', error);
         this.showError(); 
       }
     });
