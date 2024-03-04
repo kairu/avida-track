@@ -5,11 +5,13 @@ import { TagModule } from 'primeng/tag';
 import { CommonModule } from '@angular/common';
 import { KeysPipe } from 'src/app/pipe/keys.pipe';
 import { DecimalFormatPipe } from 'src/app/pipe/decimal-format.pipe';
+import { ChartModule } from 'primeng/chart';
+
 
 @Component({
   selector: 'app-analytics',
   standalone: true,
-  imports: [TableModule, TagModule, CommonModule, KeysPipe, DecimalFormatPipe],
+  imports: [ChartModule, TableModule, TagModule, CommonModule, KeysPipe, DecimalFormatPipe],
   templateUrl: './analytics.component.html',
   styleUrl: './analytics.component.scss'
 })
@@ -30,6 +32,7 @@ export class AnalyticsComponent {
             this.billDatas = response;
             this.groupData();
             this.calculateMonthlyRevenue();
+
           }
         });
       }

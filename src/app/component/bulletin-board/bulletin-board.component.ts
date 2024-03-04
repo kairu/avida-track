@@ -44,18 +44,24 @@ export class BulletinBoardComponent {
     { label: 'Event', value: 'Event' },
     { label: 'Maintenance', value: 'Maintenance' },
   ];
-  constructor(private messageService: MessageService, private backenddata: BackendDataService, private backendservice: BackendServiceService, private primengConfig: PrimeNGConfig) { }
+  constructor(private messageService: MessageService, private backenddata: BackendDataService, private backendservice: BackendServiceService, private primengConfig: PrimeNGConfig) { this.checkisAdmin(); }
   ngOnInit() {
+    
+    this.primengConfig.ripple = true;
+    this.getCmsData()
+  }
+
+  checkisAdmin(){
     const email = this.backendservice.getEmail();
     this.backendservice.getUser(email).subscribe({
       next: (response: any) => {
         if(response.user_type == 'ADMIN' || response.user_type == 'SUPER_ADMIN'){
           this.isAdmin = true;
+          return true;
         }
+        return false;
       }
     });
-    this.primengConfig.ripple = true;
-    this.getCmsData()
   }
 
   getCmsData(): void {

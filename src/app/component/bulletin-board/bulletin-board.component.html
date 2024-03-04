@@ -76,6 +76,7 @@
 
 <p-dialog [(visible)]="display" [style]="{'width': '35vw',}" [breakpoints]="{ '960px': '90vw' }" [modal]="true" [dismissableMask]="true" [draggable]="false"
     (onHide)="onCloseButton()">
+    
     <ng-template pTemplate="header">
         <!-- Edit Title -->
         <div *ngIf="contentEdit">
@@ -117,12 +118,14 @@
     </div>
 
     <!-- Admin Buttons -->
-    <ng-template *ngIf="isAdmin" pTemplate="footer">
-        <div>
+    <ng-template pTemplate="footer">
+        <div *ngIf="isAdmin">
             <p-button *ngIf="!contentEdit" icon="pi pi-pencil" (click)="editItem(selectedItem, $event)"
                 [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
             <p-button *ngIf="contentEdit" icon="pi pi-check" (click)="updateAll(selectedItem)"
                 [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
         </div>
     </ng-template>
+
+    
 </p-dialog>
