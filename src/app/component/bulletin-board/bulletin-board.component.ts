@@ -46,16 +46,16 @@ export class BulletinBoardComponent {
   ];
   constructor(private messageService: MessageService, private backenddata: BackendDataService, private backendservice: BackendServiceService, private primengConfig: PrimeNGConfig) { this.checkisAdmin(); }
   ngOnInit() {
-    
+
     this.primengConfig.ripple = true;
     this.getCmsData()
   }
 
-  checkisAdmin(){
+  checkisAdmin() {
     const email = this.backendservice.getEmail();
     this.backendservice.getUser(email).subscribe({
       next: (response: any) => {
-        if(response.user_type == 'ADMIN' || response.user_type == 'SUPER_ADMIN'){
+        if (response.user_type == 'ADMIN' || response.user_type == 'SUPER_ADMIN') {
           this.isAdmin = true;
           return true;
         }
@@ -121,13 +121,13 @@ export class BulletinBoardComponent {
   }
 
   addContent(): void {
-    if(!this.addTitle || !this.addDescription || !this.addCms) {
-      this.messageService.add({severity: 'error', summary: 'Caution', detail: 'Title, Description or the Content must not be left blank.'})
+    if (!this.addTitle || !this.addDescription || !this.addCms) {
+      this.messageService.add({ severity: 'error', summary: 'Caution', detail: 'Title, Description or the Content must not be left blank.' })
       return;
     }
     let userID: number;
     const email = this.backendservice.getEmail();
-    this.backendservice.getUser(email).subscribe({ 
+    this.backendservice.getUser(email).subscribe({
       next: (response: any) => {
         userID = response.user_id;
         const cmsData = this.backenddata.cmsData(
@@ -136,16 +136,16 @@ export class BulletinBoardComponent {
           this.addDescription,
           this.addCms.toUpperCase()
         );
-          this.backendservice.addCMS(cmsData).subscribe({
-            next: (response:any) => {
-              this.messageService.add( { 
-                severity: 'success', 
-                summary: 'Success', 
-                detail: response.message
-              });
-              this.getCmsData();
-            }
-          });
+        this.backendservice.addCMS(cmsData).subscribe({
+          next: (response: any) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: response.message
+            });
+            this.getCmsData();
+          }
+        });
       }
     });
   }
@@ -154,32 +154,32 @@ export class BulletinBoardComponent {
     this.contentEdit = false;
     const email = this.backendservice.getEmail();
     this.backendservice.getUser(email).subscribe({
-        next: (response: any) => {
-            const userID = response.user_id;
-            const cmsData = this.backenddata.cmsData(
-                userID,
-                this.editTitle,
-                this.editDescription,
-                this.editCms.toUpperCase()
-            );
-            this.backendservice.updateCMS(this.cms_id, cmsData).subscribe({
-                next: (response: any) => {
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: response.message
-                    });
-                    this.getCmsData();
-                    Object.assign(item, {
-                        title: this.editTitle,
-                        cms_type: this.editCms,
-                        description: this.editDescription,
-                        date_posted: response.date_posted,
-                        time_posted: response.time_posted
-                    });
-                }
+      next: (response: any) => {
+        const userID = response.user_id;
+        const cmsData = this.backenddata.cmsData(
+          userID,
+          this.editTitle,
+          this.editDescription,
+          this.editCms.toUpperCase()
+        );
+        this.backendservice.updateCMS(this.cms_id, cmsData).subscribe({
+          next: (response: any) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: response.message
             });
-        }
+            this.getCmsData();
+            Object.assign(item, {
+              title: this.editTitle,
+              cms_type: this.editCms,
+              description: this.editDescription,
+              date_posted: response.date_posted,
+              time_posted: response.time_posted
+            });
+          }
+        });
+      }
     });
-}
+  }
 }

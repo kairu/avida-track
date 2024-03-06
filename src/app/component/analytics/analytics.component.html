@@ -30,10 +30,11 @@
     <ng-template pTemplate="body" let-rowData>
       <tr>
         <td *ngFor="let column of groupedData[0] | keys">
-          <!-- Apply the custom pipe to the avgFloorNumber -->
-          <span *ngIf="column === 'Tower Number'">{{ rowData[column]}}</span>
-          <!-- Other columns without formatting -->
+          <!-- Apply the pipe for number format -->
           <span *ngIf="column !== 'Tower Number'" [ngClass]="{'negative-revenue': column === 'Revenue' && rowData[column] < 0}">{{ rowData[column] | decimalFormat}}</span>
+          <!-- Other columns without formatting -->
+          <span *ngIf="column === 'Tower Number'">{{ rowData[column]}}</span>
+          
         </td>
       </tr>
     </ng-template>

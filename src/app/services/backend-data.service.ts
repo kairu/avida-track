@@ -133,13 +133,14 @@ export class BackendDataService {
     return data;
   }
 
-  userData(first_name: string, last_name: string, mobile_number: string, email?: any, user_type?: USER){
+  userData(first_name: string, last_name: string, mobile_number: string, email?: any, user_type?: USER, is_validated?: boolean){
     const data = {
       first_name: first_name,
       last_name: last_name,
       mobile_number: mobile_number,
       email: email || null,
       user_type: user_type || USER.GUEST,
+      is_validated: is_validated || false,
     };
 
     return data;

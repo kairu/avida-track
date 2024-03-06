@@ -6,6 +6,8 @@ import { CommonModule } from '@angular/common';
 import { KeysPipe } from 'src/app/pipe/keys.pipe';
 import { DecimalFormatPipe } from 'src/app/pipe/decimal-format.pipe';
 import { ChartModule } from 'primeng/chart';
+import { of, switchMap } from 'rxjs';
+import { Chart } from 'chart.js';
 
 
 @Component({
@@ -24,19 +26,18 @@ export class AnalyticsComponent {
   constructor(private backendservice: BackendServiceService) { }
   
   ngOnInit() {
-    this.backendservice.getUnits().subscribe({
-      next: (response: any) => {
+    this.backendservice.getUnits().pipe(
+      switchMap((response: any) => {
         this.datas = response;
-        this.backendservice.getBills().subscribe({
-          next: (response: any) => {
-            this.billDatas = response;
-            this.groupData();
-            this.calculateMonthlyRevenue();
-
-          }
-        });
-      }
-    });
+        return this.backendservice.getBills();
+      }),
+      switchMap((response: any) => {
+        this.billDatas = response;
+        this.groupData();
+        this.calculateMonthlyRevenue();
+        return of(null); // Return a dummy observable to complete the chain
+      })
+    ).subscribe();
   }
 
   calculateMonthlyRevenue(): void {

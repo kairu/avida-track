@@ -89,5 +89,17 @@ export class BackendServiceService {
     });
   }
 
+  updateUnit(unit_id: number, data: any): Observable<any> {
+    return this.http.put(`${this.backendUrl}/unit/${unit_id}`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
+
+  updateUser(email: string, data: any): Observable<any> {
+    return this.http.put(`${this.backendUrl}/user/${email}`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
+
   
 }
