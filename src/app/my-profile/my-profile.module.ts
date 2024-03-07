@@ -2,8 +2,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Routes, RouterModule } from '@angular/router';
-
+import { ButtonModule } from 'primeng/button';
 import { MyProfileComponent } from './my-profile.component';
+
 const routes: Routes = [
   {
     path: "",
@@ -17,10 +18,11 @@ const routes: Routes = [
 
 
 @NgModule({
-  declarations: [],
+  declarations: [MyProfileComponent],
   imports: [
     CommonModule,
     FormsModule,
+    ButtonModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
   ],
