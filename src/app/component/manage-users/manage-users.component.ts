@@ -94,14 +94,6 @@ export class ManageUsersComponent {
                 let type = user.user_type.toLowerCase();
                 return type !== 'super_admin';
               })
-
-              // Filter users to only those assigned to a unit
-              .filter((user: {
-                user_id: any;
-              }) => {
-                return unitsResponse.filter((unit: { user_id: any }) => unit.user_id === user.user_id);
-              })
-
               // Map user and unit data into table rows
               .flatMap((user: {
                 user_id: any;
