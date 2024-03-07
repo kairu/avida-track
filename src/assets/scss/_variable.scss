@@ -12,8 +12,8 @@ $themecolor-alt: #26c6da;
 $theme-light: #fff;
 $theme-dark: #212529;
 
-$skin1: #e3b448;
-$skin6: #e3b448;
+$skin1: #cb4154;
+$skin6: #cb4154;
 
 // 
 // Topbar settings
@@ -106,7 +106,7 @@ $colors: (
 $primary: $primary!default;
 $secondary: $gray-600 !default;
 $success: $green !default;
-$info: $blue !default;
+$info: #F2F3F5 !default;
 $warning: $yellow !default;
 $danger: $red !default;
 $light: $gray-100 !default;
@@ -156,8 +156,8 @@ $enable-negative-margins: true;
 // Body
 // 
 $grid-gutter-width: 30px !default;
-$main-body-bg: #e3b448 !default;
-$body-bg: #cbd18f;
+$main-body-bg: #cb4154 !default;
+$body-bg: #F2F3F5;
 $body-color: #54667a !default;
 
 // 
