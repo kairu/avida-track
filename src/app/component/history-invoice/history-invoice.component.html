@@ -1,1 +1,26 @@
-<p>history-invoice works!</p>
+<div class="card">
+  <p-table [value]="bills" [tableStyle]="{ 'min-width': '50rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Bill Status</th>
+        <th>Total Amount</th>
+        <th>Billing date</th>
+        <th>Due Date</th>
+        <th>Next Billing</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-bill of bills>
+      <tr>
+        <td>{{ bill.status }}</td>
+        <td>{{ bill.total_amount }}</td>
+        <td>{{ bill.month }}</td>
+        <td>{{ bill.due_date }}</td>
+        <td>{{ getNextBillingDate(bill.month, bill.year) }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <div *ngIf="bills.length == 0">
+    <p>No bills available.</p>
+  </div>
+</div>
