@@ -86,10 +86,20 @@
             </ng-template>
           </p-cellEditor>
 
-          <!-- Mobile Number & Unit -->
-          <p-cellEditor *ngIf="column == 'Mobile Number' || column == 'Unit'">
+          <!-- Mobile Number -->
+          <p-cellEditor *ngIf="column == 'Mobile Number'">
             <ng-template pTemplate="input">
-              <input pInputText type="text" [(ngModel)]="rowData[column]"/>
+                <p-inputMask mask="0999-999-9999" [(ngModel)]="rowData[column]"></p-inputMask>
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{rowData[column]}}
+            </ng-template>
+          </p-cellEditor>
+
+          <!-- Unit -->
+          <p-cellEditor *ngIf="column == 'Unit'">
+            <ng-template pTemplate="input">
+              <p-inputMask mask="Tower 9: 9-99" [(ngModel)]="rowData[column]"></p-inputMask>
             </ng-template>
             <ng-template pTemplate="output">
               {{rowData[column]}}
