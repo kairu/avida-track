@@ -70,12 +70,15 @@ export class BackendDataService {
     return data;
   }
 
-  cmsData(user_id: number, title: string, description: string, cms_type: CMS_ENUM){
+  cmsData(user_id: number, title: string, description: string, cms_type: CMS_ENUM, date_to_post: Date, date_to_end: Date, archive?: boolean){
     const data = {
       user_id: user_id,
       title: title,
       description: description,
-      cms_type: cms_type
+      cms_type: cms_type,
+      date_to_post: date_to_post,
+      date_to_end: date_to_end || null,
+      archive: archive || false
     };
 
     return data;

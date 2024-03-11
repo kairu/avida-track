@@ -12,14 +12,18 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { BackendDataService } from 'src/app/services/backend-data.service';
 import { MessageService } from 'primeng/api';
+import { CalendarModule } from 'primeng/calendar';
+
 
 @Component({
   selector: 'app-bulletin-board',
   standalone: true,
-  imports: [InputTextareaModule, InputTextModule, CardModule, DialogModule, CommonModule, ButtonModule, RippleModule, PaginatorModule, TimeFormatPipe],
+  imports: [CalendarModule, InputTextareaModule, InputTextModule, CardModule, DialogModule, CommonModule, ButtonModule, RippleModule, PaginatorModule, TimeFormatPipe],
   templateUrl: './bulletin-board.component.html',
   styleUrl: './bulletin-board.component.scss',
 })
+
+// TODO Add image upload.
 export class BulletinBoardComponent {
   isAdmin: boolean = false;
   display: boolean = false;
@@ -36,6 +40,10 @@ export class BulletinBoardComponent {
   addCms: any;
   editDescription!: string;
   addDescription!: string;
+  addStartDate!: any;
+  editStartDate!: any;
+  addEndDate!: any;
+  editEndDate!: any;
   cms_id!: number;
   filter: string = '';
   cmsTypeOptions = [
@@ -67,9 +75,17 @@ export class BulletinBoardComponent {
   getCmsData(): void {
     this.backendservice.getCMS().subscribe({
       next: (response: any) => {
-        this.datas = response.filter((data: { cms_type: string; }) => {
+        this.datas = response.filter((data: {
+          time_to_end: null;
+          date_to_end: null;
+          time_to_post: null;
+          date_to_post: null; cms_type: string;
+        }) => {
           let type = data.cms_type.toLowerCase();
-          return type !== 'complaint' && type !== 'feedback' && type !== 'reservation';
+          return type !== 'complaint' && type !== 'feedback' && type !== 'reservation' &&
+            (data.date_to_post !== null &&
+              (data.date_to_end !== null || data.date_to_end === null)
+            );
         });
         this.datas.reverse();
         this.paginate({ first: 0, rows: 9 });
@@ -95,9 +111,20 @@ export class BulletinBoardComponent {
   }
 
   paginate(event: any) {
+    let currentDate = new Date().toLocaleDateString('en-CA');
     let startIndex = event.first;
     let endIndex = startIndex + event.rows;
-    let filteredItems = this.filter ? this.datas.filter((data: { cms_type: string; }) => this.capitalizeFirstLetter(data.cms_type) === this.filter) : this.datas;
+    let filteredItems = this.filter === 'Archived' ?
+      this.datas.filter((data: { archive: boolean; }) => data.archive) :
+      this.filter === 'Announcement' || this.filter === 'News' || this.filter === 'Event' || this.filter === 'Maintenance' ?
+        this.datas.filter((data: { archive: boolean; cms_type: string; date_to_post: string; }) => this.capitalizeFirstLetter(data.cms_type) === this.filter && !data.archive && data.date_to_post <= currentDate) :
+        this.filter === 'Future' ?
+          this.datas.filter((data: {
+            date_to_post: string; archive: boolean;
+          }) => !data.archive && data.date_to_post > currentDate) :
+          this.datas.filter((data: {
+            date_to_post: string; archive: boolean;
+          }) => !data.archive && data.date_to_post <= currentDate);
     this.totalRecords = filteredItems.length;
     this.pagedItems = filteredItems.slice(startIndex, endIndex);
   }
@@ -114,17 +141,21 @@ export class BulletinBoardComponent {
     this.editCms = this.displayCmsType(this.selectedItem.cms_type);
     this.editTitle = this.selectedItem.title;
     this.editDescription = this.selectedItem.description;
+    this.editStartDate = this.selectedItem.date_to_post;
+    this.editEndDate = this.selectedItem.date_to_end;
   }
 
   onCloseButton() {
     this.contentEdit = false
   }
 
+
   addContent(): void {
-    if (!this.addTitle || !this.addDescription || !this.addCms) {
-      this.messageService.add({ severity: 'error', summary: 'Caution', detail: 'Title, Description or the Content must not be left blank.' })
+    if (!this.addTitle || !this.addDescription || !this.addCms || !this.addStartDate) {
+      this.messageService.add({ severity: 'error', summary: 'Caution', detail: 'Title, Start Date, Description or the Content must not be left blank.' })
       return;
     }
+
     let userID: number;
     const email = this.backendservice.getEmail();
     this.backendservice.getUser(email).subscribe({
@@ -134,7 +165,9 @@ export class BulletinBoardComponent {
           userID,
           this.addTitle,
           this.addDescription,
-          this.addCms.toUpperCase()
+          this.addCms.toUpperCase(),
+          this.convertDate(new Date(this.addStartDate)),
+          !this.addEndDate ? null : this.addEndDate = this.convertDate(new Date(this.addEndDate))
         );
         this.backendservice.addCMS(cmsData).subscribe({
           next: (response: any) => {
@@ -148,6 +181,7 @@ export class BulletinBoardComponent {
         });
       }
     });
+    this.visible = false;
   }
 
   updateAll(item: any): void {
@@ -160,7 +194,9 @@ export class BulletinBoardComponent {
           userID,
           this.editTitle,
           this.editDescription,
-          this.editCms.toUpperCase()
+          this.editCms.toUpperCase(),
+          this.convertDate(new Date(this.editStartDate)),
+          !this.editEndDate ? null : this.editEndDate = this.convertDate(new Date(this.editEndDate))
         );
         this.backendservice.updateCMS(this.cms_id, cmsData).subscribe({
           next: (response: any) => {
@@ -175,11 +211,17 @@ export class BulletinBoardComponent {
               cms_type: this.editCms,
               description: this.editDescription,
               date_posted: response.date_posted,
-              time_posted: response.time_posted
+              time_posted: response.time_posted,
+              date_to_start: this.editStartDate,
+              date_to_end: this.editEndDate
             });
           }
         });
       }
     });
+  }
+
+  convertDate(date: any) {
+    return date.toLocaleDateString('en-CA');
   }
 }

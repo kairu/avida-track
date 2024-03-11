@@ -1,26 +1,45 @@
+<!-- Add Content -->
 <div *ngIf="isAdmin" class="d-flex flex-row-reverse">
     <p-button pRipple (click)="visibleContent()" label="Add Content"></p-button>
-    <p-dialog [(visible)]="visible" [style]="{'width': '35vw', 'height': '70vh'}" [breakpoints]="{ '960px': '90vw' }"
-        [modal]="true" [dismissableMask]="true">
+    <p-dialog [(visible)]="visible" [style]="{'width': '45vw', 'height': '100vh'}" [breakpoints]="{ '960px': '90vw' }"
+        [modal]="true" [dismissableMask]="true" [draggable]="false">
         <ng-template pTemplate="header">
             <div>
                 <span class="p-float-label my-1">
-                    <input required="true" type="text" id="title" [style]="{'width': '30vw'}" pInputText [(ngModel)]="addTitle" />
+                    <input required="true" type="text" id="title" [style]="{'width': '30vw'}" pInputText
+                        [(ngModel)]="addTitle" />
                     <label for="float-label">Title</label>
                 </span>
             </div>
         </ng-template>
 
-        <span class="p-float-label my-1">
-            <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="addCms"
-                placeholder="Content Type" [required]="true"></p-dropdown>
-                <label for="float-label">Content Type</label>
-        </span>
-        <span class="p-float-label mt-4">
-            <textarea required="true" [style]="{'width': '100%', 'height': '100%'}" rows="5" cols="30" pInputTextarea [autoResize]="true"
-                [(ngModel)]="addDescription"></textarea>
-            <label for="float-label">Description</label>
-        </span>
+        <ng-template pTemplate="body">
+            <div class="mt-4">
+                <span class="p-float-label">
+                    <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="addCms" placeholder="Content Type"
+                        [required]="true"></p-dropdown>
+                    <label for="float-label">Content Type</label>
+                </span>
+                <span class="p-float-label my-4">
+                    <p-calendar [(ngModel)]="addStartDate" [showTime]="false" [showSeconds]="false"
+                        [showButtonBar]="true" dateFormat="yy-mm-dd" [style]="{'width':'100%'}"
+                        [inputStyle]="{'width':'100%'}" [readonlyInput]="true" [iconDisplay]="'input'"
+                        [showIcon]="true"></p-calendar>
+                    <label for="float-label">Date to Post</label>
+                </span>
+                <span class="p-float-label my-4">
+                    <p-calendar [(ngModel)]="addEndDate" [showButtonBar]="true" dateFormat="yy-mm-dd"
+                        [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" [readonlyInput]="true"
+                        [iconDisplay]="'input'" [showIcon]="true"></p-calendar>
+                    <label for="float-label">Date to End (Can leave as blank to be posted permanently)</label>
+                </span>
+                <span class="p-float-label mt-4">
+                    <textarea required="true" [style]="{'width': '100%', 'height': '100%'}" rows="5" cols="30"
+                        pInputTextarea [autoResize]="true" [(ngModel)]="addDescription"></textarea>
+                    <label for="float-label">Description</label>
+                </span>
+            </div>
+        </ng-template>
 
         <ng-template pTemplate="footer">
             <div>
@@ -32,6 +51,7 @@
     </p-dialog>
 </div>
 
+<!-- Scope Filters -->
 <div class="container">
     <p-button label="Show All" (click)="setFilter('')" [raised]="true" [rounded]="true" icon="pi pi-bars"></p-button>
     <p-button label="Announcements" (click)="setFilter('Announcement')" [raised]="true" [rounded]="true"
@@ -41,12 +61,18 @@
         icon="pi pi-calendar"></p-button>
     <p-button label="Maintenance" (click)="setFilter('Maintenance')" [raised]="true" [rounded]="true"
         icon="pi pi-wrench"></p-button>
+    <p-button *ngIf="isAdmin" label="Archived" (click)="setFilter('Archived')" [raised]="true" [rounded]="true"
+        icon="pi pi-history"></p-button>
+    <p-button *ngIf="isAdmin" label="To be posted" (click)="setFilter('Future')" [raised]="true" [rounded]="true"
+        icon="pi pi-eye"></p-button>
 </div>
 
+<!-- Content -->
 <div class="container">
     <div class="row" *ngIf="datas">
         <ng-container *ngFor="let item of pagedItems; index as i">
-            <div class="col-md-4" *ngIf="!filter || capitalizeFirstLetter(item.cms_type) === filter">
+            <!-- *ngIf="!filter || capitalizeFirstLetter(item.cms_type) === filter" -->
+            <div class="col-md-4">
                 <div class="card-container">
                     <div class="card-wrapper">
                         <p-card pRipple (click)="showDialog(item)" subheader={{capitalizeFirstLetter(item.cms_type)}}
@@ -60,8 +86,8 @@
                                 </div>
                             </ng-template>
                             <div class="d-flex flex-row-reverse">
-                                {{ item.date_posted}}
-                                {{ item.time_posted | convertFrom24To12Format}}
+                                {{ item.date_to_post}} {{ item.date_to_end ? "- " + item.date_to_end : ""}}
+                                <!-- {{ item.time_to_post | convertFrom24To12Format}} -->
                             </div>
                             <p style="color: #6c757d;">{{item.description}}</p>
                         </p-card>
@@ -74,14 +100,15 @@
         (onPageChange)="paginate($event)"></p-paginator>
 </div>
 
-<p-dialog [(visible)]="display" [style]="{'width': '35vw',}" [breakpoints]="{ '960px': '90vw' }" [modal]="true" [dismissableMask]="true" [draggable]="false"
-    (onHide)="onCloseButton()">
-    
+<!-- Clicked Content -->
+<p-dialog [(visible)]="display" [style]="{'width': '35vw',}" [breakpoints]="{ '960px': '90vw' }" [modal]="true"
+    [dismissableMask]="true" [draggable]="false" (onHide)="onCloseButton()">
     <ng-template pTemplate="header">
         <!-- Edit Title -->
         <div *ngIf="contentEdit">
             <span class="p-float-label my-1">
-                <input required="true" type="text" id="title" [style]="{'width': '30vw'}" pInputText [(ngModel)]="editTitle" />
+                <input required="true" type="text" id="title" [style]="{'width': '30vw'}" pInputText
+                    [(ngModel)]="editTitle" />
                 <label for="title">Title</label>
             </span>
         </div>
@@ -91,41 +118,57 @@
         </div>
     </ng-template>
 
-    <!-- Edit Type and Description -->
-    <div *ngIf="contentEdit">
-        <span class="my-1">
-            <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="editCms"
-                placeholder="{{displayCmsType(selectedItem?.cms_type)}}" [required]="true"></p-dropdown>
-        </span>
-        <span class="p-float-label mt-4">
-            <textarea required="true" [style]="{'width': '100%', 'height': '100%'}" rows="5" cols="30" pInputTextarea [autoResize]="true"
-                [(ngModel)]="editDescription"></textarea>
-            <label for="float-label">Description</label>
-        </span>
-    </div>
+    <ng-template pTemplate="body">
+        <!-- Edit Type and Description -->
+        <div *ngIf="contentEdit" class="mt-4">
+            <span class="my-1">
+                <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="editCms"
+                    placeholder="{{displayCmsType(selectedItem?.cms_type)}}" [required]="true"></p-dropdown>
+            </span>
 
-    <!-- Type, Time and Description -->
-    <div *ngIf="!contentEdit">
-        <p>{{ displayCmsType(selectedItem?.cms_type) }}
-        </p>
-        <div class="d-flex flex-row-reverse">
-            {{ selectedItem?.date_posted}}
-            {{ selectedItem?.time_posted | convertFrom24To12Format }}
+            <span class="p-float-label my-4">
+                <p-calendar [(ngModel)]="editStartDate" [showButtonBar]="true" dateFormat="yy-mm-dd"
+                    [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" [readonlyInput]="true"
+                    [iconDisplay]="'input'" [showIcon]="true"></p-calendar>
+                <label for="float-label">Date to Post</label>
+            </span>
+            <span class="p-float-label my-4">
+                <p-calendar [(ngModel)]="editEndDate" [showButtonBar]="true" dateFormat="yy-mm-dd"
+                    [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" [readonlyInput]="true"
+                    [iconDisplay]="'input'" [showIcon]="true"></p-calendar>
+                <label for="float-label">Date to End (Can leave as blank to be posted permanently)</label>
+            </span>
+
+            <span class="p-float-label mt-4">
+                <textarea required="true" [style]="{'width': '100%', 'height': '100%'}" rows="5" cols="30"
+                    pInputTextarea [autoResize]="true" [(ngModel)]="editDescription"></textarea>
+                <label for="float-label">Description</label>
+            </span>
         </div>
-        <div>
-            <p style="color: #6c757d;">{{selectedItem?.description}}</p>
+
+        <!-- Type, Time and Description -->
+        <div *ngIf="!contentEdit">
+            <p>{{ displayCmsType(selectedItem?.cms_type) }}
+            </p>
+            <div class="d-flex flex-row-reverse">
+                {{ selectedItem?.date_to_post}} {{ selectedItem?.date_to_end ? "- " + selectedItem?.date_to_end : ""}}
+                <!-- {{ selectedItem?.time_to_post | convertFrom24To12Format }} -->
+            </div>
+            <div>
+                <p style="color: #6c757d;">{{selectedItem?.description}}</p>
+            </div>
         </div>
-    </div>
+    </ng-template>
 
     <!-- Admin Buttons -->
     <ng-template pTemplate="footer">
         <div *ngIf="isAdmin">
-            <p-button *ngIf="!contentEdit" icon="pi pi-pencil" (click)="editItem(selectedItem, $event)"
-                [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
-            <p-button *ngIf="contentEdit" icon="pi pi-check" (click)="updateAll(selectedItem)"
-                [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
+            <div *ngIf="filter != 'Archived'">
+                <p-button *ngIf="!contentEdit" icon="pi pi-pencil" (click)="editItem(selectedItem, $event)"
+                    [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
+                <p-button *ngIf="contentEdit" icon="pi pi-check" (click)="updateAll(selectedItem)"
+                    [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
+            </div>
         </div>
     </ng-template>
-
-    
 </p-dialog>
