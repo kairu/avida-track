@@ -9,10 +9,14 @@
     (onEditComplete)="onCellEditComplete($event)">
 
     <ng-template pTemplate="caption">
-      <div class="d-flex flex-row justify-content-between">
-        <div class="col-9">
+      <div class="d-flex flex-row row justify-content-between">
+        <div class="col-7">
           <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1);">
           </p-button>
+        </div>
+
+        <div class="col-2">
+          <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true" (click)="refreshTable()"></p-button>
         </div>
 
         <div class="col">
@@ -27,7 +31,6 @@
 
     <ng-template pTemplate="header">
       <tr>
-        <!-- <th *ngFor="let column of datas?.slice()[0] | keys">{{ column }}</th> -->
         <th *ngFor="let column of datas?.slice()[0] | keys">
           {{ column != 'unit_id' ? column : '' }}
         </th>
@@ -59,7 +62,7 @@
           <p-cellEditor *ngIf="column == 'User Type'">
             <ng-template pTemplate="input">
               <p-dropdown [options]="userTypeOptions" optionLabel="name" [(ngModel)]="rowData[column]"
-                [placeholder]="rowData[column]"></p-dropdown>
+                [placeholder]="rowData[column]" pTooltip="Use first row of the name to change"></p-dropdown>
             </ng-template>         
             <ng-template pTemplate="output">
               <p-tag *ngIf="rowData[column] && rowData[column].name" [value]="rowData[column].name"

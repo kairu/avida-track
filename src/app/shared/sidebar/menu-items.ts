@@ -83,9 +83,9 @@ export const ROUTES: RouteInfo[] = [
     submenu: []
   },
   {
-    path: '/component/maintenance',
-    title: 'Maintenance',
-    icon: 'bi bi-hammer',
+    path: '/component/reports',
+    title: 'Reports',
+    icon: 'bi bi-flag',
     class: '',
     extralink: false,
     submenu: []

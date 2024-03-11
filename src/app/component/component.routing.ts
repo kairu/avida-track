@@ -15,7 +15,7 @@ import { HistoryInvoiceComponent } from './history-invoice/history-invoice.compo
 import { ValidationComponent } from './validation/validation.component';
 import { FeedbackComplaintComponent } from './feedback-complaint/feedback-complaint.component';
 import { EventsReservationComponent } from './events-reservation/events-reservation.component';
-import { MaintenanceComponent } from './maintenance/maintenance.component';
+import { ReportsComponent } from './reports/reports.component';
 import { SystemMaintenanceComponent } from './system-maintenance/system-maintenance.component';
 import { BulletinBoardComponent } from './bulletin-board/bulletin-board.component';
 import { routeGuard } from '../route-guard.guard';
@@ -88,8 +88,8 @@ export const ComponentsRoutes: Routes = [
 				canActivate: [routeGuard]
 			},
 			{ // Owner + Tenant
-				path: 'maintenance',
-				component: MaintenanceComponent,
+				path: 'reports',
+				component: ReportsComponent,
 				canActivate: [routeGuard]
 			},
 			{ // Super Admin

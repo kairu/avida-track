@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { Table, TableModule } from 'primeng/table';
 import { BackendServiceService } from 'src/app/services/backend-service.service';
 import { CommonModule } from '@angular/common';
@@ -11,13 +11,14 @@ import { TagModule } from 'primeng/tag';
 import { DropdownModule } from 'primeng/dropdown';
 import { MessageService } from 'primeng/api';
 import { BackendDataService } from 'src/app/services/backend-data.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-manage-users',
   standalone: true,
   templateUrl: './manage-users.component.html',
   styleUrls: ['./manage-users.component.scss'],
-  imports: [DropdownModule, TagModule, InputTextModule, ButtonModule, PaginatorModule, FormsModule, TableModule, CommonModule, KeysPipe]
+  imports: [TooltipModule, DropdownModule, TagModule, InputTextModule, ButtonModule, PaginatorModule, FormsModule, TableModule, CommonModule, KeysPipe]
 })
 /**
  * Component for managing users in the application.
@@ -149,75 +150,107 @@ export class ManageUsersComponent {
         return 'danger';
     }
   }
+
+  refreshTable() {
+    this.loadUsers();
+    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Table has been updated!' });
+  }
+
   clonedCellData: any;
 
   onCellEditInit(rowData: any) {
     this.clonedCellData = { ...rowData };
   }
 
-  onCellEditCancel(rowData: any) {
+  onCellEditCancel(rowData: any) { 
     this.datas.find((data: { [x: string]: any; }) => data['User ID'] === this.clonedCellData.index)[this.clonedCellData.field] = this.clonedCellData.data;
     delete this.clonedCellData;
   }
 
-
   onCellEditComplete(rowData: any) {
-    if (rowData.field == 'User ID' || rowData.field == 'Full Name' || rowData.field == 'Balance') { return }
-    if (rowData.data == "") {
-      this.onCellEditCancel(rowData);
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please enter a value' });
+    if (this.shouldSkipCellEdit(rowData)) {
+      return;
+    }
+  
+    if (rowData.data === "") {
+      this.handleEmptyCellData(rowData);
     } else {
-      delete this.clonedCellData;
-      // Save the edited cell onto the backend
-      if (rowData.field == 'Unit') {
-        const str = rowData.data;
-        const towerNumber = str.slice(0, str.indexOf(':')).replace('Tower ', '');
-        const floorAndUnit = str.slice(str.indexOf(':') + 1).trim();
-        const floor = floorAndUnit.split('-')[0];
-        const unit = floorAndUnit.split('-')[1];
-        const unitId = this.datas.find((u: { [x: string]: any; }) => u['Unit'] === rowData.data && u['User ID'] === rowData.index).unit_id;
-        const unitData = this.backenddata.unitData(rowData.index, towerNumber, floor, unit);
-        this.backendservice.updateUnit(unitId, unitData).subscribe({
+      this.processCellEdit(rowData);
+    }
+  }
+  
+  private shouldSkipCellEdit(rowData: any): boolean {
+    const editableFields = ['User ID', 'Full Name', 'Balance'];
+    return editableFields.includes(rowData.field);
+  }
+  
+  private handleEmptyCellData(rowData: any): void {
+    this.onCellEditCancel(rowData);
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please enter a value' });
+  }
+  
+  private processCellEdit(rowData: any): void {
+    delete this.clonedCellData;
+  
+    if (rowData.field === 'Unit') {
+      this.processUnitCellEdit(rowData);
+    } else {
+      this.processUserCellEdit(rowData);
+    }
+  }
+  
+  private processUnitCellEdit(rowData: any): void {
+    const unitId = this.datas.find((u: any) => u['Unit'] === rowData.data && u['User ID'] === rowData.index).unit_id;
+    const { towerNumber, floor, unit } = this.extractUnitDetails(rowData.data);
+    const unitData = this.backenddata.unitData(rowData.index, towerNumber, floor, unit);
+  
+    this.backendservice.updateUnit(unitId, unitData).subscribe({
+      next: (response: any) => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+      }
+    });
+  }
+  
+  private extractUnitDetails(unitString: string): { towerNumber: any, floor: any, unit: any } {
+    const str = unitString;
+    const towerNumber = str.slice(0, str.indexOf(':')).replace('Tower ', '');
+    const floorAndUnit = str.slice(str.indexOf(':') + 1).trim();
+    const floor = floorAndUnit.split('-')[0];
+    const unit = floorAndUnit.split('-')[1];
+  
+    return { towerNumber, floor, unit };
+  }
+  
+  private processUserCellEdit(rowData: any): void {
+    const fullName = this.datas.find((u: any) => u['User ID'] === rowData.index)['Full Name'];
+    const [last_name, first_name] = fullName.split(', ');
+    const user = this.datas.find((u: any) => u['User ID'] === rowData.index);
+  
+    const user_type = user['User Type'].code || user['User Type'].toUpperCase();
+    const is_validated = user['Validated'].code || user['Validated'] === 'Yes';
+  
+    this.backendservice.getUsers().subscribe({
+      next: (response: any) => {
+        const email = response.find((u: any) => u['user_id'] === rowData.index).email;
+        const mobileNumber = rowData.field === 'Mobile Number' ? rowData.data : user['Mobile Number'];
+  
+        const data = this.backenddata.userData(
+          first_name,
+          last_name,
+          mobileNumber,
+          email,
+          user_type,
+          is_validated,
+        );
+  
+        this.backendservice.updateUser(email, data).subscribe({
           next: (response: any) => {
-            this.loadUsers();
             this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
           }
         });
-      } else {
-        // update user
-        const fullName = this.datas.find((u: { [x: string]: any; }) => u['User ID'] === rowData.index)['Full Name'];
-        const [last_name, first_name] = fullName.split(', ');
-        let user_type: any;
-        let is_validated: any;
-        const user = this.datas.find((u: { [x: string]: any; }) => u['User ID'] === rowData.index);
-       
-        user_type = user['User Type'].code || user['User Type'].toUpperCase();
-        is_validated = user['Validated'].code || user['Validated'] === 'Yes';
-
-        // Get email via rowData.index
-        this.backendservice.getUsers().subscribe({
-          next: (response: any) => {
-            const email = response.find((u: { [x: string]: any; }) => u['user_id'] === rowData.index).email;
-            const data = this.backenddata.userData(
-              first_name,
-              last_name,
-              rowData.field == 'Mobile Number' ? rowData.data : this.datas.find((u: { [x: string]: any; }) => u['User ID'] === rowData.index)['Mobile Number'],
-              email,
-              user_type,
-              is_validated,
-            );
-            this.backendservice.updateUser(email, data).subscribe({
-              next: (response: any) => {
-                this.loadUsers();
-                this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
-              }
-            });
-          }
-        });
       }
-
-    }
-
+    });
   }
+  
 }
 

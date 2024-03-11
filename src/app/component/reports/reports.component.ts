@@ -4,9 +4,9 @@ import { Component } from '@angular/core';
   selector: 'app-maintenance',
   standalone: true,
   imports: [],
-  templateUrl: './maintenance.component.html',
-  styleUrl: './maintenance.component.scss'
+  templateUrl: './reports.component.html',
+  styleUrl: './reports.component.scss'
 })
-export class MaintenanceComponent {
+export class ReportsComponent {
 
 }
