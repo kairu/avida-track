@@ -5,25 +5,32 @@
     </div>
     <div class="mb-3">
 
-        <label for="tower_number" class="fw-bold">Tower Number</label>
-        <input type="text" formControlName="tower_number" class="form-control mb-4" />
+        <div class="mb-3">
+        <label for="tower_number" class="fw-bold">Tower Number: </label><br>
+        <p-dropdown [options]="towerOptions" formControlName="tower_number" placeholder="Select Tower"></p-dropdown>
+        </div>
 
-        <label for="floor_number" class="fw-bold">Floor Number</label>
-        <input type="text" formControlName="floor_number" class="form-control mb-4" />
+        <label for="floor_number" class="fw-bold">Floor Number</label> 
+        <br>
+        <input type="text" pInputText formControlName="floor_number" class="mb-4 container"/>
+        <br>
 
-        <label for="unit_number" class="fw-bold">Unit Number</label>
-        <input type="text" formControlName="unit_number" class="form-control mb-4" />
+        <label for="unit_number" class="fw-bold">Unit Number</label><br>
+        <input type="text" pInputText formControlName="unit_number" class="mb-4 container"/>
+        <br>
 
-        <label for="first_name" class="fw-bold">First Name</label>
-        <input type="text" formControlName="first_name" class="form-control mb-4" />
+        <label for="first_name" class="fw-bold">First Name</label><br>
+        <input type="text" pInputText formControlName="first_name" class="mb-4 container"/>
+        <br>
 
-        <label for="last_name" class="fw-bold">Last Name</label>
-        <input type="text" formControlName="last_name" class="form-control mb-4" />
+        <label for="last_name" class="fw-bold">Last Name</label><br>
+        <input type="text" pInputText formControlName="last_name" class="mb-4 container"/>
+        <br>
 
-        <label for="mobile_number" class="fw-bold">Mobile Number</label>
-        <input type="text" formControlName="mobile_number" class="form-control mb-4" />
+        <label for="mobile_number" class="fw-bold" >Mobile Number</label> <br>
+        <p-inputMask mask="0999-999-9999" formControlName="mobile_number" placeholder="99-999999"></p-inputMask>
 
-        <span class="p-float-label">
+        <span class="p-float-label mt-4">
             <p-dropdown [options]="userTypeOptions" formControlName="userType" placeholder="User Type"
                 [required]="true"></p-dropdown>
             <label for="float-label">User Type</label>

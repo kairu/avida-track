@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 import { BackendDataService } from './backend-data.service';
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -62,8 +64,19 @@ export class BackendServiceService {
     return this.http.put(`${this.backendUrl}/user/${email}`, updatedUserData, { headers: this.headers });
   }
 
+  updateUserData(userData: any): Observable<any> {
+    const email = userData.email; // Extract email from userData
+    const updatedUserData = {
+      first_name: userData.first_name,
+      last_name: userData.last_name,
+      mobile_number: userData.mobile_number
+    };
+  
+    return this.http.put(`${this.backendUrl}/user/${email}`, updatedUserData, { headers: this.headers });
+  }
+
   getEmail(): Observable<string | null> {
-    return JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
+    return of(JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email);
   }
 
   getUnits(): Observable<any> {
@@ -79,7 +92,18 @@ export class BackendServiceService {
   }
 
   getUser(user: any): Observable<any> {
-    return this.http.get(`${this.backendUrl}/user/${user}`, {headers: this.headers});
+    const url = `${this.backendUrl}/user/${user}`;
+    console.log('Fetching user data from:', url);
+  
+    // Log headers
+    console.log('Request headers:', this.headers);
+  
+    return this.http.get(url, { headers: this.headers });
+  }
+  
+  
+  getLease(): Observable<any> {
+    return this.http.get(`${this.backendUrl}/lease`);
   }
 
   getAccessControls(): Observable<any> {

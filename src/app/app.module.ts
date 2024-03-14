@@ -33,13 +33,17 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
-
+import { AboutComponent } from './about/about.component';
+import { InputMaskModule } from 'primeng/inputmask';
+import { InputTextModule } from 'primeng/inputtext';
+import { MyProfileComponent } from './my-profile/my-profile.component';
 @NgModule({
   declarations: [
     AppComponent,
     SpinnerComponent,
     UserFormComponent,
     AccessControlComponent,
+    AboutComponent
   ],
   imports: [
     CommonModule,
@@ -54,10 +58,13 @@ import { TableModule } from 'primeng/table';
     NavigationComponent,
     SidebarComponent,
     CardModule,
+    InputTextModule,
     DialogModule,
+    InputMaskModule,
     ButtonModule,
     ToggleButtonModule,
     ToastModule,
+    TableModule,
     DropdownModule,
     TableModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
