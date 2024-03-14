@@ -2,10 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BackendServiceService } from '../services/backend-service.service';
 import { MessageService } from 'primeng/api';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BackendServiceService } from '../services/backend-service.service';
-import { MessageService } from 'primeng/api';
+
 
 @Component({
   selector: 'app-my-profile',

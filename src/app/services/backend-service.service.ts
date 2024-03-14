@@ -64,16 +64,6 @@ export class BackendServiceService {
     return this.http.put(`${this.backendUrl}/user/${email}`, updatedUserData, { headers: this.headers });
   }
 
-  updateUserData(userData: any): Observable<any> {
-    const email = userData.email; // Extract email from userData
-    const updatedUserData = {
-      first_name: userData.first_name,
-      last_name: userData.last_name,
-      mobile_number: userData.mobile_number
-    };
-  
-    return this.http.put(`${this.backendUrl}/user/${email}`, updatedUserData, { headers: this.headers });
-  }
 
   getEmail(): Observable<string | null> {
     return of(JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email);

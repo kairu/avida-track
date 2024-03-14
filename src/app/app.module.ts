@@ -43,7 +43,6 @@ import { MyProfileComponent } from './my-profile/my-profile.component';
     SpinnerComponent,
     UserFormComponent,
     AccessControlComponent,
-    AboutComponent
   ],
   imports: [
     CommonModule,
@@ -64,7 +63,6 @@ import { MyProfileComponent } from './my-profile/my-profile.component';
     ButtonModule,
     ToggleButtonModule,
     ToastModule,
-    TableModule,
     DropdownModule,
     TableModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
