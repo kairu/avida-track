@@ -66,7 +66,7 @@ export class BackendServiceService {
 
 
   getEmail(): Observable<string | null> {
-    return JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
+    return of(JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email);
   }
 
   getUnits(): Observable<any> {

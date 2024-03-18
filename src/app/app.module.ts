@@ -43,7 +43,6 @@ import { MyProfileComponent } from './my-profile/my-profile.component';
     SpinnerComponent,
     UserFormComponent,
     AccessControlComponent,
-    AboutComponent
   ],
   imports: [
     CommonModule,
