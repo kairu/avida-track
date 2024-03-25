@@ -13,6 +13,7 @@ import { MessageService } from 'primeng/api';
 import { BackendDataService } from 'src/app/services/backend-data.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { InputMaskModule } from 'primeng/inputmask';
+import { SeverityService } from 'src/app/services/severity.service';
 
 @Component({
   selector: 'app-manage-users',
@@ -32,7 +33,7 @@ import { InputMaskModule } from 'primeng/inputmask';
 
 export class ManageUsersComponent {
 
-  constructor(private backendservice: BackendServiceService, private messageService: MessageService, private backenddata: BackendDataService) { }
+  constructor(public severity: SeverityService, private backendservice: BackendServiceService, private messageService: MessageService, private backenddata: BackendDataService) { }
   datas: any;
   unitDatas: any;
   rows = 10;
@@ -73,7 +74,7 @@ export class ManageUsersComponent {
     parking_slot
     remaining_balance
   */
-  ngOnInit(): void {
+  ngOnInit() {
     this.loadUsers();
   }
 
@@ -135,21 +136,6 @@ export class ManageUsersComponent {
 
   clear(table: Table) {
     table.clear();
-  }
-
-  getSeverity(status: string) {
-    switch (status) {
-      case 'Admin':
-        return 'primary';
-      case 'Owner':
-      case 'Tenant':
-      case 'Yes':
-        return 'success';
-      case 'Guest':
-      case 'No':
-      default:
-        return 'danger';
-    }
   }
 
   refreshTable() {

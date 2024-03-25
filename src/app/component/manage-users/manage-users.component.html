@@ -1,25 +1,25 @@
-<div class="card">
+<div class="container-fluid">
   <h2 class="text-center">Manage Users</h2>
-  <p-table [breakpoint]="'960px'" [tableStyle]="{'mind-width': '50rem'}" [paginator]="datas?.length > rows"
+  <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [paginator]="datas?.length > rows"
     [rows]="rows" [value]="datas?.slice()" #dt1 dataKey="id"
     [globalFilterFields]="['Full Name', 'Mobile Number', 'Unit', 'Balance', 'User Type', 'Validated']"
     styleClass="p-datatable-striped" 
     (onEditInit)="onCellEditInit($event)" 
     (onEditCancel)="onCellEditCancel($event)"
-    (onEditComplete)="onCellEditComplete($event)">
+    (onEditComplete)="onCellEditComplete($event)"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
     <ng-template pTemplate="caption">
-      <div class="d-flex flex-row row justify-content-between">
-        <div class="col-7">
-          <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1);">
-          </p-button>
-        </div>
-
-        <div class="col-2">
+      <div class="d-flex justify-content-between">
+        <div>
           <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true" (click)="refreshTable()"></p-button>
         </div>
 
-        <div class="col">
+        <div>
+          <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1);">
+          </p-button>
           <span class="p-input-icon-left ml-auto">
             <i class="pi pi-search"></i>
             <input pInputText type="text" (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
@@ -34,8 +34,6 @@
         <th *ngFor="let column of datas?.slice()[0] | keys">
           {{ column != 'unit_id' ? column : '' }}
         </th>
-
-
       </tr>
     </ng-template>
 
@@ -66,9 +64,9 @@
             </ng-template>         
             <ng-template pTemplate="output">
               <p-tag *ngIf="rowData[column] && rowData[column].name" [value]="rowData[column].name"
-                [severity]="getSeverity(rowData[column].name)"></p-tag>
+                [severity]="severity.getSeverity(rowData[column].name)"></p-tag>
               <p-tag *ngIf="rowData[column] && !rowData[column].name" [value]="rowData[column]"
-                [severity]="getSeverity(rowData[column])"></p-tag>
+                [severity]="severity.getSeverity(rowData[column])"></p-tag>
             </ng-template>
           </p-cellEditor>
           
@@ -80,9 +78,9 @@
             </ng-template>         
             <ng-template pTemplate="output">
               <p-tag *ngIf="rowData[column] && rowData[column].name" [value]="rowData[column].name"
-                [severity]="getSeverity(rowData[column].name)"></p-tag>
+                [severity]="severity.getSeverity(rowData[column].name)"></p-tag>
               <p-tag *ngIf="rowData[column] && !rowData[column].name" [value]="rowData[column]"
-                [severity]="getSeverity(rowData[column])"></p-tag>
+                [severity]="severity.getSeverity(rowData[column])"></p-tag>
             </ng-template>
           </p-cellEditor>
 
