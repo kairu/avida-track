@@ -1,6 +1,6 @@
 <!-- Add Content -->
-<div *ngIf="isAdmin" class="d-flex flex-row-reverse">
-    <p-button pRipple (click)="visibleContent()" label="Add Content"></p-button>
+<div *ngIf="isAdmin" class="d-flex flex-row-reverse mb-4">
+    <p-button pRipple (click)="visibleContent()" icon="pi pi-plus" label="Add Content"></p-button>
     <p-dialog [(visible)]="visible" [style]="{'width': '45vw', 'height': '100vh'}" [breakpoints]="{ '960px': '90vw' }"
         [modal]="true" [dismissableMask]="true" [draggable]="false">
         <ng-template pTemplate="header">
@@ -14,24 +14,38 @@
         </ng-template>
 
         <ng-template pTemplate="body">
-            <div class="mt-4">
-                <span class="p-float-label">
-                    <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="addCms" placeholder="Content Type"
-                        [required]="true"></p-dropdown>
-                    <label for="float-label">Content Type</label>
-                </span>
+            <div class="mt-2">
+                <div class="d-flex flex-row">
+                    <span class="p-float-label">
+                        <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="addCms" placeholder="Content Type"
+                            [required]="true"></p-dropdown>
+                        <label for="float-label">Content Type</label>
+                    </span>
+                    <!-- File Upload -->
+                    <p-fileUpload #fileUpload [auto]="true" [customUpload]="true" class="ms-3"
+                        (uploadHandler)="storeImageData($event)" mode="basic"
+                        [chooseLabel]="fileName ? fileName : 'Add Image'" accept="image/*" [maxFileSize]="1000000"
+                        invalidFileTypeMessageDetail="Allowed file types: jpg, jpeg, png, gif, bmp">
+                    </p-fileUpload>
+                    <p-button *ngIf="fileName" class="ms-3" icon="pi pi-times" [rounded]="true" [text]="true"
+                        severity="danger" (onClick)="clearFile()"></p-button>
+                </div>
+
+                <div class="d-flex justify-content-center my-3" *ngIf="imageSrc">
+                    <p-image [src]="imageSrc"></p-image>
+                </div>
+
                 <span class="p-float-label my-4">
-                    <p-calendar [(ngModel)]="addStartDate" [showTime]="false" [showSeconds]="false"
-                        [showButtonBar]="true" dateFormat="yy-mm-dd" [style]="{'width':'100%'}"
-                        [inputStyle]="{'width':'100%'}" [readonlyInput]="true" [iconDisplay]="'input'"
-                        [showIcon]="true"></p-calendar>
+                    <p-calendar [(ngModel)]="addStartDate" [showTime]="false" [showSeconds]="false" [touchUI]="true"
+                        appendTo="body" [showButtonBar]="true" dateFormat="yy-mm-dd" [readonlyInput]="true"
+                        [iconDisplay]="'input'" [showIcon]="true" [minDate]="addStartDate"></p-calendar>
                     <label for="float-label">Date to Post</label>
                 </span>
                 <span class="p-float-label my-4">
-                    <p-calendar [(ngModel)]="addEndDate" [showButtonBar]="true" dateFormat="yy-mm-dd"
-                        [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" [readonlyInput]="true"
-                        [iconDisplay]="'input'" [showIcon]="true"></p-calendar>
-                    <label for="float-label">Date to End (Can leave as blank to be posted permanently)</label>
+                    <p-calendar pTooltip="Can leave as blank to be posted permanently" [(ngModel)]="addEndDate"
+                        [showButtonBar]="true" dateFormat="yy-mm-dd" [touchUI]="true" appendTo="body"
+                        [readonlyInput]="true" [iconDisplay]="'input'" [showIcon]="true" [minDate]="addStartDate"></p-calendar>
+                    <label for="float-label">Date to End</label>
                 </span>
                 <span class="p-float-label mt-4">
                     <textarea required="true" [style]="{'width': '100%', 'height': '100%'}" rows="5" cols="30"
@@ -52,7 +66,7 @@
 </div>
 
 <!-- Scope Filters -->
-<div class="container">
+<div class="container-fluid my-3">
     <p-button label="Show All" (click)="setFilter('')" [raised]="true" [rounded]="true" icon="pi pi-bars"></p-button>
     <p-button label="Announcements" (click)="setFilter('Announcement')" [raised]="true" [rounded]="true"
         icon="pi pi-check"></p-button>
@@ -75,21 +89,26 @@
             <div class="col-md-4">
                 <div class="card-container">
                     <div class="card-wrapper">
-                        <p-card pRipple (click)="showDialog(item)" subheader={{capitalizeFirstLetter(item.cms_type)}}
-                            [style]="{'background-color': '#f0f0f0'}">
-
+                        <p-card pRipple (click)="showDialog(item)" [style]="{'background-color': '#f0f0f0'}">
                             <ng-template pTemplate="header">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h2 style="color: #007bff; text-align: center; flex-grow: 1;">{{item.title}}</h2>
-                                    <!-- TODO: Use image if available -->
-                                    <!-- <img alt="Card" src="https://primefaces.org/cdn/primeng/images/usercard.png" /> -->
                                 </div>
                             </ng-template>
-                            <div class="d-flex flex-row-reverse">
-                                {{ item.date_to_post}} {{ item.date_to_end ? "- " + item.date_to_end : ""}}
+                            <!-- <p style="color: #6c757d;">{{item.description}}</p> -->
+                            <!-- Image -->
+                            <div class="text-center mb-2">
+                                <p-image [src]="item.image_path" alt="Image"></p-image>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    {{capitalizeFirstLetter(item.cms_type)}}
+                                </div>
+                                <div>
+                                    {{ item.date_to_post}} {{ item.date_to_end ? "- " + item.date_to_end : ""}}
+                                </div>
                                 <!-- {{ item.time_to_post | convertFrom24To12Format}} -->
                             </div>
-                            <p style="color: #6c757d;">{{item.description}}</p>
                         </p-card>
                     </div>
                 </div>
@@ -101,7 +120,7 @@
 </div>
 
 <!-- Clicked Content -->
-<p-dialog [(visible)]="display" [style]="{'width': '35vw',}" [breakpoints]="{ '960px': '90vw' }" [modal]="true"
+<p-dialog [(visible)]="display" [style]="{'width': '45vw'}" [breakpoints]="{ '960px': '90vw' }" [modal]="true"
     [dismissableMask]="true" [draggable]="false" (onHide)="onCloseButton()">
     <ng-template pTemplate="header">
         <!-- Edit Title -->
@@ -120,23 +139,34 @@
 
     <ng-template pTemplate="body">
         <!-- Edit Type and Description -->
-        <div *ngIf="contentEdit" class="mt-4">
-            <span class="my-1">
-                <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="editCms"
-                    placeholder="{{displayCmsType(selectedItem?.cms_type)}}" [required]="true"></p-dropdown>
+        <div *ngIf="contentEdit" class="mt-2">
+            <div class="my-2 d-flex flex-row">
+                <span>
+                    <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="editCms"
+                        placeholder="{{displayCmsType(selectedItem?.cms_type)}}" [required]="true"></p-dropdown>
+                </span>
+            </div>
+
+            <span class="d-flex justify-content-center">
+                <p-image pTooltip="Click to change Image" (click)="replaceImageUpload()" [src]="imageSrc ? imageSrc : selectedItem.image_path" alt="Image">
+                </p-image>
+                <p-fileUpload #replaceImage hidden [auto]="true" [customUpload]="true" class="ms-3"
+                    (uploadHandler)="storeImageData($event)" mode="basic" accept="image/*" [maxFileSize]="1000000"
+                    invalidFileTypeMessageDetail="Allowed file types: jpg, jpeg, png, gif, bmp">
+                </p-fileUpload>
             </span>
 
             <span class="p-float-label my-4">
-                <p-calendar [(ngModel)]="editStartDate" [showButtonBar]="true" dateFormat="yy-mm-dd"
-                    [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" [readonlyInput]="true"
-                    [iconDisplay]="'input'" [showIcon]="true"></p-calendar>
+                <p-calendar [(ngModel)]="editStartDate" [showButtonBar]="true" dateFormat="yy-mm-dd" [touchUI]="true"
+                    appendTo="body" [readonlyInput]="true"
+                    [iconDisplay]="'input'" [showIcon]="true" [minDate]="addStartDate"></p-calendar>
                 <label for="float-label">Date to Post</label>
             </span>
             <span class="p-float-label my-4">
-                <p-calendar [(ngModel)]="editEndDate" [showButtonBar]="true" dateFormat="yy-mm-dd"
-                    [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" [readonlyInput]="true"
-                    [iconDisplay]="'input'" [showIcon]="true"></p-calendar>
-                <label for="float-label">Date to End (Can leave as blank to be posted permanently)</label>
+                <p-calendar pTooltip="Can leave as blank to be posted permanently" [(ngModel)]="editEndDate" [showButtonBar]="true" dateFormat="yy-mm-dd" [touchUI]="true"
+                    appendTo="body" [readonlyInput]="true"
+                    [iconDisplay]="'input'" [showIcon]="true" [minDate]="addStartDate"></p-calendar>
+                <label for="float-label">Date to End</label>
             </span>
 
             <span class="p-float-label mt-4">
@@ -153,6 +183,10 @@
             <div class="d-flex flex-row-reverse">
                 {{ selectedItem?.date_to_post}} {{ selectedItem?.date_to_end ? "- " + selectedItem?.date_to_end : ""}}
                 <!-- {{ selectedItem?.time_to_post | convertFrom24To12Format }} -->
+            </div>
+            <!-- Image -->
+            <div class="text-center mb-5">
+                <p-image [src]="selectedItem.image_path" alt="Image"></p-image>
             </div>
             <div>
                 <p style="color: #6c757d;">{{selectedItem?.description}}</p>

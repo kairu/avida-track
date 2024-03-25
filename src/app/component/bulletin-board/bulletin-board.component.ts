@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
 import { CommonModule } from '@angular/common';
@@ -13,17 +13,28 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { BackendDataService } from 'src/app/services/backend-data.service';
 import { MessageService } from 'primeng/api';
 import { CalendarModule } from 'primeng/calendar';
-
+import { DomSanitizer } from '@angular/platform-browser';
+import { ImageModule } from 'primeng/image';
+import { FileUploadModule } from 'primeng/fileupload';
+import { TooltipModule } from 'primeng/tooltip';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-bulletin-board',
   standalone: true,
-  imports: [CalendarModule, InputTextareaModule, InputTextModule, CardModule, DialogModule, CommonModule, ButtonModule, RippleModule, PaginatorModule, TimeFormatPipe],
+  imports: [TooltipModule, FileUploadModule, ImageModule, CalendarModule, InputTextareaModule, InputTextModule, CardModule, DialogModule, CommonModule, ButtonModule, RippleModule, PaginatorModule, TimeFormatPipe],
   templateUrl: './bulletin-board.component.html',
   styleUrl: './bulletin-board.component.scss',
 })
 
-// TODO Add image upload.
+/**
+ * BulletinBoardComponent handles displaying CMS content like announcements, 
+ * news, events, and maintenance notices on the bulletin board page.
+ *
+ * It fetches the CMS data from the backend, handles pagination, filtering,
+ * and rendering of the content. Admin users can also add, edit, archive CMS
+ * content.
+ */
 export class BulletinBoardComponent {
   isAdmin: boolean = false;
   display: boolean = false;
@@ -52,12 +63,60 @@ export class BulletinBoardComponent {
     { label: 'Event', value: 'Event' },
     { label: 'Maintenance', value: 'Maintenance' },
   ];
-  constructor(private messageService: MessageService, private backenddata: BackendDataService, private backendservice: BackendServiceService, private primengConfig: PrimeNGConfig) { this.checkisAdmin(); }
+  constructor(private sanitizer: DomSanitizer, private messageService: MessageService, private backenddata: BackendDataService, private backendservice: BackendServiceService, private primengConfig: PrimeNGConfig) { this.checkisAdmin(); }
   ngOnInit() {
-
     this.primengConfig.ripple = true;
-    this.getCmsData()
+    this.getCmsData();
+    this.setStartDateToday();
   }
+
+  uploadedFile: any;
+  fileName: string | undefined;
+  imageSrc: any;
+  storeImageData(event: any) {
+    this.uploadedFile = event.files[0];
+    this.fileName = this.uploadedFile.name;
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.imageSrc = e.target.result;
+    }
+    reader.readAsDataURL(event.files[0]);
+  }
+
+  @ViewChild('fileUpload',) fileUpload: any;
+  clearFile() {
+    this.fileUpload.clear()
+    this.uploadedFile = undefined;
+    this.fileName = undefined;
+    this.imageSrc = undefined;
+  }
+
+  @ViewChild('replaceImage', { static: false }) replaceImage!: any;
+  replaceImageUpload() {
+    if (this.replaceImage) {
+      if (this.replaceImage.files[0]) {
+        this.uploadedFile = undefined;
+        this.imageSrc = undefined;
+        this.replaceImage.clear()
+      } else {
+        this.replaceImage.basicFileInput.nativeElement.click();
+      }
+    }
+  }
+
+  onCloseButton() {
+    this.contentEdit = false
+    this.uploadedFile = undefined;
+    this.fileName = undefined;
+    this.imageSrc = undefined;
+  }
+
+  setStartDateToday() {
+    let today = new Date();
+    this.addStartDate = today;
+  }
+
 
   checkisAdmin() {
     const email = this.backendservice.getEmail();
@@ -68,6 +127,19 @@ export class BulletinBoardComponent {
           return true;
         }
         return false;
+      }
+    });
+  }
+
+  processImage() {
+    this.datas.forEach((data: { image_path: any; }) => {
+      if (data.image_path) {
+        this.backendservice.getImage(data.image_path).subscribe({
+          next: (imageResponse) => {
+            const imageUrl = URL.createObjectURL(imageResponse);
+            data.image_path = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
+          }
+        });
       }
     });
   }
@@ -87,7 +159,16 @@ export class BulletinBoardComponent {
               (data.date_to_end !== null || data.date_to_end === null)
             );
         });
-        this.datas.reverse();
+        this.processImage();
+
+        this.datas.sort((a: { date_to_post: string | number | Date; }, b: { date_to_post: string | number | Date; }) => {
+          const dateA = new Date(a.date_to_post);
+          const dateB = new Date(b.date_to_post);
+          let dateDiff = dateB.getTime() - dateA.getTime();
+          return dateDiff;
+
+        });
+
         this.paginate({ first: 0, rows: 9 });
       }
     });
@@ -134,6 +215,7 @@ export class BulletinBoardComponent {
     this.paginate({ first: 0, rows: 9 });
   }
 
+  editImage: any;
   editItem(item: any, event: Event) {
     event.stopPropagation();
     this.contentEdit = true;
@@ -143,12 +225,8 @@ export class BulletinBoardComponent {
     this.editDescription = this.selectedItem.description;
     this.editStartDate = this.selectedItem.date_to_post;
     this.editEndDate = this.selectedItem.date_to_end;
+    this.editImage = this.selectedItem.image_path;
   }
-
-  onCloseButton() {
-    this.contentEdit = false
-  }
-
 
   addContent(): void {
     if (!this.addTitle || !this.addDescription || !this.addCms || !this.addStartDate) {
@@ -159,7 +237,13 @@ export class BulletinBoardComponent {
     let userID: number;
     const email = this.backendservice.getEmail();
     this.backendservice.getUser(email).subscribe({
-      next: (response: any) => {
+      next: async (response: any) => {
+
+        // Image to upload
+        if (this.uploadedFile) {
+          this.uploadedFile = await firstValueFrom(await this.backendservice.uploadImage(this.uploadedFile));
+        }
+
         userID = response.user_id;
         const cmsData = this.backenddata.cmsData(
           userID,
@@ -167,8 +251,10 @@ export class BulletinBoardComponent {
           this.addDescription,
           this.addCms.toUpperCase(),
           this.convertDate(new Date(this.addStartDate)),
-          !this.addEndDate ? null : this.addEndDate = this.convertDate(new Date(this.addEndDate))
+          !this.addEndDate ? null : this.addEndDate = this.convertDate(new Date(this.addEndDate)),
+          this.uploadedFile ? this.uploadedFile.file : null,
         );
+
         this.backendservice.addCMS(cmsData).subscribe({
           next: (response: any) => {
             this.messageService.add({
@@ -184,19 +270,28 @@ export class BulletinBoardComponent {
     this.visible = false;
   }
 
+  copiedData: any;
   updateAll(item: any): void {
     this.contentEdit = false;
     const email = this.backendservice.getEmail();
     this.backendservice.getUser(email).subscribe({
-      next: (response: any) => {
+      next: async (response: any) => {
         const userID = response.user_id;
+
+        // Image to upload
+        if (this.uploadedFile) {
+          this.uploadedFile = await firstValueFrom(await this.backendservice.uploadImage(this.uploadedFile));
+        }
+        this.copiedData = await lastValueFrom(await this.backendservice.getCMSById(this.cms_id));
         const cmsData = this.backenddata.cmsData(
           userID,
           this.editTitle,
           this.editDescription,
           this.editCms.toUpperCase(),
           this.convertDate(new Date(this.editStartDate)),
-          !this.editEndDate ? null : this.editEndDate = this.convertDate(new Date(this.editEndDate))
+          !this.editEndDate ? null : this.editEndDate = this.convertDate(new Date(this.editEndDate)),
+          this.uploadedFile ? this.uploadedFile.file : this.copiedData.image_path
+
         );
         this.backendservice.updateCMS(this.cms_id, cmsData).subscribe({
           next: (response: any) => {
@@ -213,12 +308,20 @@ export class BulletinBoardComponent {
               date_posted: response.date_posted,
               time_posted: response.time_posted,
               date_to_start: this.editStartDate,
-              date_to_end: this.editEndDate
+              date_to_end: this.editEndDate,
+              image_path: this.uploadedFile ? this.renderImage(this.uploadedFile.file) : this.editImage,
             });
           }
         });
       }
     });
+  }
+
+  async renderImage(image: any) {
+    image = await firstValueFrom(await this.backendservice.renderImageCard(image));
+    image = URL.createObjectURL(image);
+    image = this.sanitizer.bypassSecurityTrustUrl(image);
+    return image
   }
 
   convertDate(date: any) {
