@@ -90,10 +90,28 @@ export class BackendServiceService {
     return this.http.get(`${this.backendUrl}/cms`);
   }
 
+  async getCMSById(id: number){
+    return this.http.get(`${this.backendUrl}/cms/${id}`);
+  }
+
+  getImage(image: any){
+    return this.http.get(`${this.backendUrl}/bulletin/${image}`, {responseType: 'blob'});
+  }
+
+  async renderImageCard(image: any){
+    return this.http.get(`${this.backendUrl}/bulletin/${image}`, {responseType: 'blob'});
+  }
+
   addCMS(data: any): Observable<any> {
     return this.http.post(`${this.backendUrl}/cms`, JSON.stringify(data), {
       headers: this.headers
     });
+  }
+
+  async uploadImage(filename: any){
+    const formData = new FormData();
+    formData.append('file', filename);
+    return this.http.post(`${this.backendUrl}/bulletin`, formData);
   }
 
   updateCMS(cms_id: number, data: any): Observable<any> {
@@ -114,6 +132,5 @@ export class BackendServiceService {
     });
   }
 
-  
 }
 

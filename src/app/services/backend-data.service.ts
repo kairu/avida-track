@@ -32,11 +32,10 @@ enum STATUS{
 }
 
 enum BILL_TYPE{
-  UTILITY,
-  ASSOCIATION,
-  PARKING,
+  WATER,
+  ASSOCIATION, // Interest
+  PARKING, // Interest
   MAINTENANCE,
-  INTERNETCABLE,
   ETC
 }
 
@@ -70,7 +69,7 @@ export class BackendDataService {
     return data;
   }
 
-  cmsData(user_id: number, title: string, description: string, cms_type: CMS_ENUM, date_to_post: Date, date_to_end: Date, archive?: boolean){
+  cmsData(user_id: number, title: string, description: string, cms_type: CMS_ENUM, date_to_post: Date, date_to_end: Date, image_path?: string, archive?: boolean){
     const data = {
       user_id: user_id,
       title: title,
@@ -78,6 +77,7 @@ export class BackendDataService {
       cms_type: cms_type,
       date_to_post: date_to_post,
       date_to_end: date_to_end || null,
+      image_path: image_path || null,
       archive: archive || false
     };
 
