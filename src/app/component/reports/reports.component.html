@@ -1,1 +1,53 @@
-<p>reports works!</p>
+<div class="container-fluid">
+    <h2 class="text-center">Reports</h2>
+    <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()" #dt1 dataKey="id"
+        [paginator]="datas?.length > rows" [rows]="rows" styleClass="p-datatable-striped p-datatable-gridlines"
+        [globalFilterFields]="['Full Name', 'Title', 'Description', 'Type', 'Date Posted', 'Time Posted']"
+        [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+
+        <ng-template pTemplate="caption">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
+                        (click)="refreshTable()"></p-button>
+
+                </div>
+
+                <div>
+                    <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash"
+                        (click)="clear(dt1);">
+                    </p-button>
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
+                            placeholder="Search keyword" />
+                    </span>
+                </div>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th class="text-center" *ngFor="let column of datas?.slice()[0] | keys">
+                    <ng-container *ngIf="column !== 'user_id'">
+                        {{ column }}
+                    </ng-container>
+                </th>
+
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData let-editing="editing">
+            <tr>
+                <td *ngFor="let column of datas?.slice()[0] | keys">
+                    <span *ngIf="column !== 'Date Posted' && column !== 'Time Posted' && column !== 'user_id'">{{
+                        rowData[column] }}</span>
+                    <span *ngIf="column === 'Date Posted'">{{rowData[column] | date:'longDate'}}</span>
+                    <span *ngIf="column === 'Time Posted'">{{rowData[column] | convertFrom24To12Format}}</span>
+                </td>
+
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
