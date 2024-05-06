@@ -7,10 +7,11 @@ import { TimeFormatPipe } from 'src/app/pipe/time-format.pipe';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { combineLatest, map, of, switchMap } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-maintenance',
   standalone: true,
-  imports: [InputTextModule, ButtonModule, TimeFormatPipe, KeysPipe, CommonModule, TableModule],
+  imports: [FormsModule, InputTextModule, ButtonModule, TimeFormatPipe, KeysPipe, CommonModule, TableModule],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss'
 })
@@ -24,8 +25,10 @@ export class ReportsComponent {
     this.getReportsData();
   }
 
+  searchText: any;
   clear(table: Table) {
     table.clear();
+    this.searchText = undefined;
   }
 
   refreshTable() {

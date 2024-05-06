@@ -8,23 +8,23 @@ export class SeverityService {
   constructor() { }
 
   public getSeverity(status: string) {
-    switch (status) {
-      case 'Admin':
+    switch (status.toUpperCase()) {
+      case 'ADMIN':
       case 'WATER':
       case 'ASSOCIATION':
       case 'PARKING':
       case 'MAINTENANCE':
       case 'ETC':
         return 'primary';
-      case 'Owner':
-      case 'Tenant':
-      case 'Yes':
+      case 'OWNER':
+      case 'TENANT':
+      case 'YES':
       case 'PAID':
         return 'success';
       case 'REVIEW':
         return 'info'
-      case 'Guest':
-      case 'No':
+      case 'GUEST':
+      case 'NO':
       case 'PENDING':
       default:
         return 'danger';

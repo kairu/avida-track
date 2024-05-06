@@ -94,6 +94,10 @@ export class BackendServiceService {
     return this.http.get(`${this.backendUrl}/cms/${id}`);
   }
 
+  getReceiptImage(image: any){
+    return this.http.get(`${this.backendUrl}/ocr/${image}`, {responseType: 'blob'});
+  }
+
   getImage(image: any){
     return this.http.get(`${this.backendUrl}/bulletin/${image}`, {responseType: 'blob'});
   }
@@ -108,10 +112,29 @@ export class BackendServiceService {
     });
   }
 
+  addBills(data: any): Observable<any> {
+    return this.http.post(`${this.backendUrl}/bill`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
+
   async uploadImage(filename: any){
     const formData = new FormData();
     formData.append('file', filename);
     return this.http.post(`${this.backendUrl}/bulletin`, formData);
+  }
+
+  ocrImageDetails(filename: any, data: any){
+    const formData = new FormData();
+    formData.append('file', filename);
+    formData.append('data', JSON.stringify(data));
+    return this.http.post(`${this.backendUrl}/ocr`, formData);
+  }
+
+  updateBills(bill_id: number, data: any): Observable<any> {
+    return this.http.put(`${this.backendUrl}/bill/${bill_id}`, JSON.stringify(data), {
+      headers: this.headers
+    });
   }
 
   updateCMS(cms_id: number, data: any): Observable<any> {

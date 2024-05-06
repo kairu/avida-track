@@ -26,25 +26,25 @@ enum CMS_ENUM{
 }
 
 enum STATUS{
-  PENDING,
-  REVIEW,
-  PAID
+  PENDING = "PENDING",
+  REVIEW = "REVIEW",
+  PAID = "PAID"
 }
 
 enum BILL_TYPE{
-  WATER,
-  ASSOCIATION, // Interest
-  PARKING, // Interest
-  MAINTENANCE,
-  ETC
+  WATER = 'WATER',
+  ASSOCIATION = 'ASSOCIATION', // Interest
+  PARKING = 'PARKING', // Interest
+  MAINTENANCE = 'MAINTENANCE',
+  ETC = 'ETC'
 }
 
 enum USER{
-    SUPER_ADMIN = 1,
-    ADMIN,
-    OWNER,
-    TENANT,
-    GUEST
+    SUPER_ADMIN = "SUPER_ADMIN",
+    ADMIN = "ADMIN",
+    OWNER = "OWNER",
+    TENANT = "TENANT",
+    GUEST = "GUEST"
 }
 
 @Injectable({
@@ -53,23 +53,79 @@ enum USER{
 
 export class BackendDataService {
   constructor(){}
+
+  billTypes = [
+    { name: 'Water', code: 'WATER' },
+    { name: 'Association', code: 'ASSOCIATION' },
+    { name: 'Parking', code: 'PARKING' },
+    { name: 'Maintenance', code: 'MAINTENANCE' },
+    { name: 'Etc', code: 'ETC'}
+  ];
+
+  statusTypes = [
+    { name: 'Pending', code: 'PENDING' },
+    { name: 'Review', code: 'REVIEW' },
+    { name: 'Paid', code: 'PAID' }
+  ];
+
+  validationTypes = [
+    { name: 'Yes', code: true },
+    { name: 'No', code: false }
+  ];
+
+  userTypes = [
+    { name: 'Admin', code: 'ADMIN' },
+    { name: 'Owner', code: 'OWNER' },
+    { name: 'Tenant', code: 'TENANT' },
+    { name: 'Guest', code: 'GUEST' }
+  ];
+
+  cmsTypes = [
+    { label: 'Announcement', value: 'Announcement' },
+    { label: 'News', value: 'News' },
+    { label: 'Event', value: 'Event' },
+    { label: 'Maintenance', value: 'Maintenance' },
+  ];
+
+  convertDate(date: any) {
+    return date.toLocaleDateString('en-CA');
+  }
   
-  billsData(unit_id: number, month: MONTH, year: number, due_date: Date, total_amount: number, breakdown: string, type: BILL_TYPE, status: STATUS){
+  billsData(unit_id: number, soa_id: string, due_date: Date, total_amount: number, breakdown: string, bill_type: string, status?: STATUS){
+    
+    switch (bill_type) {
+      case 'WATER':
+        bill_type = BILL_TYPE.WATER;
+        break;
+      case 'ASSOCIATION':
+        bill_type = BILL_TYPE.ASSOCIATION;
+        break;
+      case 'PARKING':
+        bill_type = BILL_TYPE.PARKING;
+        break;
+      case 'MAINTENANCE':
+        bill_type = BILL_TYPE.MAINTENANCE;
+        break;
+      case 'ETC':
+        default:
+        bill_type = BILL_TYPE.ETC;
+        break;
+    }
+    
     const data = {
       unit_id: unit_id,
-      month: month,
-      year: year,
+      soa_id: soa_id,
       due_date: due_date,
       total_amount: total_amount,
       breakdown: breakdown,
-      type: type,
-      status: status 
+      bill_type: bill_type,
+      status: status || STATUS.PENDING
     };
 
     return data;
   }
 
-  cmsData(user_id: number, title: string, description: string, cms_type: CMS_ENUM, date_to_post: Date, date_to_end: Date, image_path?: string, archive?: boolean){
+  cmsData(user_id: number, title: string, description: string, cms_type: CMS_ENUM, date_to_post: Date, date_to_end: Date, image_path?: string, archive?: boolean, status?: STATUS){
     const data = {
       user_id: user_id,
       title: title,
@@ -78,7 +134,8 @@ export class BackendDataService {
       date_to_post: date_to_post,
       date_to_end: date_to_end || null,
       image_path: image_path || null,
-      archive: archive || false
+      archive: archive || false,
+      status: status || STATUS.PENDING
     };
 
     return data;

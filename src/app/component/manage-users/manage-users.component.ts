@@ -1,26 +1,18 @@
 import { Component } from '@angular/core';
-import { Table, TableModule } from 'primeng/table';
+import { Table } from 'primeng/table';
 import { BackendServiceService } from 'src/app/services/backend-service.service';
-import { CommonModule } from '@angular/common';
-import { KeysPipe } from 'src/app/pipe/keys.pipe';
-import { FormsModule } from '@angular/forms';
-import { PaginatorModule } from 'primeng/paginator';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { DropdownModule } from 'primeng/dropdown';
 import { MessageService } from 'primeng/api';
 import { BackendDataService } from 'src/app/services/backend-data.service';
-import { TooltipModule } from 'primeng/tooltip';
-import { InputMaskModule } from 'primeng/inputmask';
 import { SeverityService } from 'src/app/services/severity.service';
+import { AdminModule } from 'src/app/shared-module/admin-module';
+import { ClientModule } from 'src/app/shared-module/client-module';
 
 @Component({
   selector: 'app-manage-users',
   standalone: true,
   templateUrl: './manage-users.component.html',
   styleUrls: ['./manage-users.component.scss'],
-  imports: [InputMaskModule, TooltipModule, DropdownModule, TagModule, InputTextModule, ButtonModule, PaginatorModule, FormsModule, TableModule, CommonModule, KeysPipe]
+  imports: [AdminModule, ClientModule]
 })
 /**
  * Component for managing users in the application.
@@ -33,23 +25,11 @@ import { SeverityService } from 'src/app/services/severity.service';
 
 export class ManageUsersComponent {
 
-  constructor(public severity: SeverityService, private backendservice: BackendServiceService, private messageService: MessageService, private backenddata: BackendDataService) { }
+  constructor(public severity: SeverityService, private backendservice: BackendServiceService, private messageService: MessageService, public backenddata: BackendDataService) { }
   datas: any;
   unitDatas: any;
   rows = 10;
-  validationOption = [
-    { name: 'Yes', code: true },
-    { name: 'No', code: false }
-  ];
-  userTypeOptions = [
-    { name: 'Admin', code: 'ADMIN' },
-    { name: 'Owner', code: 'OWNER' },
-    { name: 'Tenant', code: 'TENANT' },
-    { name: 'Guest', code: 'GUEST' }
-  ];
-
-
-
+  
   /*
   *********************************************************
   getUsers() Returns the following objects:
@@ -134,8 +114,10 @@ export class ManageUsersComponent {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
+  searchText: any;
   clear(table: Table) {
     table.clear();
+    this.searchText = undefined;
   }
 
   refreshTable() {

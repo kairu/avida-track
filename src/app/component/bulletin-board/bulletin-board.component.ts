@@ -1,28 +1,18 @@
 import { Component, ViewChild } from '@angular/core';
-import { CardModule } from 'primeng/card';
-import { DialogModule } from 'primeng/dialog';
-import { CommonModule } from '@angular/common';
 import { PrimeNGConfig } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { PaginatorModule } from 'primeng/paginator';
 import { BackendServiceService } from 'src/app/services/backend-service.service';
-import { TimeFormatPipe } from 'src/app/pipe/time-format.pipe';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { BackendDataService } from 'src/app/services/backend-data.service';
 import { MessageService } from 'primeng/api';
-import { CalendarModule } from 'primeng/calendar';
 import { DomSanitizer } from '@angular/platform-browser';
-import { ImageModule } from 'primeng/image';
-import { FileUploadModule } from 'primeng/fileupload';
-import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { CheckisAdminService } from 'src/app/services/checkis-admin.service';
+import { ClientModule } from 'src/app/shared-module/client-module';
+import { AdminModule } from 'src/app/shared-module/admin-module';
 
 @Component({
   selector: 'app-bulletin-board',
   standalone: true,
-  imports: [TooltipModule, FileUploadModule, ImageModule, CalendarModule, InputTextareaModule, InputTextModule, CardModule, DialogModule, CommonModule, ButtonModule, RippleModule, PaginatorModule, TimeFormatPipe],
+  imports: [AdminModule, ClientModule],
   templateUrl: './bulletin-board.component.html',
   styleUrl: './bulletin-board.component.scss',
 })
@@ -57,15 +47,12 @@ export class BulletinBoardComponent {
   editEndDate!: any;
   cms_id!: number;
   filter: string = '';
-  cmsTypeOptions = [
-    { label: 'Announcement', value: 'Announcement' },
-    { label: 'News', value: 'News' },
-    { label: 'Event', value: 'Event' },
-    { label: 'Maintenance', value: 'Maintenance' },
-  ];
-  constructor(private sanitizer: DomSanitizer, private messageService: MessageService, private backenddata: BackendDataService, private backendservice: BackendServiceService, private primengConfig: PrimeNGConfig) { this.checkisAdmin(); }
+  constructor(private checkisadmin: CheckisAdminService, private sanitizer: DomSanitizer, private messageService: MessageService, public backenddata: BackendDataService, private backendservice: BackendServiceService, private primengConfig: PrimeNGConfig) {}
   ngOnInit() {
     this.primengConfig.ripple = true;
+    this.checkisadmin.checkisAdmin().subscribe(isAdmin => {
+      this.isAdmin = isAdmin;
+    });
     this.getCmsData();
     this.setStartDateToday();
   }
@@ -115,20 +102,6 @@ export class BulletinBoardComponent {
   setStartDateToday() {
     let today = new Date();
     this.addStartDate = today;
-  }
-
-
-  checkisAdmin() {
-    const email = this.backendservice.getEmail();
-    this.backendservice.getUser(email).subscribe({
-      next: (response: any) => {
-        if (response.user_type == 'ADMIN' || response.user_type == 'SUPER_ADMIN') {
-          this.isAdmin = true;
-          return true;
-        }
-        return false;
-      }
-    });
   }
 
   processImage() {
@@ -250,8 +223,8 @@ export class BulletinBoardComponent {
           this.addTitle,
           this.addDescription,
           this.addCms.toUpperCase(),
-          this.convertDate(new Date(this.addStartDate)),
-          !this.addEndDate ? null : this.addEndDate = this.convertDate(new Date(this.addEndDate)),
+          this.backenddata.convertDate(new Date(this.addStartDate)),
+          !this.addEndDate ? null : this.addEndDate = this.backenddata.convertDate(new Date(this.addEndDate)),
           this.uploadedFile ? this.uploadedFile.file : null,
         );
 
@@ -288,8 +261,8 @@ export class BulletinBoardComponent {
           this.editTitle,
           this.editDescription,
           this.editCms.toUpperCase(),
-          this.convertDate(new Date(this.editStartDate)),
-          !this.editEndDate ? null : this.editEndDate = this.convertDate(new Date(this.editEndDate)),
+          this.backenddata.convertDate(new Date(this.editStartDate)),
+          !this.editEndDate ? null : this.editEndDate = this.backenddata.convertDate(new Date(this.editEndDate)),
           this.uploadedFile ? this.uploadedFile.file : this.copiedData.image_path
 
         );
@@ -322,9 +295,5 @@ export class BulletinBoardComponent {
     image = URL.createObjectURL(image);
     image = this.sanitizer.bypassSecurityTrustUrl(image);
     return image
-  }
-
-  convertDate(date: any) {
-    return date.toLocaleDateString('en-CA');
   }
 }

@@ -16,11 +16,11 @@
 
                 <div>
                     <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash"
-                        (click)="clear(dt1);">
+                        (click)="clear(dt1);" class="me-3">
                     </p-button>
                     <span class="p-input-icon-left">
                         <i class="pi pi-search"></i>
-                        <input pInputText type="text" (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
+                        <input pInputText type="text" [(ngModel)]="searchText" (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
                             placeholder="Search keyword" />
                     </span>
                 </div>

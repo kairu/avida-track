@@ -1,29 +1,27 @@
 <div class="container-fluid">
   <h2 class="text-center">Manage Users</h2>
-  <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [paginator]="datas?.length > rows"
-    [rows]="rows" [value]="datas?.slice()" #dt1 dataKey="id"
+  <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [paginator]="datas?.length > rows" [rows]="rows"
+    [value]="datas?.slice()" #dt1 dataKey="id"
     [globalFilterFields]="['Full Name', 'Mobile Number', 'Unit', 'Balance', 'User Type', 'Validated']"
-    styleClass="p-datatable-striped" 
-    (onEditInit)="onCellEditInit($event)" 
-    (onEditCancel)="onCellEditCancel($event)"
-    (onEditComplete)="onCellEditComplete($event)"
-    [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[10, 25, 50]"
+    styleClass="p-datatable-striped" (onEditInit)="onCellEditInit($event)" (onEditCancel)="onCellEditCancel($event)"
+    (onEditComplete)="onCellEditComplete($event)" [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
     <ng-template pTemplate="caption">
       <div class="d-flex justify-content-between">
         <div>
-          <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true" (click)="refreshTable()"></p-button>
+          <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
+            (click)="refreshTable()"></p-button>
         </div>
 
         <div>
-          <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1);">
+          <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash" (click)="clear(dt1);"
+            class="me-3">
           </p-button>
           <span class="p-input-icon-left ml-auto">
             <i class="pi pi-search"></i>
-            <input pInputText type="text" (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
-              placeholder="Search keyword" />
+            <input pInputText type="text" [(ngModel)]="searchText"
+              (input)="dt1.filterGlobal($any($event.target).value, 'contains')" placeholder="Search keyword" />
           </span>
         </div>
       </div>
@@ -39,7 +37,8 @@
 
     <ng-template pTemplate="body" let-rowData let-editing="editing">
       <tr>
-        <td [pEditableColumnRowIndex]="rowData['User ID']" [pEditableColumn]="rowData[column]" [pEditableColumnField]="column" *ngFor="let column of datas?.slice()[0] | keys">
+        <td [pEditableColumnRowIndex]="rowData['User ID']" [pEditableColumn]="rowData[column]"
+          [pEditableColumnField]="column" *ngFor="let column of datas?.slice()[0] | keys">
           <!-- Full Name -->
           <span *ngIf="column == 'Full Name' || column == 'User ID'">{{ rowData[column] }}</span>
           <!-- Should the name be editable if the user already has control on editing it? -->
@@ -59,9 +58,9 @@
           <!-- User Type -->
           <p-cellEditor *ngIf="column == 'User Type'">
             <ng-template pTemplate="input">
-              <p-dropdown [options]="userTypeOptions" optionLabel="name" [(ngModel)]="rowData[column]"
+              <p-dropdown [options]="backenddata.userTypes" optionLabel="name" [(ngModel)]="rowData[column]"
                 [placeholder]="rowData[column]" pTooltip="Use first row of the name to change"></p-dropdown>
-            </ng-template>         
+            </ng-template>
             <ng-template pTemplate="output">
               <p-tag *ngIf="rowData[column] && rowData[column].name" [value]="rowData[column].name"
                 [severity]="severity.getSeverity(rowData[column].name)"></p-tag>
@@ -69,13 +68,13 @@
                 [severity]="severity.getSeverity(rowData[column])"></p-tag>
             </ng-template>
           </p-cellEditor>
-          
+
           <!-- Validated -->
           <p-cellEditor *ngIf="column == 'Validated'">
             <ng-template pTemplate="input">
-              <p-dropdown [options]="validationOption" optionLabel="name" [(ngModel)]="rowData[column]"
+              <p-dropdown [options]="backenddata.validationTypes" optionLabel="name" [(ngModel)]="rowData[column]"
                 [placeholder]="rowData[column]"></p-dropdown>
-            </ng-template>         
+            </ng-template>
             <ng-template pTemplate="output">
               <p-tag *ngIf="rowData[column] && rowData[column].name" [value]="rowData[column].name"
                 [severity]="severity.getSeverity(rowData[column].name)"></p-tag>
@@ -87,7 +86,7 @@
           <!-- Mobile Number -->
           <p-cellEditor *ngIf="column == 'Mobile Number'">
             <ng-template pTemplate="input">
-                <p-inputMask mask="0999-999-9999" [(ngModel)]="rowData[column]"></p-inputMask>
+              <p-inputMask mask="0999-999-9999" [(ngModel)]="rowData[column]"></p-inputMask>
             </ng-template>
             <ng-template pTemplate="output">
               {{rowData[column]}}

@@ -17,7 +17,7 @@
             <div class="mt-2">
                 <div class="d-flex flex-row">
                     <span class="p-float-label">
-                        <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="addCms" placeholder="Content Type"
+                        <p-dropdown [options]="backenddata.cmsTypes" [(ngModel)]="addCms" placeholder="Content Type"
                             [required]="true"></p-dropdown>
                         <label for="float-label">Content Type</label>
                     </span>
@@ -142,7 +142,7 @@
         <div *ngIf="contentEdit" class="mt-2">
             <div class="my-2 d-flex flex-row">
                 <span>
-                    <p-dropdown [options]="cmsTypeOptions" [(ngModel)]="editCms"
+                    <p-dropdown [options]="backenddata.cmsTypes" [(ngModel)]="editCms"
                         placeholder="{{displayCmsType(selectedItem?.cms_type)}}" [required]="true"></p-dropdown>
                 </span>
             </div>
