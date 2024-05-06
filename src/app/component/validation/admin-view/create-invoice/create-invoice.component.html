@@ -1,0 +1,67 @@
+<div class="d-flex flex-row-reverse mb-4">
+    <p-button pRipple (click)="showInvoiceWindow()" icon="pi pi-plus" label="Create Invoice"></p-button>
+    <p-dialog [(visible)]="invoiceWindow" [style]="{'width': '45vw', 'height': '100vh'}" [breakpoints]="{ '960px': '90vw' }"
+    [modal]="true" [dismissableMask]="true" [draggable]="false" (onHide)="onCloseButton()">
+        <ng-template pTemplate="header">
+            <div class="container row">
+                <span class="p-float-label mt-3 col">
+                    <p-dropdown inputId="float-label" (onChange)="filterUnitOptions($event)" [options]="userOptions" 
+                    [filter]="true" filterBy="label" [(ngModel)]="user" placeholder="Select a User" 
+                    optionLabel="label" [virtualScroll]="true" [virtualScrollItemSize]="20" [style]="{'width': '100%'}"></p-dropdown>
+                    <label class="ms-2" for="user">Select a User</label>
+                </span>
+
+                
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="body">
+            <div class="container row" *ngIf="userSelected">
+
+                <span class="p-float-label mt-4 col">
+                    <p-dropdown (onChange)="showBody($event)" [autofocus]="true" inputId="float-label" 
+                    [options]="unitOptions" placeholder="Select a Unit" 
+                    optionLabel="label" [virtualScroll]="true" [virtualScrollItemSize]="5"></p-dropdown>
+                    <label class="ms-2" for="unit">Select a Unit</label>
+                </span>
+
+                <span class="p-float-label my-4 col" *ngIf="unitSelected">
+                    <input required="true" type="text" pInputText
+                    [(ngModel)]="soa_id"/>
+                    <label for="float-label" class="ms-2">SOA #</label>
+                </span>
+            </div>
+            <div class="container row" *ngIf="unitSelected">
+                <span class="p-float-label my-4 col">
+                    <p-dropdown [options]="backenddata.billTypes" [filter]="true" filterBy="name" [(ngModel)]="billType" placeholder="Bill Type" optionLabel="name"></p-dropdown>
+                    <label for="float-label" class="ms-2">Bill Type</label>
+                </span>
+
+                <span class="p-float-label my-4 col">
+                    <p-inputNumber mode="currency" [(ngModel)]="amount" currency="PHP" locale="en-US"></p-inputNumber>
+                    <label for="float-label" class="ms-2">Amount</label>
+                </span>
+
+                <span class="p-float-label my-4 col">
+                    <p-calendar [(ngModel)]="due_date" [showButtonBar]="true" dateFormat="mm-dd-yy" [touchUI]="true"
+                    appendTo="body" [readonlyInput]="true"
+                    [iconDisplay]="'input'" [showIcon]="true"></p-calendar>
+                    <label for="float-label" class="ms-2">Due Date</label>
+                </span>
+            </div>
+            <div class="container row justify-content-center" *ngIf="unitSelected">
+                <span class="p-float-label my-4">
+                    <textarea [(ngModel)]="breakdown" style="width:100%;" rows="5" pInputTextarea [autoResize]="true"></textarea>
+                    <label for="float-label" class="ms-2">Breakdown</label>
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <div>
+                <p-button icon="pi pi-check" (click)="createInvoice()"
+                    [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
+            </div>
+        </ng-template>
+
+    </p-dialog>
+</div>

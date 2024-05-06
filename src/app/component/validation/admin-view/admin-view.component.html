@@ -1,0 +1,157 @@
+<div *ngIf="isAdmin">
+    <app-create-invoice></app-create-invoice>
+    <div class="card">
+        <p-table #dtA [globalFilterFields]="['Full Name','Information']" [breakpoint]="'960px'"
+            styleClass=" p-datatable-striped" [tableStyle]="{'min-width': '50rem'}"
+            [paginator]="adminViews?.length > rows" [rows]="rows" [value]="adminViews" dataKey="Full Name"
+            rowGroupMode="subheader" groupRowsBy="Full Name" [showCurrentPageReport]="true"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+            <ng-template pTemplate="caption">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
+                            (click)="refreshTable()"></p-button>
+                    </div>
+
+                    <div>
+                        <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash"
+                            (click)="clear(dtA);" class="me-3">
+                        </p-button>
+                        <span class="p-input-icon-left ml-auto">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" [(ngModel)]="searchText"
+                                (input)="dtA.filterGlobal($any($event.target).value, 'contains')"
+                                placeholder="Search Name" />
+                        </span>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th *ngFor="let column of adminViews?.slice()[0] | keys">
+                        <span *ngIf="column == 'Full Name'">{{ column }}</span>
+                        <span *ngIf="column == 'Information'" class="d-flex flex-row-reverse">{{ column }}</span>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="groupheader" let-adminView let-rowIndex="rowIndex" let-expanded="expanded">
+                <tr>
+                    <td>
+                        <button type="button" pButton pRipple [pRowToggler]="adminView"
+                            class="p-button-text p-button-rounded p-button-plain me-2"
+                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                        <span class="font-bold ms-2">{{ adminView['Full Name'] }}</span>
+                    </td>
+                    <td colspan="3">
+                        <!-- <span *ngFor="let status of getStatusKeys(adminView['Information'])"> -->
+                            <div class="my-1 d-flex flex-row-reverse">
+                                <p-tag *ngIf="adminView['Information'] != 0" [severity]="severity.getSeverity('REVIEW')">{{ adminView['Information'] }}</p-tag>
+                            </div>
+                        <!-- </span> -->
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="rowexpansion" let-adminView>
+                <tr>
+                    <td colspan="4">
+                        <p-table [value]="adminView.bills" (onEditInit)="onCellEditInit($event)"
+                            (onEditCancel)="onCellEditCancel($event)" (onEditComplete)="onCellEditComplete($event)">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th *ngFor="let column of adminView.bills[0] | keys">
+                                        <span *ngIf="column != 'bill_id'">{{ column }}</span>
+                                    </th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-bill let-editing="editing">
+                                <tr>
+                                    <td *ngFor="let key of bill | keys" [pEditableColumnRowIndex]="bill['bill_id']"
+                                        [pEditableColumn]="bill[key]" [pEditableColumnField]="key">
+                                        <!-- SOA ID -->
+                                        <p-cellEditor *ngIf="key == 'SOA ID'">
+                                            <ng-template pTemplate="input">
+                                                <input type="text" pInputText [(ngModel)]="bill[key]" />
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                <span>{{ bill[key] }}</span>
+                                            </ng-template>
+                                        </p-cellEditor>
+                                        <!-- Unit -->
+                                        <span *ngIf="key == 'Image' && bill[key]">
+                                            <p-image [src]="bill[key]" 
+                                                alt="Image"
+                                                width="100"
+                                                [preview]="true" />
+                                        </span>
+                                        <span *ngIf="key == 'Unit'">{{ bill[key] }}</span>
+                                        <!-- Image -->
+                                        <!-- Amount -->
+                                        <p-cellEditor *ngIf="key == 'Amount'">
+                                            <ng-template pTemplate="input">
+                                                <p-inputNumber [(ngModel)]="bill[key]" mode="currency" currency="PHP"
+                                                    locale="en-US"></p-inputNumber>
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                <span>{{ bill[key] | currency:'PHP' }}</span>
+                                            </ng-template>
+                                        </p-cellEditor>
+                                        <!-- Breakdown -->
+                                        <p-cellEditor *ngIf="key == 'Breakdown'">
+                                            <ng-template pTemplate="input">
+                                                <textarea [(ngModel)]="bill[key]" rows="5" cols="30" pInputTextarea
+                                                    [autoResize]="true"></textarea>
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                <span>{{ bill[key] }}</span>
+                                            </ng-template>
+                                        </p-cellEditor>
+                                        <!-- Bill Type -->
+                                        <p-cellEditor *ngIf="key == 'Bill Type'">
+                                            <ng-template pTemplate="input">
+                                                <p-dropdown appendTo="body" [options]="backenddata.billTypes" optionLabel="name"
+                                                    [(ngModel)]="bill[key]" [placeholder]="bill[key]"></p-dropdown>
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                <p-tag *ngIf="bill[key] && bill[key].name" [value]="bill[key].code"
+                                                    [severity]="severity.getSeverity(bill[key].code)"></p-tag>
+                                                <p-tag *ngIf="bill[key] && !bill[key].name" [value]="bill[key]"
+                                                    [severity]="severity.getSeverity(bill[key])"></p-tag>
+                                            </ng-template>
+                                        </p-cellEditor>
+                                        <!-- Due Date -->
+                                        <p-cellEditor *ngIf="key == 'Due Date'">
+                                            <ng-template pTemplate="input">
+                                                <p-calendar [(ngModel)]="bill[key]" appendTo="body" [touchUI]="true"
+                                                    [showButtonBar]="true" dateFormat="mm-dd-yy" [showTime]="false"
+                                                    [showSeconds]="false" [iconDisplay]="'input'" [showIcon]="true"
+                                                    [readonlyInput]="true"></p-calendar>
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                <span>{{ bill[key] | date:'longDate' }}</span>
+                                            </ng-template>
+                                        </p-cellEditor>
+                                        <!-- Status -->
+                                        <p-cellEditor *ngIf="key == 'Status'">
+                                            <ng-template pTemplate="input">
+                                                <p-dropdown appendTo="body" [options]="backenddata.statusTypes" optionLabel="name"
+                                                    [(ngModel)]="bill[key]" [placeholder]="bill[key]"></p-dropdown>
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                <p-tag *ngIf="bill[key] && bill[key].name" [value]="bill[key].code"
+                                                    [severity]="severity.getSeverity(bill[key].code)"></p-tag>
+                                                <p-tag *ngIf="bill[key] && !bill[key].name" [value]="bill[key]"
+                                                    [severity]="severity.getSeverity(bill[key])"></p-tag>
+                                            </ng-template>
+                                        </p-cellEditor>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</div>

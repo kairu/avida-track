@@ -1,1 +1,79 @@
-<p>validation works!</p>
+<div class="container-fluid card">
+    <h2 class="text-center my-1">Validation</h2>
+    <app-admin-view></app-admin-view>
+    <h2 class="text-center my-5">Your History and Invoice</h2>
+    <p-table [breakpoint]="'960px'" styleClass=" p-datatable-striped" [tableStyle]="{'min-width': '50rem'}"
+        [paginator]="datas?.length > rows" [rows]="rows" [value]="datas?.slice()" #dt1 dataKey="id"
+        [globalFilterFields]="['SOA ID', 'Amount', 'Bill Type', 'Due Date', 'Status', 'Pay']"
+        [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+
+        <ng-template pTemplate="caption">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
+                        (click)="refreshTable()"></p-button>
+                </div>
+
+                <div>
+                    <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash"
+                        (click)="clear(dt1);" class="me-3">
+                    </p-button>
+                    <span class="p-input-icon-left ml-auto">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" [(ngModel)]="searchText"
+                            (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
+                            placeholder="Search keyword" />
+                    </span>
+                </div>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th *ngFor="let column of datas?.slice()[0] | keys">
+                    <span *ngIf="column !== 'bill_id' && column !== 'isUploading' && column !== 'attempts'">
+                        {{ column }}
+                    </span>
+                </th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData let-editing="editing">
+            <tr>
+                <td *ngFor="let column of datas?.slice()[0] | keys">
+                    <span *ngIf="column == 'SOA ID' || column == 'Breakdown' || column == 'Unit'">{{ rowData[column]
+                        }}</span>
+
+                    <p-tag *ngIf="column == 'Bill Type'" [value]="rowData[column]"
+                        [severity]="severity.getSeverity(rowData[column])"></p-tag>
+
+                    <p-tag *ngIf="column == 'Status'" [value]="rowData[column]"
+                        [severity]="severity.getSeverity(rowData[column])"></p-tag>
+
+                    <span *ngIf="column == 'Amount'">{{ rowData[column] | currency:'PHP' }}</span>
+
+                    <span *ngIf="column == 'Due Date'">{{rowData[column] | date:'longDate'}}</span>
+
+                    <div *ngIf="column == 'Pay'">
+                        <p-tag *ngIf="rowData[column] == 'Paid'" [value]="rowData[column]"
+                            [severity]="severity.getSeverity(rowData[column].toUpperCase())" icon="pi pi-check"></p-tag>
+
+                        <p-tag *ngIf="rowData[column] != 'Paid'" (click)="uploadReceipt(rowData)" class="uploader"
+                            [value]="rowData[column]" icon="pi pi-upload"
+                            [severity]="severity.getSeverity(rowData[column].toUpperCase())"></p-tag>
+
+                        <p-fileUpload #fileReceipt hidden [auto]="true" [customUpload]="true" class="ms-3"
+                            (uploadHandler)="storeReceipt($event)" mode="basic" accept="image/*" [maxFileSize]="1000000"
+                            invalidFileTypeMessageDetail="Allowed file types: jpg, jpeg, png, gif, bmp">
+                        </p-fileUpload>
+
+                        <p-progressBar mode="indeterminate" *ngIf="rowData.isUploading"
+                            [style]="{ height: '6px' }"></p-progressBar>
+                    </div>
+
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
