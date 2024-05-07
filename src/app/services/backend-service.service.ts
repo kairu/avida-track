@@ -81,6 +81,14 @@ export class BackendServiceService {
   getUser(user: any): Observable<any> {
     return this.http.get(`${this.backendUrl}/user/${user}`, {headers: this.headers});
   }
+  
+  getTenant(): Observable<any> {
+    return this.http.get(`${this.backendUrl}/user/tenant`);
+  }
+  
+  getLease(): Observable<any> {
+    return this.http.get(`${this.backendUrl}/lease`);
+  }
 
   getAccessControls(): Observable<any> {
     return this.http.get(`${this.backendUrl}/accesscontrol`);
@@ -124,18 +132,10 @@ export class BackendServiceService {
     return this.http.post(`${this.backendUrl}/bulletin`, formData);
   }
 
-  ocrImageDetails(filename: any, data: any){
-    const formData = new FormData();
-    formData.append('file', filename);
-    formData.append('data', JSON.stringify(data));
-    return this.http.post(`${this.backendUrl}/ocr`, formData);
+  async uploadImageToLease(formData: FormData, lease_agreement_id: number) {
+    return this.http.post(`${this.backendUrl}/contract`, formData);
   }
 
-  updateBills(bill_id: number, data: any): Observable<any> {
-    return this.http.put(`${this.backendUrl}/bill/${bill_id}`, JSON.stringify(data), {
-      headers: this.headers
-    });
-  }
 
   updateCMS(cms_id: number, data: any): Observable<any> {
     return this.http.put(`${this.backendUrl}/cms/${cms_id}`, JSON.stringify(data), {
@@ -155,5 +155,11 @@ export class BackendServiceService {
     });
   }
 
+  updateLease(lease_agreement_id: number, data: any): Observable<any> {
+    return this.http.put(`${this.backendUrl}/lease/${lease_agreement_id}`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
+  
 }
 
