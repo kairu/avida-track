@@ -132,18 +132,22 @@
                                             </ng-template>
                                         </p-cellEditor>
                                         <!-- Status -->
-                                        <p-cellEditor *ngIf="key == 'Status'">
-                                            <ng-template pTemplate="input">
-                                                <p-dropdown appendTo="body" [options]="backenddata.statusTypes" optionLabel="name"
-                                                    [(ngModel)]="bill[key]" [placeholder]="bill[key]"></p-dropdown>
-                                            </ng-template>
-                                            <ng-template pTemplate="output">
-                                                <p-tag *ngIf="bill[key] && bill[key].name" [value]="bill[key].code"
-                                                    [severity]="severity.getSeverity(bill[key].code)"></p-tag>
-                                                <p-tag *ngIf="bill[key] && !bill[key].name" [value]="bill[key]"
-                                                    [severity]="severity.getSeverity(bill[key])"></p-tag>
-                                            </ng-template>
+                                        <p-cellEditor *ngIf="key == 'Status' && bill[key] == 'REVIEW'">
+                                                <ng-template pTemplate="input">
+                                                    <p-dropdown appendTo="body" [options]="backenddata.statusTypes" optionLabel="name"
+                                                        [(ngModel)]="bill[key]" [placeholder]="bill[key]"></p-dropdown>
+                                                </ng-template>
+                                                <ng-template pTemplate="output">
+                                                    <p-tag *ngIf="bill[key] && bill[key].name" [value]="bill[key].code"
+                                                        [severity]="severity.getSeverity(bill[key].code)"></p-tag>
+                                                    <p-tag *ngIf="bill[key] && !bill[key].name" [value]="bill[key]"
+                                                        [severity]="severity.getSeverity(bill[key])"></p-tag>
+                                                </ng-template>
                                         </p-cellEditor>
+                                        <span *ngIf="key == 'Status' && bill[key] !== 'REVIEW'">
+                                            <p-tag *ngIf="bill[key] && !bill[key].name" [value]="bill[key]"
+                                                    [severity]="severity.getSeverity(bill[key])"></p-tag>
+                                        </span>
                                     </td>
                                 </tr>
                             </ng-template>
