@@ -26,7 +26,7 @@
                 <div *ngIf="imageSrc">
                 <img [src]="imageSrc ? imageSrc : selectedItem.image_path" alt="Uploaded Image">
                 </div>
-                <p-fileUpload mode="basic" chooseLabel="Choose" accept="image/*" 
+                <p-fileUpload [auto]="true" mode="basic" chooseLabel="Choose" accept="image/*" 
                 [maxFileSize]="1000000" 
                 (uploadHandler)="storeImageData($event, selectedItem?.lease_agreement_id)" chooseLabel="Browse" [customUpload]="true"
                 invalidFileTypeMessageDetail="Allowed file types: jpg, jpeg, png, gif, bmp" width="100"></p-fileUpload>
