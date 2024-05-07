@@ -20,7 +20,7 @@ export class ReportsComponent {
   rows = 10;
 
   constructor(private backendService: BackendServiceService) { }
-
+  
   ngOnInit() {
     this.getReportsData();
   }
@@ -95,6 +95,16 @@ export class ReportsComponent {
       this.datas = datas;
     });
   }
+
+  exportHeader = [
+    { field: 'Full Name', header: 'FullName'},
+    { field: 'Unit', header: 'Unit'},
+    { field: 'Title', header: 'Title'},
+    { field: 'Description', header: 'Description'},
+    { field: 'Type', header: 'Type'},
+    { field: 'Date Posted', header: 'DatePosted'},
+    { field: 'Time Posted', header: 'Time Posted'}
+  ];
 
 
 }

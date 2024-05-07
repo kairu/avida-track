@@ -1,17 +1,16 @@
 <div class="container-fluid">
     <h2 class="text-center">Reports</h2>
     <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()" #dt1 dataKey="id"
-        [paginator]="datas?.length > rows" [rows]="rows" styleClass="p-datatable-striped p-datatable-gridlines"
+        exportFilename="Reports" [columns]="exportHeader" [paginator]="datas?.length > rows" [rows]="rows" styleClass="p-datatable-striped p-datatable-gridlines"
         [globalFilterFields]="['Full Name', 'Title', 'Description', 'Type', 'Date Posted', 'Time Posted']"
         [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
         <ng-template pTemplate="caption">
-            <div class="d-flex justify-content-between">
+            <div class="container d-flex justify-content-between">
                 <div>
                     <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
                         (click)="refreshTable()"></p-button>
-
                 </div>
 
                 <div>
@@ -23,6 +22,14 @@
                         <input pInputText type="text" [(ngModel)]="searchText" (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
                             placeholder="Search keyword" />
                     </span>
+                </div>
+            </div>
+            <div class="container row my-2">
+                <div style="text-align: left">
+                    <p-button 
+                        icon="pi pi-external-link" 
+                        label="Export" 
+                        (click)="dt1.exportCSV()" />
                 </div>
             </div>
         </ng-template>
