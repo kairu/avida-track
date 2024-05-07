@@ -82,13 +82,7 @@ export class BackendServiceService {
   }
 
   getUser(user: any): Observable<any> {
-    const url = `${this.backendUrl}/user/${user}`;
-    console.log('Fetching user data from:', url);
-  
-    // Log headers
-    console.log('Request headers:', this.headers);
-  
-    return this.http.get(url, { headers: this.headers });
+    return this.http.get(`${this.backendUrl}/user/${user}`, {headers: this.headers});
   }
   
   
@@ -100,9 +94,6 @@ export class BackendServiceService {
     return this.http.get(`${this.backendUrl}/user/tenant`);
   }
   
-  getLease(): Observable<any> {
-    return this.http.get(`${this.backendUrl}/lease`);
-  }
 
   getAccessControls(): Observable<any> {
     return this.http.get(`${this.backendUrl}/accesscontrol`);
