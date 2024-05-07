@@ -78,14 +78,17 @@
         <p>Description: {{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</p>
       </div>
 
+      <div class="container row">
+        <div class="col justify-content-center">
+          <button pButton pRipple label="Approve" class="p-button-danger" style="border-radius: 10px;" (click)="approve()"></button>
+        </div>
+  
+        <div class="col justify-content-center mt-2">
+          <button pButton pRipple label="Reject" class="p-button-secondary" style="border-radius: 10px;" (click)="showRejectionReasonInput = true"></button>
+        </div>
 
-      <div class="justify-content-center">
-        <button pButton pRipple label="Approve" class="p-button-danger" style="border-radius: 10px;" (click)="approve()"></button>
       </div>
-
-      <div class="justify-content-center mt-2">
-        <button pButton pRipple label="Reject" class="p-button-secondary" style="border-radius: 10px;" (click)="showRejectionReasonInput = true"></button>
-      </div>
+      
 
       <form [formGroup]="rejectionReasonForm">
       <div class="justify-content-center mt-2" *ngIf="showRejectionReasonInput">
@@ -94,13 +97,16 @@
           <textarea pInputTextarea formControlName="rejectionReason" id="rejectionReason" rows="3" cols="20"></textarea>
         </div>
 
-        <div>
-          <button pButton pRipple label="Submit" class="p-button-danger" style="border-radius: 10px" (click)="reject()"></button>
+        <div class="container row">
+          <div class="col">
+            <button pButton pRipple label="Submit" class="p-button-danger" style="border-radius: 10px" (click)="reject()"></button>
+          </div>
+  
+          <div class="col mt-2">
+            <button pButton pRipple label="Cancel" class="p-button-secondary" style="border-radius: 10px" (click)="cancelRejection()"></button>
+          </div>
         </div>
-
-        <div class="mt-2">
-          <button pButton pRipple label="Cancel" class="p-button-secondary" style="border-radius: 10px" (click)="cancelRejection()"></button>
-        </div>
+        
       </div>
       </form>
     </div>
