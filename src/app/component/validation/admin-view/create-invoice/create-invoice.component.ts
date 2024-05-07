@@ -48,7 +48,7 @@ export class CreateInvoiceComponent {
             this.unitOptions.push({ label: `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}`, value: unit.unit_id });
           }
         });
-        this.userSelected = !this.userSelected;
+        this.userSelected = false;
       }
     });
   }
@@ -79,7 +79,7 @@ export class CreateInvoiceComponent {
  
   showBody(event: any) {
     this.unit = event.value.value;
-    this.unitSelected = !this.unitSelected;
+    this.unitSelected = false;
   }
 
   getUserAndUnit() {
