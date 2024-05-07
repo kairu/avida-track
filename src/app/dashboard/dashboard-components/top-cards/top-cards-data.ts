@@ -8,28 +8,33 @@ export interface topcard {
 export const topcards: topcard[] = [
 
     {
-        bgcolor: 'success',
-        icon: 'bi bi-wallet',
-        title: '$21k',
-        subtitle: 'Yearly Earning'
-    },
-    {
         bgcolor: 'danger',
-        icon: 'bi bi-coin',
-        title: '$1k',
-        subtitle: 'Refund given'
-    },
-    {
-        bgcolor: 'warning',
-        icon: 'bi bi-basket3',
-        title: '456',
-        subtitle: 'Yearly Project'
+        icon: 'bi bi-arrow-right',
+        title: '5',
+        subtitle: 'Pending Receipts'
     },
     {
         bgcolor: 'info',
-        icon: 'bi bi-bag',
-        title: '210',
-        subtitle: 'Weekly Sales'
+        icon: 'bi bi-receipt',
+        title: '5',
+        subtitle: 'Review Receipts'
     },
-
+    {
+        bgcolor: 'danger',
+        icon: 'bi bi-person-x-fill',
+        title: '100',
+        subtitle: 'Validate User'
+    },
+    {
+        bgcolor: 'success',
+        icon: 'bi bi-person-fill',
+        title: '100',
+        subtitle: 'Registered Owners'
+    },
+    {
+        bgcolor: 'info',
+        icon: 'bi bi-people-fill',
+        title: '100',
+        subtitle: 'Registered Tenants'
+    },
 ] 

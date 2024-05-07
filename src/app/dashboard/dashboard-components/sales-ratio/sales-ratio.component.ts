@@ -41,12 +41,12 @@ export class SalesRatioComponent implements OnInit {
     this.salesChartOptions = {
       series: [
         {
-          name: "2020",
-          data: [20, 40, 50, 30, 40, 50, 30, 30, 40, 20, 30, 15],
+          name: "Owner",
+          data: [20, 40, 50, 30, 40],
         },
         {
-          name: "2022",
-          data: [10, 20, 40, 60, 20, 40, 60, 60, 20, 30, 40, 35],
+          name: "Tenants",
+          data: [10, 20, 40, 60, 20],
         },
       ],
       chart: {
@@ -85,18 +85,11 @@ export class SalesRatioComponent implements OnInit {
       },
       xaxis: {
         categories: [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec"
+          "Tower 1",
+          "Tower 2",
+          "Tower 3",
+          "Tower 4",
+          "Tower 5"
         ],
       },
       tooltip: {
