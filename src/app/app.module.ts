@@ -33,25 +33,25 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
-import { AboutComponent } from './about/about.component';
-import { InputMaskModule } from 'primeng/inputmask';
-import { InputTextModule } from 'primeng/inputtext';
-import { MyProfileComponent } from './my-profile/my-profile.component';
-import { CalendarModule } from 'primeng/calendar';
 import { EventsReservationComponent } from './component/events-reservation/events-reservation.component';
+import { AboutModule } from './about/about.module';
+import { CalendarModule } from 'primeng/calendar';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputTextModule } from 'primeng/inputtext';
+import { AboutComponent } from './about/about.component';
+import { InputMaskModule } from 'primeng/inputmask';
 @NgModule({
   declarations: [
     AppComponent,
     SpinnerComponent,
     UserFormComponent,
     AccessControlComponent,
-    AboutComponent,
     EventsReservationComponent,
+    AboutComponent
   ],
   imports: [
     CommonModule,
@@ -78,6 +78,8 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
     CheckboxModule,
     RadioButtonModule,
     InputTextareaModule,
+    InputTextModule,
+    InputMaskModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable

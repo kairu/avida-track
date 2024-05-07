@@ -132,6 +132,18 @@ export class BackendServiceService {
     return this.http.post(`${this.backendUrl}/bulletin`, formData);
   }
 
+  ocrImageDetails(filename: any, data: any){
+    const formData = new FormData();
+    formData.append('file', filename);
+    formData.append('data', JSON.stringify(data));
+    return this.http.post(`${this.backendUrl}/ocr`, formData);
+  }
+
+  updateBills(bill_id: number, data: any): Observable<any> {
+    return this.http.put(`${this.backendUrl}/bill/${bill_id}`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
   async uploadImageToLease(formData: FormData, lease_agreement_id: number) {
     return this.http.post(`${this.backendUrl}/contract`, formData);
   }

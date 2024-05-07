@@ -20,8 +20,8 @@
         <label for="last_name" class="fw-bold">Last Name</label>
         <input type="text" formControlName="last_name" class="form-control mb-4" />
 
-        <label for="mobile_number" class="fw-bold">Mobile Number</label>
-        <input type="text" formControlName="mobile_number" class="form-control mb-4" />
+        <label for="mobile_number" class="fw-bold" >Mobile Number</label> <br>
+        <p-inputMask mask="0999-999-9999" formControlName="mobile_number" placeholder="99-999999"></p-inputMask>
 
         <span class="p-float-label">
             <p-dropdown [options]="userTypeOptions" formControlName="userType" placeholder="User Type"
