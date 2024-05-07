@@ -149,7 +149,7 @@ export class BackendServiceService {
       headers: this.headers
     });
   }
-  async uploadImageToLease(formData: FormData, lease_agreement_id: number) {
+  uploadImageToLease(formData: FormData, lease_agreement_id: number) {
     return this.http.post(`${this.backendUrl}/contract`, formData);
   }
 
