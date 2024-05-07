@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserDataService } from '../services/user-data.service';
 import { BackendServiceService } from '../services/backend-service.service';
 import { Router } from '@angular/router';
+import { SelectItem } from 'primeng/api';
 
 @Component({
   selector: 'app-user-form',
@@ -16,7 +17,13 @@ export class UserFormComponent implements OnInit {
     { label: 'Tenant', value: 'Tenant' },
     { label: 'Guest', value: 'Guest' },
   ];
-
+  towerOptions: SelectItem[] = [
+    { label: 'Tower 1', value: '1' },
+    { label: 'Tower 2', value: '2' },
+    { label: 'Tower 3', value: '3' },
+    { label: 'Tower 4', value: '4' },
+    { label: 'Tower 5', value: '5' }
+];
   constructor(
     private fb: FormBuilder,
     private userDataService: UserDataService,
