@@ -1,1 +1,112 @@
-<p>events-reservation works!</p>
+<form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
+  <div class="reservation-form">
+    <!-- Form content for non-admin users -->
+    <div *ngIf="!isAdmin" class="inputs mt-4 mb-2">
+      
+      <div class="input-2">
+        <div class="venue input-wrapper mt-4">
+          <p-dropdown
+            [options]="venue"
+            formControlName="selectedVenue"
+            placeholder="Venue"
+            optionLabel="name"
+            [showClear]="false"
+            id="venue"
+          ></p-dropdown>
+        </div>
+
+        <!-- <div class="mobile input-wrapper">
+          <label for="mobile_number">Mobile Number</label> <br />
+          <p-inputMask
+            mask="0999-999-9999"
+            formControlName="mobileNumber"
+            placeholder="99-999999"
+          ></p-inputMask>
+        </div> -->
+
+        <div class="title input-wrapper mt-4">
+          <input pInputText type="text" placeholder="Title" formControlName="title" id="title"/>
+        </div>
+
+      
+      </div>
+      <div class="calendar mt-4">
+        <div class="input-wrapper">
+          <label for="buttondisplay"></label>
+          <p-calendar
+            formControlName="date_to_post"
+            [touchUI]="true"
+            [iconDisplay]="'input'"
+            [showIcon]="true"
+            [showTime]="true"
+            hourFormat="12"
+            inputId="buttondisplay"
+            id="date_to_post"
+            [minDate]="today"
+            [disabledDates]="disableReservedDate"
+            (onSelect)="onDateSelect($event)"
+          ></p-calendar>
+        </div>
+      </div>
+
+   <div class="input-3">
+      <div class="flex justify-content-center mt-4">
+        <span class="p-float-label">
+          <textarea rows="5" cols="25" pInputTextarea formControlName="description" id="description"></textarea>
+          <label for="float-input">Describe your Agenda</label>
+        </span>
+      </div>
+
+      <div class="time-slot mt-2" id="description">
+        <p-dropdown id="timeSlotSelect" 
+        [options]="timeSlots" 
+        placeholder="Time Slot"
+        formControlName="selectedTimeSlot" 
+        optionLabel="label"></p-dropdown>
+      </div>
+    </div>
+    </div>
+    
+    <!-- Admin-specific content -->
+    <div *ngIf="isAdmin" class="mt-2 gap-3">
+      <!-- Display submitted form data for admin -->
+      <div *ngFor="let cms of cmsData">
+        <p>Title: {{ cms.title }}</p>
+        <p>Venue: {{ cms.selectedVenue }}</p>
+        <p>Time Slot: {{ cms.selectedTimeSlot }}</p>
+        <p>Date of Approval: {{cms.date_to_post}}</p>
+        <p>Description: {{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</p>
+      </div>
+
+
+      <div class="justify-content-center">
+        <button pButton pRipple label="Approve" class="p-button-danger" style="border-radius: 10px;" (click)="approve()"></button>
+      </div>
+
+      <div class="justify-content-center mt-2">
+        <button pButton pRipple label="Reject" class="p-button-secondary" style="border-radius: 10px;" (click)="showRejectionReasonInput = true"></button>
+      </div>
+
+      <form [formGroup]="rejectionReasonForm">
+      <div class="justify-content-center mt-2" *ngIf="showRejectionReasonInput">
+        <div class="input-wrapper">
+          <label for="rejectionReason">Rejection Reason:</label>
+          <textarea pInputTextarea formControlName="rejectionReason" id="rejectionReason" rows="3" cols="20"></textarea>
+        </div>
+
+        <div>
+          <button pButton pRipple label="Submit" class="p-button-danger" style="border-radius: 10px" (click)="reject()"></button>
+        </div>
+
+        <div class="mt-2">
+          <button pButton pRipple label="Cancel" class="p-button-secondary" style="border-radius: 10px" (click)="cancelRejection()"></button>
+        </div>
+      </div>
+      </form>
+    </div>
+      
+    <div class="button" *ngIf="!isAdmin">
+      <button pButton pRipple label="Submit" class="p-button-danger" style="border-radius: 10px;"></button>
+    </div>
+  </div>
+</form>

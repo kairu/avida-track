@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 import { BackendDataService } from './backend-data.service';
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +64,7 @@ export class BackendServiceService {
     return this.http.put(`${this.backendUrl}/user/${email}`, updatedUserData, { headers: this.headers });
   }
 
+
   getEmail(): Observable<string | null> {
     return JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
   }
@@ -81,6 +84,16 @@ export class BackendServiceService {
   getUser(user: any): Observable<any> {
     return this.http.get(`${this.backendUrl}/user/${user}`, {headers: this.headers});
   }
+  
+  
+  getLease(): Observable<any> {
+    return this.http.get(`${this.backendUrl}/lease`);
+  }
+  
+  getTenant(): Observable<any> {
+    return this.http.get(`${this.backendUrl}/user/tenant`);
+  }
+  
 
   getAccessControls(): Observable<any> {
     return this.http.get(`${this.backendUrl}/accesscontrol`);
@@ -136,6 +149,10 @@ export class BackendServiceService {
       headers: this.headers
     });
   }
+  async uploadImageToLease(formData: FormData, lease_agreement_id: number) {
+    return this.http.post(`${this.backendUrl}/contract`, formData);
+  }
+
 
   updateCMS(cms_id: number, data: any): Observable<any> {
     return this.http.put(`${this.backendUrl}/cms/${cms_id}`, JSON.stringify(data), {
@@ -155,5 +172,11 @@ export class BackendServiceService {
     });
   }
 
+  updateLease(lease_agreement_id: number, data: any): Observable<any> {
+    return this.http.put(`${this.backendUrl}/lease/${lease_agreement_id}`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
+  
 }
 
