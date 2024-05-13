@@ -4,6 +4,14 @@ import { MessageService } from 'primeng/api';
 import { BackendServiceService } from 'src/app/services/backend-service.service';
 import { HttpClient } from '@angular/common/http';
 
+
+enum CMSStatus {
+  PENDING = 1,
+  REVIEW = 2,
+  APPROVED = 3 // Changed this to APPROVED for clarity
+}
+
+
 interface Venue {
   name: string;
 }
@@ -14,12 +22,13 @@ interface TimeSlot {
 }
 
 interface CMSData {
+  status: CMSStatus;
+  cms_id: number;
   title: string;
   description: string;
   cms_type: string;
   date_to_post: string;
   selectedVenue: string; 
-  // mobileNumber: number;
   selectedTimeSlot: string;
 }
 
@@ -35,11 +44,10 @@ export class EventsReservationComponent implements OnInit {
   reservedDates: Date[] = [];
   isAdmin: boolean = true;
   cmsData: CMSData[] = [];
+  approvedCmsData: CMSData[] = [];
+  rejectedCmsData: CMSData[] = [];
   backendUrl: string = 'http://127.0.0.1:5000'; 
   cms_id!: number;
-  showRejectionReasonInput: boolean = false;
-  rejectionReasonForm: FormGroup;
-  
 
   venue: Venue[] = [
     { name: 'Outdoor Gym'},
@@ -58,9 +66,6 @@ export class EventsReservationComponent implements OnInit {
   ) {
     this.today = new Date();
     this.checkisAdmin();
-    this.rejectionReasonForm = this.fb.group({
-      rejectionReason: ['', Validators.required]
-    });
   }
 
   ngOnInit(): void {
@@ -70,21 +75,24 @@ export class EventsReservationComponent implements OnInit {
       this.http.get<CMSData[]>(`${this.backendUrl}/cms`).subscribe({
         next: (data: CMSData[]) => {
           console.log(data); 
-      
-          data.sort((a, b) => new Date(b.date_to_post).getTime() - new Date(a.date_to_post).getTime());
-      
-          if (data.length > 0) {
-            this.cmsData = [data[0]];
-      
-            // Extract venue and time slot information from the description
-            const descriptionParts = this.cmsData[0].description.split(' Venue: ');
-            // const descriptionWithoutVenue = descriptionParts[0]; // Description without venue information
-            const venue = descriptionParts[1] ? descriptionParts[1].split(' Time Slot: ')[0] : ''; 
-            const timeSlot = descriptionParts[1] ? descriptionParts[1].split(' Time Slot: ')[1] : ''; 
-      
-            this.cmsData[0].selectedVenue = venue;
-            this.cmsData[0].selectedTimeSlot = timeSlot;
-          }
+          const reservationEntries = data.filter(cms => cms.cms_type === 'RESERVATION');
+          reservationEntries.sort((a, b) => new Date(b.date_to_post).getTime() - new Date(a.date_to_post).getTime());
+          this.cmsData = reservationEntries;
+          this.cmsData.forEach(entry => {
+            const descriptionParts = entry.description.split(' Venue: ');
+            entry.selectedVenue = descriptionParts[1] ? descriptionParts[1].split(' Time Slot: ')[0] : '';
+            entry.selectedTimeSlot = descriptionParts[1] ? descriptionParts[1].split(' Time Slot: ')[1] : '';
+          });
+  
+          // Retrieve approved and rejected entries from local storage
+          const approvedCmsData = JSON.parse(localStorage.getItem('approvedCmsData') || '[]');
+          const rejectedCmsData = JSON.parse(localStorage.getItem('rejectedCmsData') || '[]');
+  
+          this.approvedCmsData = approvedCmsData;
+          this.rejectedCmsData = rejectedCmsData;
+  
+          // Remove approved and rejected entries from the main table
+          this.removeApprovedAndRejectedEntriesFromMainTable();
         },
         error: (error) => {
           console.error('Error fetching CMS data:', error);
@@ -92,7 +100,17 @@ export class EventsReservationComponent implements OnInit {
       });
     }
   }
-
+  
+  removeApprovedAndRejectedEntriesFromMainTable(): void {
+    const approvedAndRejectedEntries = [...this.approvedCmsData, ...this.rejectedCmsData];
+    approvedAndRejectedEntries.forEach(entry => {
+      const index = this.cmsData.findIndex(mainEntry => mainEntry.cms_id === entry.cms_id);
+      if (index !== -1) {
+        this.cmsData.splice(index, 1);
+      }
+    });
+  }
+  
   getDescriptionWithoutVenueAndTimeSlot(description: string): string {
     const parts = description.split(' Venue: ');
     return parts[0];
@@ -101,12 +119,10 @@ export class EventsReservationComponent implements OnInit {
   initForm(): void {
     this.reservationForm = this.fb.group({
       selectedVenue: ['', Validators.required],
-      // mobileNumber: ['', Validators.required],
       date_to_post: ['', Validators.required],
       title: ['', Validators.required],
       description: ['', Validators.required],
       selectedTimeSlot: ['', Validators.required],
-      rejectionReason: [''],
     });
   }
 
@@ -218,81 +234,91 @@ export class EventsReservationComponent implements OnInit {
   }
   
 
-  approve(): void {
-  const userEmail = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
+  // approve(cmsToApprove: any): void {
+  //   const updatedCMSData = { ...cmsToApprove, status: 3 };
+  //   this.backendService.updateCMS(cmsToApprove.cms_id, updatedCMSData)
+  //     .subscribe({
+  //       next: (response: any) => {
+  //         console.log('CMS entry approved:', cmsToApprove.cms_id);
+  //         this.messageService.add({
+  //           severity: 'success',
+  //           summary: 'Approved',
+  //           detail: 'Entry Approved.',
+  //         });
+  //       },
+  //       error: (error: any) => {
+  //         console.error('Error updating CMS entry:', error);
+  //         this.messageService.add({
+  //           severity: 'error',
+  //           summary: 'Error',
+  //           detail: 'Failed to approve entry.',
+  //         });
+  //       },
+  //     });
+  // }
+
+  approve(cms: CMSData): void {
+    const updatedCMSData = { ...cms, status: 3 }; // Assuming 3 corresponds to approved status
+    this.backendService.updateCMS(cms.cms_id, updatedCMSData).subscribe({
+      next: (response: any) => {
+        console.log('CMS entry approved:', cms.cms_id);
+        this.messageService.add({ severity: 'success', summary: 'Approved', detail: 'Entry Approved.' });
   
-  this.backendService.getCMS().subscribe({
-    next: (cmsEntries: any[]) => {
-      cmsEntries.sort((a, b) => new Date(b.date_to_post).getTime() - new Date(a.date_to_post).getTime());
-
-      const cmsToApprove = cmsEntries.find(cms => cms.cms_type === 'RESERVATION');
-
-      if (cmsToApprove) {
-        const updatedCMSData = { ...cmsToApprove, status: 3 };
-        this.backendService.updateCMS(cmsToApprove.cms_id, updatedCMSData).subscribe({
-          next: (response: any) => {
-            console.log('CMS entry approved:', cmsToApprove.cms_id);
-              this.messageService.add({ severity: 'success', summary: 'Approved', detail: 'Entry Approved.' });
-            
-          },
-          error: (error: any) => {
-            console.error('Error updating CMS entry:', error);
-          }
-        });
-      } else {
-        console.log('No CMS entry requiring approval found.');
+        // Remove approved CMS entry from main table
+        const index = this.cmsData.findIndex(entry => entry.cms_id === cms.cms_id);
+        if (index !== -1) {
+          this.cmsData.splice(index, 1);
+        }
+  
+        // Add approved CMS entry to approved table
+        this.approvedCmsData.push(cms);
+  
+        // Store updated lists in local storage
+        localStorage.setItem('approvedCmsData', JSON.stringify(this.approvedCmsData));
+        localStorage.setItem('cmsData', JSON.stringify(this.cmsData)); // Update local storage for main table data
+      },
+      error: (error: any) => {
+        console.error('Error updating CMS entry:', error);
       }
-    },
-    error: (error: any) => {
-      console.error('Error fetching CMS data:', error);
-    }
-  });
-}
-
-
-reject(): void {
-  if (this.isAdmin) {
-    const rejectionReasonControl = this.rejectionReasonForm.get('rejectionReason');
-    console.log('Rejection Reason Control:', rejectionReasonControl);
-    if (rejectionReasonControl && rejectionReasonControl.valid && rejectionReasonControl.value) {
-      const rejectionReason = rejectionReasonControl.value;
-      console.log('Rejection reason:', rejectionReason);
-    } else {
-      console.error('Rejection reason is required.');
-    }
-  } else {
-    console.error('User is not authorized to reject forms.');
+    });
   }
-}
+   
+  
 
-
-fetchAndRejectCMS(rejectionReason: string): void {
-  this.backendService.getCMS().subscribe(
-    (cmsEntries: any[]) => {
-      const cmsToReject = cmsEntries.find(cms => cms.cms_type === 'RESERVATION');
-
-      if (cmsToReject) {
-        const updatedCMSData = { ...cmsToReject, status: 1 , rejectionReason: rejectionReason };
-
-        this.backendService.updateCMS(cmsToReject.cms_id, updatedCMSData).subscribe(
-          (response: any) => {
-            console.log('CMS entry rejected:', cmsToReject.cms_id);
-          },
-          (error: any) => {
-            console.error('Error updating CMS entry:', error);
-          }
-        );
-      } else {
-        console.log('No CMS entry requiring rejection found.');
+  reject(cms: CMSData): void {
+    const updatedCMSData = { ...cms, status: 2 }; // Set status to "Rejected"
+    this.backendService.updateCMS(cms.cms_id, updatedCMSData).subscribe({
+      next: (response: any) => {
+        // Remove rejected CMS entry from main table
+        const index = this.cmsData.findIndex(entry => entry.cms_id === cms.cms_id);
+        if (index !== -1) {
+          this.cmsData.splice(index, 1);
+        }
+        this.rejectedCmsData.push(cms);
+        
+    
+        localStorage.setItem('rejectedCmsData', JSON.stringify(this.rejectedCmsData));
+        localStorage.setItem('cmsData', JSON.stringify(this.cmsData));
+        
+        
+        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'Entry Rejected.' });
+      },
+      error: (error: any) => {
+        console.error('Error updating CMS entry:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to reject entry.' });
       }
-    },
-    (error: any) => {
-      console.error('Error fetching CMS data:', error);
-    }
-  );
-}
-
-  cancelRejection() {
-    this.showRejectionReasonInput = false;
+    });
   }
+  
+
+
+  getCmsStatus(cms: CMSData): string {
+    return cms.status === CMSStatus.APPROVED ? 'Approved' : 'Rejected';
+  }
+  
+  getCmsStatusSeverity(cms: CMSData): string {
+    return cms.status === CMSStatus.APPROVED ? 'success' : 'danger';
+  }
+  
+  
 }

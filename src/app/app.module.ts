@@ -44,6 +44,11 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputTextModule } from 'primeng/inputtext';
 import { AboutComponent } from './about/about.component';
 import { InputMaskModule } from 'primeng/inputmask';
+import { TagModule } from 'primeng/tag'
+import { PanelModule } from 'primeng/panel';
+import { FieldsetModule } from 'primeng/fieldset';
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -82,6 +87,9 @@ import { InputMaskModule } from 'primeng/inputmask';
     InputTextareaModule,
     InputTextModule,
     InputMaskModule,
+    TagModule,
+    PanelModule,
+    FieldsetModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable

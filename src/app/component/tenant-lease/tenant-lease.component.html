@@ -1,28 +1,47 @@
 <h1>Tenant Information</h1>
-<div *ngIf="leases.length > 0" class="card">
-    <p-table [value]="leases" [tableStyle]="{ 'min-width': '50rem' }">
+<div *ngIf="leases.length > 0" class="card" style="height: 500px; overflow-y: auto;">
+    <p-table [value]="leases" [tableStyle]="{ 'min-width': '50rem'}">
         <ng-template pTemplate="header">
             <tr>
                 <th>Name</th>
                 <th>Monthly Rent</th>
+                <th>Number of Months</th>
                 <th>Contract</th>
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th>Remaining Balance</th>
+                <th>Action</th>
             </tr>
         </ng-template>
+        
         <ng-template pTemplate="body" let-lease>
-            <tr *ngFor="let lease of leases">
-                <td>{{ lease.tenant_info.first_name }} {{ lease.tenant_info.last_name }}</td>
-                <td>₱{{ lease.monthly_rent.toLocaleString() }}<div class="card flex justify-content-center">
-                    <span class="p-float-label mt-4">
-                    <p-inputNumber inputId="currency-philippines" mode="currency" [(ngModel)]="updatedMonthlyRent" currency="PHP"></p-inputNumber>
-                    <label for="number-input">Amount</label>
-                    <button pButton pRipple label="Submit" class="p-button-danger" (click)="updateRent(lease)"></button>
-                    </span>
-                    </div>
+            <tr>
+                <td>{{ lease.tenant_info?.first_name }} {{ lease.tenant_info?.last_name }}</td>
+                <td>₱{{ lease.monthly_rent.toLocaleString() }}
+                <div class="input-container">
+                <p-inputNumber inputId="currency-philippines" mode="currency"
+                [(ngModel)]="lease.updatedMonthlyRent"
+                currency="PHP"
+                [inputStyle]="{'width':'150px'}">
+                <ng-template pTemplate="input">
+                <span>Amount</span>
+                </ng-template>
+                </p-inputNumber>
+
+                </div>
+                    <button pButton pRipple label="Compute" class="p-button-danger" (click)="updateRent(lease)"></button>
                 </td>
-                <!-- <td>{{ lease.contract }}</td> -->
+
+                <td>
+                    <p-inputNumber inputId="integeronly" type="number" [(ngModel)]="lease.numberOfMonths"
+                    placeholder="Months" 
+                    [disabled]="lease.startDateSaved"
+                    (ngModelChange)="computeDates(lease)"
+                    [inputStyle]="{'width':'100px'}"
+                    [min]="1" [max]="12" />
+                </td>
+
+                <td>
                 <div *ngIf="imageSrc">
                 <img [src]="imageSrc ? imageSrc : selectedItem.image_path" alt="Uploaded Image">
                 </div>
@@ -30,9 +49,28 @@
                 [maxFileSize]="1000000" 
                 (uploadHandler)="storeImageData($event, selectedItem?.lease_agreement_id)" chooseLabel="Browse" [customUpload]="true"
                 invalidFileTypeMessageDetail="Allowed file types: jpg, jpeg, png, gif, bmp" width="100"></p-fileUpload>
-                <td>{{ lease.start_date }}</td>
-                <td>{{ lease.end_date }}</td>
+                </td>
+
+                <td>
+                    <p-calendar [(ngModel)]="lease.start_date"
+                    [ngModelOptions]="{standalone: true}"
+                    (ngModelChange)="computeDates(lease)"
+                    [iconDisplay]="'input'"
+                    [showIcon]="true"
+                    [touchUI]="true"
+                    [minDate]="today"
+                    [inputStyle]="{'width':'150px'}"
+                    inputId="start_date"
+                    [readonlyInput]="lease.startDateSaved"
+                    [disabled]="lease.startDateSaved">
+                    </p-calendar>
+                </td>
+
+                <td>{{ computedEndDates[lease.lease_agreement_id] }}</td>
                 <td>₱{{ lease.remaining_balance.toLocaleString() }}</td>
+                <td>
+                    <button pButton pRipple label="Save" class="p-button-success" (click)="updateLeaseDates(lease)"></button>
+                </td>
             </tr>
         </ng-template>
     </p-table>
