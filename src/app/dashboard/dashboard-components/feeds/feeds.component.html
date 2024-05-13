@@ -1,5 +1,22 @@
-<div class="card">
-    <div class="card-body">
-        
+<div class="card" *ngIf="isAdmin">
+    <div class="card-body d-flex flex-column w-100">
+      <div class="container row mb-4">
+        <span class="col">
+          <p-button (onClick)="billsDistribution()" size="small" label="Bills Distribution" />
+        </span>
+        <span class="col">
+          <p-button (onClick)="efficiencyRate()" size="small" label="Efficiency Rate" />
+        </span>
+      </div>
+        <div id="chart" *ngIf="chartOptions.series && chartOptions.labels">
+            <apx-chart
+              [series]="chartOptions.series"
+              [chart]="chartOptions.chart"
+              [labels]="chartOptions.labels"
+              [fill]="chartOptions.fill"
+              [dataLabels]="chartOptions.dataLabels"
+              [responsive]="chartOptions.responsive"
+            ></apx-chart>
+          </div>
     </div>
 </div>
