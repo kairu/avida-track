@@ -8,10 +8,15 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { TooltipModule } from 'primeng/tooltip';
+import * as XLSX from 'xlsx';
+import { jsPDF } from "jspdf";
+import autoTable from 'jspdf-autotable'
+ 
 @Component({
   selector: 'app-maintenance',
   standalone: true,
-  imports: [FormsModule, InputTextModule, ButtonModule, TimeFormatPipe, KeysPipe, CommonModule, TableModule],
+  imports: [TooltipModule, FormsModule, InputTextModule, ButtonModule, TimeFormatPipe, KeysPipe, CommonModule, TableModule],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss'
 })
@@ -92,6 +97,7 @@ export class ReportsComponent {
         });
       })
     ).subscribe(datas => {
+      this.datas = datas.sort((a: { [x: string]: string | number | Date; }, b: { [x: string]: string | number | Date; }) => new Date(b['Date Posted']).getTime() - new Date(a['Date Posted']).getTime());
       this.datas = datas;
     });
   }
@@ -106,5 +112,16 @@ export class ReportsComponent {
     { field: 'Time Posted', header: 'Time Posted'}
   ];
 
+  exportToExcel(data: any[], fileName: string): void {
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+  }
+
+  exportToPDF(data: any[], fileName: string): void {
+    const doc = new jsPDF();
+    autoTable(doc, { html: '#pn_id_2-table' })
+    doc.save(`${fileName}.pdf`);
+  }
 
 }
