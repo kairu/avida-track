@@ -29,14 +29,15 @@ const routes: Routes = [
     CommonModule,
     RouterModule.forChild(routes),
     NgApexchartsModule,
+    FeedsComponent,
+    TopSellingComponent,
+    BlogCardsComponent
   ],
   declarations: [
     DashboardComponent,
     SalesRatioComponent,
-    FeedsComponent,
-    TopSellingComponent,
-    TopCardsComponent,
-    BlogCardsComponent
+    TopCardsComponent
+    
   ],
 })
 export class DashboardModule {}

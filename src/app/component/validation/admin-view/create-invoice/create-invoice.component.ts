@@ -32,8 +32,12 @@ export class CreateInvoiceComponent {
   amount!: number;
   due_date: any;
   breakdown!: string;
-  userSelected: boolean = false;
-  unitSelected: boolean = false;
+  userSelected: boolean = true;
+  unitSelected: boolean = true;
+  soaEntried: boolean = true;
+  billSelected: boolean = true;
+  amountEntried: boolean = true;
+  due_DateSelected: boolean = true;
 
   filterUnitOptions(event: any) {
     this.backendservice.getUnits().subscribe({
@@ -44,7 +48,7 @@ export class CreateInvoiceComponent {
             this.unitOptions.push({ label: `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}`, value: unit.unit_id });
           }
         });
-        this.userSelected = true;
+        this.userSelected = false;
       }
     });
   }
@@ -75,7 +79,7 @@ export class CreateInvoiceComponent {
  
   showBody(event: any) {
     this.unit = event.value.value;
-    this.unitSelected = true;
+    this.unitSelected = false;
   }
 
   getUserAndUnit() {
@@ -89,12 +93,17 @@ export class CreateInvoiceComponent {
   }
 
   onCloseButton() {
-    this.userSelected = false;
-    this.unitSelected = false;
+    this.userSelected = true;
+    this.unitSelected = true;
+    this.soaEntried = true;
+    this.billSelected = true;
+    this.amountEntried = true;
+    this.due_DateSelected = true;
     this.unitOptions = [];
     this.user = [];
     this.unit = 0;
     this.billType = null;
     this.soa_id = '';
+    
   }
 }

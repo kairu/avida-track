@@ -4,14 +4,11 @@ import { MessageService } from 'primeng/api';
 import { BackendServiceService } from 'src/app/services/backend-service.service';
 import { HttpClient } from '@angular/common/http';
 
-
 enum CMSStatus {
   PENDING = 1,
   REVIEW = 2,
   APPROVED = 3 // Changed this to APPROVED for clarity
 }
-
-
 interface Venue {
   name: string;
 }
@@ -48,7 +45,6 @@ export class EventsReservationComponent implements OnInit {
   rejectedCmsData: CMSData[] = [];
   backendUrl: string = 'http://127.0.0.1:5000'; 
   cms_id!: number;
-
   venue: Venue[] = [
     { name: 'Outdoor Gym'},
     { name: 'Clubhouse'},
@@ -110,7 +106,6 @@ export class EventsReservationComponent implements OnInit {
       }
     });
   }
-  
   getDescriptionWithoutVenueAndTimeSlot(description: string): string {
     const parts = description.split(' Venue: ');
     return parts[0];
@@ -233,7 +228,6 @@ export class EventsReservationComponent implements OnInit {
     });
   }
   
-
   // approve(cmsToApprove: any): void {
   //   const updatedCMSData = { ...cmsToApprove, status: 3 };
   //   this.backendService.updateCMS(cmsToApprove.cms_id, updatedCMSData)
@@ -319,6 +313,5 @@ export class EventsReservationComponent implements OnInit {
   getCmsStatusSeverity(cms: CMSData): string {
     return cms.status === CMSStatus.APPROVED ? 'success' : 'danger';
   }
-  
   
 }

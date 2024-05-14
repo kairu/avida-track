@@ -1,19 +1,55 @@
-<div class="card">
+<div class="card" *ngIf="isAdmin">
     <div class="card-body">
         <!-- title -->
-                <h4 class="card-title">Top Selling</h4>
-                <h5 class="card-subtitle">Overview of the projects</h5>
-            
+        <h4 class="card-title">Recent Reports</h4>
+        <!-- <h5 class="card-subtitle">Overview of the projects</h5> -->
+
         <!-- title -->
         <div class="table-responsive">
-            <table class="table align-middle">
+            <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()"
+                styleClass="p-datatable-striped p-datatable-gridlines">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th class="text-center" *ngFor="let column of datas?.slice()[0] | keys">
+                            <ng-container *ngIf="column !== 'user_id'">
+                                {{ column }}
+                            </ng-container>
+                        </th>
+
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-rowData let-editing="editing">
+                    <tr>
+                        <td *ngFor="let column of datas?.slice()[0] | keys">
+                            <span
+                                *ngIf="column !== 'Date Posted' && column !== 'Time Posted' && column !== 'user_id' && column !== 'Type'">{{
+                                rowData[column] }}</span>
+                            <span *ngIf="column == 'Type'">
+                                <p-tag [value]="rowData[column]"
+                                    [severity]="severity.getSeverity(rowData[column])"></p-tag>
+                            </span>
+                            <span *ngIf="column === 'Date Posted'">{{rowData[column] | date:'longDate'}}</span>
+                            <span *ngIf="column === 'Time Posted'">{{rowData[column] | convertFrom24To12Format}}</span>
+                        </td>
+
+                    </tr>
+                </ng-template>
+            </p-table>
+
+
+
+
+
+            <!-- <table class="table align-middle">
                 <thead>
                     <tr>
-                        <th class="text-dark font-medium fs-4">Team Lead</th>
-                        <th class="text-dark font-medium fs-4">Project</th>
-                        <th class="text-dark font-medium fs-4">Status</th>
-                        <th class="text-dark font-medium fs-4">Weeks</th>
-                        <th class="text-dark font-medium fs-4">Budget</th>
+                        <th class="font-medium fs-4">Team Lead</th>
+                        <th class="font-medium fs-4">Project</th>
+                        <th class="font-medium fs-4">Status</th>
+                        <th class="font-medium fs-4">Weeks</th>
+                        <th class="font-medium fs-4">Budget</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,17 +67,17 @@
                         <td>
                             <span class="p-2 bg-{{ts.status}} rounded-circle d-inline-block ms-3"></span>
                         </td>
-                        
+
                         <td>
                             <h5 class="mb-0 fw-normal">{{ts.weeks}}</h5>
                         </td>
                         <td>
                             <h5 class="mb-0 fw-normal">{{ts.budget}}</h5>
                         </td>
-                    </tr>              
+                    </tr>
                 </tbody>
-            </table>
+            </table> -->
         </div>
     </div>
-    
+
 </div>

@@ -47,8 +47,6 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { TagModule } from 'primeng/tag'
 import { PanelModule } from 'primeng/panel';
 import { FieldsetModule } from 'primeng/fieldset';
-
-
 @NgModule({
   declarations: [
     AppComponent,

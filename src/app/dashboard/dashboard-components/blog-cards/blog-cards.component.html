@@ -1,12 +1,28 @@
+<h4>Bulletin Board</h4>
 <div class="row">
-    <div class="col-md-6 col-lg-3" *ngFor='let blogcard of blogcards'>
-        <div class="card">
-            <img [src]=blogcard.image alt="blogs" class="card-img-top">
-            <div class="card-body">
-                <h4 class="card-title">{{blogcard.title}}</h4>
-                <h6 class="card-subtitle">{{blogcard.subtitle}}</h6>
-                <p class="mt-3">{{blogcard.subtext}}</p>
-                <button type="button" class="btn btn-primary">Read More</button>
+    <div class="col-md-6 col-lg-3 card" *ngFor="let item of datas; index as i">
+        <!-- *ngIf="!filter || capitalizeFirstLetter(item.cms_type) === filter" -->
+        <div class="card-container">
+            <div class="card-wrapper">
+                <p-card [style]="{'background-color': '#f0f0f0'}">
+                    <ng-template pTemplate="header">
+                        <div class="card-title">
+                            <h2 style="color: #007bff;">{{item.title}}</h2>
+                        </div>
+                    </ng-template>
+
+                    <!-- Image -->
+                    <p-image [src]="item.image_path" alt="Image" width="250"></p-image>
+                    <p class="mt-4" style="color: #6c757d;">{{item.description}}</p>
+                    <div>
+                        <div>
+                            {{capitalizeFirstLetter(item.cms_type)}}
+                        </div>
+                        <div>
+                            {{ item.date_to_post}} {{ item.date_to_end ? "- " + item.date_to_end : ""}}
+                        </div>
+                    </div>
+                </p-card>
             </div>
         </div>
     </div>

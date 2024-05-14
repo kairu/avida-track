@@ -1,17 +1,17 @@
 <div class="container-fluid">
     <h2 class="text-center">Reports</h2>
     <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()" #dt1 dataKey="id"
-        [paginator]="datas?.length > rows" [rows]="rows" styleClass="p-datatable-striped p-datatable-gridlines"
+        exportFilename="Reports" [columns]="exportHeader" [paginator]="datas?.length > rows" [rows]="rows"
+        styleClass="p-datatable-striped p-datatable-gridlines"
         [globalFilterFields]="['Full Name', 'Title', 'Description', 'Type', 'Date Posted', 'Time Posted']"
         [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
         <ng-template pTemplate="caption">
-            <div class="d-flex justify-content-between">
+            <div class="container d-flex justify-content-between">
                 <div>
                     <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
                         (click)="refreshTable()"></p-button>
-
                 </div>
 
                 <div>
@@ -20,9 +20,18 @@
                     </p-button>
                     <span class="p-input-icon-left">
                         <i class="pi pi-search"></i>
-                        <input pInputText type="text" [(ngModel)]="searchText" (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
+                        <input pInputText type="text" [(ngModel)]="searchText"
+                            (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
                             placeholder="Search keyword" />
                     </span>
+                </div>
+            </div>
+            <div class="container row mt-4">
+                <h5>Export as:</h5>
+                <div class="p-buttongroup">
+                    <p-button class="me-2" [raised]="true" icon="pi pi-external-link" size="small" pTooltip="CSV" (click)="dt1.exportCSV()" />
+                    <p-button class="me-2" severity="success" [raised]="true" icon="pi pi-file-excel" size="small" pTooltip="XLSX" (click)="exportToExcel(datas, 'Avida-Reports')" />
+                    <p-button class="me-2" severity="danger" [raised]="true" icon="pi pi-file-pdf" size="small" pTooltip="PDF" (click)="exportToPDF(datas, 'Avida-PDF')" />
                 </div>
             </div>
         </ng-template>
