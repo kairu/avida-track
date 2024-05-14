@@ -1,69 +1,103 @@
-.reservation-form {
-  max-width: 500px;
-  margin-left: 20%;
-}
+// .reservation-form {
+//   max-width: 500px;
+//   margin-left: 20%;
+// }
 
-.inputs {
-  display: block;
-  justify-content: space-between;
-}
 
-.input-wrapper {
-  margin-right: 10px;
-  @media (max-width: 768px){
-    margin-top: 10%;
-  }
-}
+// .inputs {
+//   display: block;
+//   justify-content: space-between;
+// }
 
-.reservation-message {
-  margin-top: 20px;
-  font-size: 30px;
-  text-align: center;
-}
+// .input-wrapper {
+//   margin-right: 10px;
+//   @media (max-width: 768px){
+//     margin-top: 10%;
+//   }
+// }
 
-.input-2 {
-  display: flex;
+// .reservation-message {
+//   margin-top: 20px;
+//   font-size: 30px;
+//   text-align: center;
+// }
+
+// .input-2 {
+//   display: flex;
   
-}
+// }
 
-.input-3{
-display: block;
-}
+// .input-3{
+// display: block;
+// }
 
-.calendar {
-  display: flex;
-  margin-right: 20%;
-}
+// .calendar {
+//   display: flex;
+//   margin-right: 20%;
+// }
 
-.button {
-  width: 50px;
-  height: 50px;
-  padding: 0;
-  margin-top: 10px;
-}
+// .button {
+//   width: 50px;
+//   height: 50px;
+//   padding: 0;
+//   margin-top: 10px;
+// }
 
-@media (max-width: 768px) {
-  .reservation-form {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+// @media (max-width: 768px) {
+//   .reservation-form {
+//     flex-direction: column;
+//     align-items: flex-start;
+//   }
 
-  .inputs {
-    flex-direction: column;
-  }
+//   .inputs {
+//     flex-direction: column;
+//   }
 
-  .calendar {
-    margin-top: 0;
-  }
-  .input-2 {
-    flex-direction: column;
-  }
+//   .calendar {
+//     margin-top: 0;
+//   }
+//   .input-2 {
+//     flex-direction: column;
+//   }
   
-  .mobile{
-    margin-top: 10px;
-  }
+//   .mobile{
+//     margin-top: 10px;
+//   }
+// }
+
+.registration-form {
+    .form-group {
+        margin-bottom: 20px; // Adjust the spacing between each form group as needed
+    }
+
+    label {
+        display: block; // Ensure labels are displayed as blocks to stack them above their corresponding inputs
+        margin-bottom: 5px; // Add a small margin between labels and inputs
+    }
+
+    input[type='text'],
+    textarea,
+    .p-dropdown {
+        width: 100%; // Make inputs take up full width within their container
+    }
+
+    .p-dropdown {
+        margin-top: 5px; // Add a small margin on top of dropdowns for spacing consistency
+    }
 }
 
-
+// ::ng-deep .custom .p-fieldset-content {
+//     background-image: url('/assets/images/bg/scheduling1.png'); // Replace 'path/to/your/image.jpg' with the actual path to your image file
+//     background-repeat: no-repeat; // Optional: prevent the image from repeating
+//     background-position: center;
+//   }
+  
   
 
+.registration-form {
+    background-image: url('/assets/images/bg/scheduling1.png'); /* Replace 'path/to/your/image.jpg' with the actual path to your image file */
+    // background-color: #99201c;
+    // background-image: linear-gradient(316deg, #99201c 0%, #f56545 74%);
+    background-repeat: no-repeat; /* Optional: prevent the image from repeating */
+    background-position: center;
+  }
