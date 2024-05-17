@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminModule } from 'src/app/shared-module/admin-module';
 import { BackendServiceService } from 'src/app/services/backend-service.service';
-import { combineLatest, map, of, switchMap } from 'rxjs';
+import { combineLatest, forkJoin, map, of, switchMap } from 'rxjs';
 import { TimeFormatPipe } from 'src/app/pipe/time-format.pipe';
 import { SeverityService } from 'src/app/services/severity.service';
 import { CheckisAdminService } from 'src/app/services/checkis-admin.service';
@@ -16,7 +16,7 @@ export class TopSellingComponent implements OnInit {
 
   datas: any;
   isAdmin: boolean = false;
-
+  isOwnerTenant: boolean = false;
   constructor(private checkisadmin: CheckisAdminService, public severity: SeverityService, private backendService: BackendServiceService) { }
 
   ngOnInit() {
@@ -24,6 +24,47 @@ export class TopSellingComponent implements OnInit {
       this.isAdmin = isAdmin;
       if (this.isAdmin) {
         this.getReportsData();
+      } else {
+        this.checkisadmin.checkisOwnerTenant().subscribe(isOwnerTenant => {
+          this.isOwnerTenant = isOwnerTenant;
+          if (this.isOwnerTenant) {
+            this.getTenantsData();
+          }else{
+            
+          }
+        });
+        
+      }
+    });
+  }
+
+  getTenantsData() {
+    const userData = sessionStorage.getItem('backendUserData');
+    const user_id = JSON.parse(userData || '{}').user_id;
+    this.backendService.getUser(user_id).subscribe({
+      next: (response: any) => {
+        const tenantInfos$ = response.lease_agreements.map((agreement: any) => {
+          const tenant = agreement.tenant_info;
+          const unit_id = agreement.unit_id;
+          return this.backendService.getUnit(unit_id).pipe(
+            map((unit: any) => {
+              return {
+                'Full Name': `${tenant.last_name} ${tenant.first_name}`,
+                'Unit': `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}`,
+                'Email': tenant.email,
+                'Phone Number': tenant.mobile_number,
+                'Remaining Balance': agreement.remaining_balance,
+              };
+            })
+          );
+        });
+
+        // Use forkJoin to wait for all observables to complete
+        forkJoin(tenantInfos$).subscribe(
+          tenantInfos => {
+            this.datas = tenantInfos;
+          },
+        );
       }
     });
   }

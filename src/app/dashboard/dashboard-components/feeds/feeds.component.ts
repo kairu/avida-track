@@ -57,20 +57,87 @@ export class FeedsComponent implements OnInit {
       type: "gradient"
     },
     legend: {},
-    dataLabels: {enabled: true},
+    dataLabels: { enabled: true },
   };
   constructor(private checkisadmin: CheckisAdminService, private backendservice: BackendServiceService) { }
   isAdmin: boolean = false;
+  isOwnerTenant: boolean = false;
   ngOnInit() {
     this.checkisadmin.checkisAdmin().subscribe(isAdmin => {
       this.isAdmin = isAdmin;
       if (this.isAdmin) {
         this.billsDistribution();
+      } else {
+        this.checkisadmin.checkisOwnerTenant().subscribe(isOwnerTenant => {
+          this.isOwnerTenant = isOwnerTenant;
+          if (this.isOwnerTenant) {
+            this.collectedRent();
+          }else{
+            
+          }
+        });
       }
     });
   }
 
-  efficiencyRate(){
+  collectedRent() {
+    let totalBalance = 0;
+    let paymentBalance = 0;
+    const userData = sessionStorage.getItem('backendUserData');
+    const user_id = JSON.parse(userData || '{}').user_id;
+    this.backendservice.getUser(user_id).subscribe(
+      (response: any) => {
+        response.lease_agreements.forEach((agreement: { start_date: string | number | Date; end_date: string | number | Date; monthly_rent: number; payments: any[]; }) => {
+          const startDate = new Date(agreement.start_date);
+          const endDate = new Date(agreement.end_date);
+          const duration = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24 * 30); // Duration in months
+          totalBalance += Math.floor(duration * agreement.monthly_rent);
+
+          agreement.payments.forEach(payment => {
+            if (payment.status === "REVIEW" || payment.status === "PAID") {
+              paymentBalance += payment.amount;
+            }
+          });
+        });
+
+        const chartOptions = {
+          series: [paymentBalance, totalBalance - paymentBalance],
+          chart: {
+            type: 'donut',
+          },
+          plotOptions:{
+            pie: {
+              startAngle: -90,
+              endAngle: 90,
+              offsetY: 10,
+            }
+          },
+          labels: [ 'Collected', 'Outstanding Balance'],
+          dataLabels: {
+            enabled: true
+          },
+          responsive: [{
+            breakpoint: 480,
+            options: {
+              chart: {
+                width: 200,
+              },
+              legend: {
+                position: "bottom"
+              }
+            }
+          }],
+          legend: {
+            position: 'bottom'
+          }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chartO"), chartOptions);
+        chart.render();
+      });
+  }
+
+  efficiencyRate() {
     this.backendservice.getBills().subscribe({
       next: (data: any) => {
         let collectedBills = 0;
@@ -91,7 +158,7 @@ export class FeedsComponent implements OnInit {
     });
   }
 
-  billsDistribution(){
+  billsDistribution() {
     this.backendservice.getBills().subscribe(
       (data: any) => {
         let reviewCount = 0;

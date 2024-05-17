@@ -73,6 +73,10 @@ export class BackendServiceService {
     return this.http.get(`${this.backendUrl}/unit`);
   }
 
+  getUnit(unit: any): Observable<any> {
+    return this.http.get(`${this.backendUrl}/unit/${unit}`);
+  }
+
   getBills(): Observable<any> {
     return this.http.get(`${this.backendUrl}/bill`);
   }

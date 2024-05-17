@@ -11,7 +11,7 @@
 
                 <ng-template pTemplate="header">
                     <tr>
-                        <th class="text-center" *ngFor="let column of datas?.slice()[0] | keys">
+                        <th *ngFor="let column of datas?.slice()[0] | keys">
                             <ng-container *ngIf="column !== 'user_id'">
                                 {{ column }}
                             </ng-container>
@@ -37,47 +37,45 @@
                     </tr>
                 </ng-template>
             </p-table>
-
-
-
-
-
-            <!-- <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th class="font-medium fs-4">Team Lead</th>
-                        <th class="font-medium fs-4">Project</th>
-                        <th class="font-medium fs-4">Status</th>
-                        <th class="font-medium fs-4">Weeks</th>
-                        <th class="font-medium fs-4">Budget</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor='let ts of topSelling'>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img [src]=ts.image alt="user" width="45" class="rounded-circle">
-                                <div class="ms-3">
-                                    <h5 class="mb-0 font-medium">{{ts.uname}}</h5>
-                                    <span class="text-muted">{{ts.gmail}}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="fs-4">{{ts.productName}}</td>
-                        <td>
-                            <span class="p-2 bg-{{ts.status}} rounded-circle d-inline-block ms-3"></span>
-                        </td>
-
-                        <td>
-                            <h5 class="mb-0 fw-normal">{{ts.weeks}}</h5>
-                        </td>
-                        <td>
-                            <h5 class="mb-0 fw-normal">{{ts.budget}}</h5>
-                        </td>
-                    </tr>
-                </tbody>
-            </table> -->
         </div>
     </div>
+</div>
 
+<div class="card" *ngIf="!isAdmin && isOwnerTenant">
+    <div class="card-body">
+        <!-- title -->
+        <h4 class="card-title">Tenants</h4>
+        <!-- <h5 class="card-subtitle">Overview of the projects</h5> -->
+
+        <!-- title -->
+        <div class="table-responsive">
+            <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()"
+                styleClass="p-datatable-striped p-datatable-gridlines">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th *ngFor="let column of datas?.slice()[0] | keys">
+                            <ng-container
+                                *ngIf="column == 'Full Name' || column == 'Unit' || column == 'Email' || column == 'Phone Number' || column == 'Remaining Balance'">
+                                {{ column }}
+                            </ng-container>
+                        </th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-rowData let-editing="editing">
+                    <tr>
+                        <td *ngFor="let column of datas?.slice()[0] | keys">
+                            <span *ngIf="column == 'Full Name' || column == 'Unit' || column == 'Email' || column == 'Phone Number'">
+                                {{ rowData[column] }}
+                            </span>
+                            <span *ngIf="column == 'Remaining Balance'">
+                                {{ rowData[column] | currency:'PHP'}}
+                            </span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
 </div>

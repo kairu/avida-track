@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import * as ApexCharts from 'apexcharts';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -101,17 +102,93 @@ export class SalesRatioComponent implements OnInit {
   }
 
   isAdmin: boolean = false;
-
+  isOwnerTenant: boolean = false;
   ngOnInit() {
     this.checkisadmin.checkisAdmin().subscribe(isAdmin => {
       this.isAdmin = isAdmin;
       if (this.isAdmin) {
         this.generateChart();
+      }else {
+        this.checkisadmin.checkisOwnerTenant().subscribe(isOwnerTenant => {
+          this.isOwnerTenant = isOwnerTenant;
+          if (this.isOwnerTenant) {
+            this.getBillHistory();
+          }else{
+            
+          }
+        });
+        
       }
     });
   }
-  
-  generateChart(){
+
+  getBillHistory() {
+    const userData = sessionStorage.getItem('backendUserData');
+    const user_id = JSON.parse(userData || '{}').user_id;
+    this.backendservice.getUser(user_id).subscribe(
+      (response: any) => {
+        const bills = response.units.flatMap((unit: any) => unit.bills);
+
+        const datas = bills.map((bill: any) => {
+          return {
+            due_date: new Date(bill.due_date),
+            total_amount: bill.total_amount,
+            bill_type: bill.bill_type
+          };
+        }).sort((a: { due_date: number; }, b: { due_date: number; }) => a.due_date - b.due_date);
+
+        const series = datas.map((data: { due_date: any; total_amount: any; bill_type: any; }) => ({
+          x: data.due_date,
+          y: data.total_amount,
+          bill_type: data.bill_type
+        }));
+
+        const options = {
+          series: [{
+            name: 'Bills',
+            data: series
+          }],
+          chart: {
+            type: 'area',
+            stacked: false,
+            zoom: {
+              enabled: true,
+              autoScaleYaxis: true
+            }
+          },
+          xaxis: {
+            type: 'datetime',
+            title: {
+              text: 'Due Date'
+            }
+          },
+          yaxis: {
+            title: {
+              text: 'Total Amount'
+            }
+          },
+          tooltip: {
+            custom: function ({ seriesIndex, dataPointIndex, w }: { series: number[], seriesIndex: number, dataPointIndex: number, w: any }) {
+              const point = w.globals.seriesX[seriesIndex][dataPointIndex];
+              const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
+              const amount = dataPoint.y;
+              const billType = w.config.series[seriesIndex].data[dataPointIndex].bill_type;
+              return `<div class="arrow_box">
+                        <span>Due Date: ${new Date(point).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span></br>
+                        <span>Amount: ${amount}</span></br>
+                        <span>Bill Type: ${billType}</span>
+                      </div>`;
+            }
+          }
+        }
+
+        const chart = new ApexCharts(document.querySelector('#chart'), options);
+        chart.render();
+
+      });
+  }
+
+  generateChart() {
     this.backendservice.getUsers().subscribe(
       (data: any) => {
         const ownersByTower = data
