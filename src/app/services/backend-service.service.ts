@@ -88,9 +88,12 @@ export class BackendServiceService {
   getUser(user: any): Observable<any> {
     return this.http.get(`${this.backendUrl}/user/${user}`, {headers: this.headers});
   }
+
+  getLease(leaseIDorTenantID: string): Observable<any> {
+    return this.http.get(`${this.backendUrl}/lease/${leaseIDorTenantID}`);
+  }
   
-  
-  getLease(): Observable<any> {
+  getLeases(): Observable<any> {
     return this.http.get(`${this.backendUrl}/lease`);
   }
   
