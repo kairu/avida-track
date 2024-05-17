@@ -78,8 +78,8 @@ export class TopSellingComponent implements OnInit {
             'Title': data.title,
             'Description': data.description,
             'Type': data.cms_type,
-            'Date Posted': data.date_posted,
-            'Time Posted': data.time_posted,
+            'Date Posted': data.date_posted + " " + data.time_posted,
+            // 'Time Posted': data.time_posted,
           };
         });
       })

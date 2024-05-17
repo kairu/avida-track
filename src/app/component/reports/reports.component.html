@@ -3,7 +3,7 @@
     <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()" #dt1 dataKey="id"
         exportFilename="Reports" [columns]="exportHeader" [paginator]="datas?.length > rows" [rows]="rows"
         styleClass="p-datatable-striped p-datatable-gridlines"
-        [globalFilterFields]="['Full Name', 'Title', 'Description', 'Type', 'Date Posted', 'Time Posted']"
+        [globalFilterFields]="['Full Name', 'Title', 'Description', 'Type', 'Date Posted']"
         [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
@@ -52,8 +52,8 @@
                 <td *ngFor="let column of datas?.slice()[0] | keys">
                     <span *ngIf="column !== 'Date Posted' && column !== 'Time Posted' && column !== 'user_id'">{{
                         rowData[column] }}</span>
-                    <span *ngIf="column === 'Date Posted'">{{rowData[column] | date:'longDate'}}</span>
-                    <span *ngIf="column === 'Time Posted'">{{rowData[column] | convertFrom24To12Format}}</span>
+                    <span *ngIf="column === 'Date Posted'">{{rowData[column] | date:"MMM dd, yyyy 'at' hh:mm a"}}</span>
+                    <!-- <span *ngIf="column === 'Time Posted'">{{rowData[column] | convertFrom24To12Format}}</span> -->
                 </td>
 
             </tr>
