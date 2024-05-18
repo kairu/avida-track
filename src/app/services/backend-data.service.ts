@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-enum MONTH{
+enum MONTH {
   JANUARY,
   FEBRUARY,
   MARCH,
@@ -12,26 +12,26 @@ enum MONTH{
   SEPTEMBER,
   OCTOBER,
   NOVEMBER,
-  DECEMBER 
+  DECEMBER
 }
 
-enum CMS_ENUM{
-  ANNOUNCEMENT,
-  NEWS,
-  EVENT,
-  RESERVATION,
-  MAINTENANCE,
-  FEEDBACK,
-  COMPLAINT
+enum CMS_ENUM {
+  ANNOUNCEMENT = 'ANNOUNCEMENT',
+  NEWS = 'NEWS',
+  EVENT = 'EVENT',
+  RESERVATION = 'RESERVATION',
+  MAINTENANCE = 'MAINTENANCE',
+  FEEDBACK = 'FEEDBACK',
+  COMPLAINT = 'COMPLAINT'
 }
 
-enum STATUS{
+enum STATUS {
   PENDING = "PENDING",
   REVIEW = "REVIEW",
   PAID = "PAID"
 }
 
-enum BILL_TYPE{
+enum BILL_TYPE {
   WATER = 'WATER',
   ASSOCIATION = 'ASSOCIATION', // Interest
   PARKING = 'PARKING', // Interest
@@ -39,12 +39,12 @@ enum BILL_TYPE{
   ETC = 'ETC'
 }
 
-enum USER{
-    SUPER_ADMIN = "SUPER_ADMIN",
-    ADMIN = "ADMIN",
-    OWNER = "OWNER",
-    TENANT = "TENANT",
-    GUEST = "GUEST"
+enum USER {
+  SUPER_ADMIN = "SUPER_ADMIN",
+  ADMIN = "ADMIN",
+  OWNER = "OWNER",
+  TENANT = "TENANT",
+  GUEST = "GUEST"
 }
 
 @Injectable({
@@ -52,14 +52,14 @@ enum USER{
 })
 
 export class BackendDataService {
-  constructor(){}
+  constructor() { }
 
   billTypes = [
     { name: 'Water', code: 'WATER' },
     { name: 'Association', code: 'ASSOCIATION' },
     { name: 'Parking', code: 'PARKING' },
     { name: 'Maintenance', code: 'MAINTENANCE' },
-    { name: 'Etc', code: 'ETC'}
+    { name: 'Etc', code: 'ETC' }
   ];
 
   statusTypes = [
@@ -90,9 +90,9 @@ export class BackendDataService {
   convertDate(date: any) {
     return date.toLocaleDateString('en-CA');
   }
-  
-  billsData(unit_id: number, soa_id: string, due_date: Date, total_amount: number, breakdown: string, bill_type: string, status?: STATUS){
-    
+
+  billsData(unit_id: number, soa_id: string, due_date: Date, total_amount: number, breakdown: string, bill_type: string, status?: STATUS) {
+
     switch (bill_type) {
       case 'WATER':
         bill_type = BILL_TYPE.WATER;
@@ -107,11 +107,11 @@ export class BackendDataService {
         bill_type = BILL_TYPE.MAINTENANCE;
         break;
       case 'ETC':
-        default:
+      default:
         bill_type = BILL_TYPE.ETC;
         break;
     }
-    
+
     const data = {
       unit_id: unit_id,
       soa_id: soa_id,
@@ -125,13 +125,40 @@ export class BackendDataService {
     return data;
   }
 
-  cmsData(user_id: number, title: string, description: string, cms_type: CMS_ENUM, date_to_post: Date, date_to_end: Date, image_path?: string, archive?: boolean, status?: STATUS){
+  cmsData(user_id: number, title: string, description: string, cms_type: string, date_to_post?: Date, date_to_end?: Date, image_path?: string, archive?: boolean, status?: STATUS) {
+
+    switch (cms_type) {
+      case 'ANNOUNCEMENT':
+        cms_type = CMS_ENUM.ANNOUNCEMENT;
+        break;
+      case 'NEWS':
+        cms_type = CMS_ENUM.NEWS;
+        break;
+      case 'EVENT':
+        cms_type = CMS_ENUM.EVENT;
+        break;
+      case 'RESERVATION':
+        cms_type = CMS_ENUM.RESERVATION;
+        break;
+      case 'MAINTENANCE':
+        cms_type = CMS_ENUM.MAINTENANCE;
+        break;
+      case 'FEEDBACK':
+        cms_type = CMS_ENUM.FEEDBACK;
+        break;
+      case 'COMPLAINT':
+        cms_type = CMS_ENUM.COMPLAINT;
+        break;
+      default:
+        break;
+    }
+
     const data = {
       user_id: user_id,
       title: title,
       description: description,
       cms_type: cms_type,
-      date_to_post: date_to_post,
+      date_to_post: date_to_post || null,
       date_to_end: date_to_end || null,
       image_path: image_path || null,
       archive: archive || false,
@@ -141,7 +168,7 @@ export class BackendDataService {
     return data;
   }
 
-  leaseData(unit_id: number, owner_id: number, tenant_id: number, start_date: Date, end_date: Date, monthly_rent: number, security_deposit: number){
+  leaseData(unit_id: number, owner_id: number, tenant_id: number, start_date: Date, end_date: Date, monthly_rent: number, security_deposit: number) {
     const data = {
       unit_id: unit_id,
       owner_id: owner_id,
@@ -155,7 +182,7 @@ export class BackendDataService {
     return data;
   }
 
-  paymentData(payment_date: Date, amount: number, payment_method: string, reference_number: string, image_path: string, status: STATUS){
+  paymentData(payment_date: Date, amount: number, payment_method: string, reference_number: string, image_path: string, status: STATUS) {
     const data = {
       payment_date: payment_date,
       amount: amount,
@@ -168,7 +195,7 @@ export class BackendDataService {
     return data;
   }
 
-  tenantData(move_in_date: Date, move_out_date: Date){
+  tenantData(move_in_date: Date, move_out_date: Date) {
     const data = {
       move_in_date: move_in_date,
       move_out_date: move_out_date
@@ -177,8 +204,8 @@ export class BackendDataService {
     return data;
   }
 
-  unitData(user_id: number, tower_number: number, floor_number: number, unit_number: number, sq_foot?: number, number_of_bedrooms?: number, number_of_bathrooms?: number, parking_slot?: string, remaining_balance?: number){
-    const data={
+  unitData(user_id: number, tower_number: number, floor_number: number, unit_number: number, sq_foot?: number, number_of_bedrooms?: number, number_of_bathrooms?: number, parking_slot?: string, remaining_balance?: number) {
+    const data = {
       user_id: user_id,
       tower_number: tower_number,
       floor_number: floor_number,
@@ -193,7 +220,7 @@ export class BackendDataService {
     return data;
   }
 
-  userData(first_name: string, last_name: string, mobile_number: string, email?: any, user_type?: USER, is_validated?: boolean){
+  userData(first_name: string, last_name: string, mobile_number: string, email?: any, user_type?: USER, is_validated?: boolean) {
     const data = {
       first_name: first_name,
       last_name: last_name,
@@ -206,7 +233,7 @@ export class BackendDataService {
     return data;
   }
 
-  accessControlData(module_name: string, super_admin: boolean, admin: boolean, owner: boolean, tenant: boolean, guest: boolean){
+  accessControlData(module_name: string, super_admin: boolean, admin: boolean, owner: boolean, tenant: boolean, guest: boolean) {
     const data = {
       module_name: module_name,
       super_admin: super_admin,
