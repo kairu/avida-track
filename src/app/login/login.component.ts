@@ -46,8 +46,13 @@ export class LoginComponent implements OnInit {
             });
             return;
           }
+          const userData = {
+            user_id: response.user_id,
+            email: response.email,
+            user_type: response.user_type,
+          }
           this.ngZone.run(() => {
-            sessionStorage.setItem('backendUserData', JSON.stringify(response));
+            sessionStorage.setItem('backendUserData', JSON.stringify(userData));
             this.router.navigate(['dashboard']);
           });
         }
