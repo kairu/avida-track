@@ -102,6 +102,7 @@ export class ValidationComponent {
             'SOA ID': bill.soa_id,
             'Unit': `Tower ${unit.tower_number} : ${unit.floor_number} - ${unit.unit_number}`,
             'Amount': bill.total_amount,
+            'Delinquent Amount': bill.delinquent_amount,
             'Breakdown': bill.breakdown,
             'Bill Type': bill.bill_type,
             'Due Date': bill.due_date,

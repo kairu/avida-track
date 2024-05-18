@@ -96,6 +96,10 @@
                                                 <span>{{ bill[key] | currency:'PHP' }}</span>
                                             </ng-template>
                                         </p-cellEditor>
+                                        <!-- Delinquent amount -->
+                                        <span *ngIf="key == 'Delinquent Amount'">
+                                            {{ bill[key] | currency: 'PHP' }}
+                                        </span>
                                         <!-- Breakdown -->
                                         <p-cellEditor *ngIf="key == 'Breakdown'">
                                             <ng-template pTemplate="input">

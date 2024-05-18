@@ -107,6 +107,7 @@ export class AdminViewComponent {
       'Unit': `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}`,
       'Image': bill.image_path,
       'Amount': bill.total_amount,
+      'Delinquent Amount': bill.delinquent_amount,
       'Breakdown': bill.breakdown,
       'Bill Type': bill.bill_type,
       'Due Date': bill.due_date,
@@ -196,7 +197,7 @@ export class AdminViewComponent {
   }
 
   skipCellEdit(rowData: any): boolean {
-    const editableFields = ['Unit', 'Image'];
+    const editableFields = ['Unit', 'Image', 'Delinquent Amount'];
     return editableFields.includes(rowData.field);
   }
 

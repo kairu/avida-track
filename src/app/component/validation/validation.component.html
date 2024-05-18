@@ -42,8 +42,9 @@
         <ng-template pTemplate="body" let-rowData let-editing="editing">
             <tr>
                 <td *ngFor="let column of datas?.slice()[0] | keys">
-                    <span *ngIf="column == 'SOA ID' || column == 'Breakdown' || column == 'Unit'">{{ rowData[column]
-                        }}</span>
+                    <span *ngIf="column == 'SOA ID' || column == 'Breakdown' || column == 'Unit'">
+                        {{ rowData[column] }}
+                    </span>
 
                     <p-tag *ngIf="column == 'Bill Type'" [value]="rowData[column]"
                         [severity]="severity.getSeverity(rowData[column])"></p-tag>
@@ -51,7 +52,7 @@
                     <p-tag *ngIf="column == 'Status'" [value]="rowData[column]"
                         [severity]="severity.getSeverity(rowData[column])"></p-tag>
 
-                    <span *ngIf="column == 'Amount'">{{ rowData[column] | currency:'PHP' }}</span>
+                    <span *ngIf="column == 'Amount' || column == 'Delinquent Amount'">{{ rowData[column] | currency:'PHP' }}</span>
 
                     <span *ngIf="column == 'Due Date'">{{rowData[column] | date:'longDate'}}</span>
 
