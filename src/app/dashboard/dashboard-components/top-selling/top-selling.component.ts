@@ -6,10 +6,12 @@ import { combineLatest, forkJoin, map, of, switchMap } from 'rxjs';
 import { TimeFormatPipe } from 'src/app/pipe/time-format.pipe';
 import { SeverityService } from 'src/app/services/severity.service';
 import { CheckisAdminService } from 'src/app/services/checkis-admin.service';
+import { ImageModule } from 'primeng/image';
+import { DomSanitizer } from '@angular/platform-browser';
 @Component({
   selector: 'app-top-selling',
   standalone: true,
-  imports: [TimeFormatPipe, CommonModule, AdminModule],
+  imports: [ImageModule, TimeFormatPipe, CommonModule, AdminModule],
   templateUrl: './top-selling.component.html'
 })
 export class TopSellingComponent implements OnInit {
@@ -17,7 +19,7 @@ export class TopSellingComponent implements OnInit {
   datas: any;
   isAdmin: boolean = false;
   isOwnerTenant: boolean = false;
-  constructor(private checkisadmin: CheckisAdminService, public severity: SeverityService, private backendService: BackendServiceService) { }
+  constructor(private sanitizer: DomSanitizer, private checkisadmin: CheckisAdminService, public severity: SeverityService, private backendService: BackendServiceService) { }
 
   ngOnInit() {
     this.checkisadmin.checkisAdmin().subscribe(isAdmin => {
@@ -29,12 +31,47 @@ export class TopSellingComponent implements OnInit {
           this.isOwnerTenant = isOwnerTenant;
           if (this.isOwnerTenant) {
             this.getTenantsData();
-          }else{
-            
+          } else {
+            this.getTenantPaymentHistory();
           }
         });
-        
+
       }
+    });
+  }
+
+  getTenantPaymentHistory() {
+    const userData = sessionStorage.getItem('backendUserData');
+    const user_id = JSON.parse(userData || '{}').user_id;
+    this.backendService.getLease(user_id + "TENANT").subscribe({
+      next: (response: any) => {
+
+        this.backendService.getPayment(response.lease_agreement_id + "LEASE").subscribe({
+          next: (response2: any) => {
+            this.datas = [
+              ...response2.map((item: { amount: any; image_path: any; payment_date: any; reference_number: any; status: any; }) => ({
+                'Image': item.image_path,
+                'Payment Date': item.payment_date,
+                'Amount': item.amount,
+                'Status': item.status
+              }))
+            ]
+            
+            this.serve_image();
+          }
+        });
+
+      }
+    });
+  }
+
+  serve_image() {
+    this.datas.forEach((item: { Image: any; }) => {
+      this.backendService.getPaymentImage(item.Image).subscribe({
+        next: (response: any) => {
+          item.Image = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(response));
+        }
+      });
     });
   }
 
