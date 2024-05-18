@@ -96,6 +96,10 @@ export class BackendServiceService {
   getLeases(): Observable<any> {
     return this.http.get(`${this.backendUrl}/lease`);
   }
+
+  getPayment(agreementOrPaymentID: string): Observable<any> {
+    return this.http.get(`${this.backendUrl}/payment/${agreementOrPaymentID}`);
+  }
   
   getTenant(): Observable<any> {
     return this.http.get(`${this.backendUrl}/user/tenant`);
@@ -120,6 +124,10 @@ export class BackendServiceService {
 
   getImage(image: any){
     return this.http.get(`${this.backendUrl}/bulletin/${image}`, {responseType: 'blob'});
+  }
+
+  getPaymentImage(image: any){
+    return this.http.get(`${this.backendUrl}/paymentImage/${image}`, {responseType: 'blob'});
   }
 
   async renderImageCard(image: any){
