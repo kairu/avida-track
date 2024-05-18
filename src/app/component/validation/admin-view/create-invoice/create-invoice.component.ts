@@ -86,7 +86,9 @@ export class CreateInvoiceComponent {
     this.backendservice.getUsers().subscribe({
       next: (response: any[]) => {
         response.forEach((user: any) => {
-          this.userOptions.push({ label: user.last_name + ', ' + user.first_name, value: user.user_id });
+          if (user.user_type === 'OWNER') {
+            this.userOptions.push({ label: user.last_name + ', ' + user.first_name, value: user.user_id });
+          }
         });
       }
     });
