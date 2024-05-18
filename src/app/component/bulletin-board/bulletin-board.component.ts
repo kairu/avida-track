@@ -47,7 +47,7 @@ export class BulletinBoardComponent {
   editEndDate!: any;
   cms_id!: number;
   filter: string = '';
-  constructor(private checkisadmin: CheckisAdminService, private sanitizer: DomSanitizer, private messageService: MessageService, public backenddata: BackendDataService, private backendservice: BackendServiceService, private primengConfig: PrimeNGConfig) {}
+  constructor(private checkisadmin: CheckisAdminService, private sanitizer: DomSanitizer, private messageService: MessageService, public backenddata: BackendDataService, private backendservice: BackendServiceService, private primengConfig: PrimeNGConfig) { }
   ngOnInit() {
     this.primengConfig.ripple = true;
     this.checkisadmin.checkisAdmin().subscribe(isAdmin => {
