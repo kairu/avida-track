@@ -1,18 +1,15 @@
 <div class="card">
+  <div class="card">
+    <h2>Owner Tenant Ratio Per Tower</h2>
+    <div id="chart"></div>
+  </div>
+  <div class="card container row mb-4">
+    <h2>Collection Efficiency Rate</h2>
+    <div id="collectionRate"></div>
+  </div>
   <h2 class="text-center">Monthly Revenue</h2>
-  <p-table [value]="monthlyRevenues" #dt1 dataKey="id" [globalFilterFields]="['Tower Number']">
-    <ng-template pTemplate="caption">
-      <div class="d-flex justify-content-between">
-        <div>
-          <span class="p-input-icon-left ml-auto">
-            <i class="pi pi-search"></i>
-            <input pInputText type="text"
-              (input)="dt1.filterGlobal($any($event.target).value, 'contains')" placeholder="Search keyword" />
-          </span>
-        </div>
-      </div>
-    </ng-template>
-    
+  <div id="MonthlyChart"></div>
+  <p-table [value]="monthlyRevenues" #dt1 dataKey="id">
     <ng-template pTemplate="header">
       <tr>
         <th *ngFor="let column of monthlyRevenues[0] | keys">{{ column }}</th>
@@ -35,6 +32,7 @@
 
 <div class="card">
   <h2 class="text-center">Overall Data</h2>
+  <div id="OverallChart"></div>
   <p-table [value]="groupedData">
     <ng-template pTemplate="header">
       <tr>
@@ -50,7 +48,6 @@
             decimalFormat}}</span>
           <!-- Other columns without formatting -->
           <span *ngIf="column === 'Tower Number'">{{ rowData[column]}}</span>
-
         </td>
       </tr>
     </ng-template>

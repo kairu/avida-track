@@ -7,21 +7,15 @@ import {
 import { NgModule, isDevMode } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { Routes, RouterModule } from '@angular/router';
-
+import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
 import { FullComponent } from './layouts/full/full.component';
-
-
 import { NavigationComponent } from './shared/header/navigation.component';
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
-
 import { Approutes } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SpinnerComponent } from './shared/spinner.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { ManageUsersComponent } from './component/manage-users/manage-users.component';
 import { UserDataService } from './services/user-data.service';
 import { UserFormComponent } from './user-form/user-form.component';
 import { AccessControlComponent } from './component/access-control/access-control.component';
@@ -33,8 +27,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
-import { EventsReservationComponent } from './component/events-reservation/events-reservation.component';
-import { AboutModule } from './about/about.module';
 import { CalendarModule } from 'primeng/calendar';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
@@ -53,7 +45,6 @@ import { FieldsetModule } from 'primeng/fieldset';
     SpinnerComponent,
     UserFormComponent,
     AccessControlComponent,
-    EventsReservationComponent,
     AboutComponent
   ],
   imports: [
