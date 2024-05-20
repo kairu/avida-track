@@ -53,7 +53,6 @@ import { FieldsetModule } from 'primeng/fieldset';
     SpinnerComponent,
     UserFormComponent,
     AccessControlComponent,
-    EventsReservationComponent,
     AboutComponent
   ],
   imports: [
