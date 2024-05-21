@@ -1,3 +1,4 @@
+<p-confirmDialog />
 <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
   <div class="reservation-form">
     <p-fieldset [legend]="isAdmin ? 'Entries' : 'Reservation Form'" class="custom">
@@ -71,11 +72,11 @@
             <td>
               <div class="button-group">
                 <p-toast/>
-                <p-confirmDialog />
+                
                 <button icon="pi pi-check" pButton pRipple class="p-button-success" 
-                style="border-radius: 10px; height: 35px;" (click)="confirm1(cms, $event)"></button>
+                style="border-radius: 10px; height: 35px;" (click)="confirmApprove(cms, $event)"></button>
                 <button icon="pi pi-times" pButton pRipple  class="p-button-danger" 
-                style="border-radius: 10px; height: 35px;" (click)="confirm2(cms, $event)"></button>
+                style="border-radius: 10px; height: 35px;" (click)="confirmReject(cms, $event)"></button>
               </div>
             </td>
           </tr>
