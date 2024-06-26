@@ -13,6 +13,7 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { DialogModule } from 'primeng/dialog';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { ToastModule } from 'primeng/toast';
 interface UploadEvent {
   originalEvent: Event;
   files: File[];
@@ -23,25 +24,18 @@ interface AutoCompleteCompleteEvent {
   query: string;
 }
 interface Tenant {
+  id: any;
   user_id: number;
   first_name: string;
   last_name: string;
-  email: string;
-  mobile_number: string;
-  user_type: string;
-  monthly_rent?: number;
-  number_of_months?: number;
-  contract?: string;
-  start_date?: string;
-  end_date?: string;
-  remaining_balance?: number;
-  fullName?: string;
 }
+
+
 @Component({
   selector: 'app-tenant-lease',
   standalone: true,
   imports: [TableModule, FileUploadModule, CommonModule, InputNumberModule, FormsModule, 
-            ImageModule, CalendarModule, ButtonModule, RippleModule, DialogModule, AutoCompleteModule],
+            ImageModule, CalendarModule, ButtonModule, RippleModule, DialogModule, AutoCompleteModule, ToastModule],
   templateUrl: './tenant-lease.component.html',
   styleUrls: ['./tenant-lease.component.scss']
 })
@@ -53,7 +47,8 @@ export class TenantLeaseComponent implements OnInit {
   leases: any[] = [];
   selectedItem: any;
   updatedMonthlyRents: { [leaseId: number]: number } = {};
-  date: Date | undefined;
+  // date: Date | undefined;
+  date: Date[] | undefined;
   today: Date;
   numberOfMonths: number | null = null;
   computedEndDates: { [leaseId: number]: string } = {};
@@ -62,63 +57,25 @@ export class TenantLeaseComponent implements OnInit {
   // suggestions: any[] = [];
   // selectedTenants: any = null;
   // selectedTenant: any;
-  tenant: Tenant[] = [];
+  tenants: Tenant[] = [];
   suggestions: Tenant[] = [];
   selectedTenants: Tenant[] = [];
+  units: any[] = [];
   selectedTenant: Tenant | null = null; 
-
+  filteredTenants: Tenant[] = [];
+  newDialogVisible: boolean = false;
+  loggedUser: any;
+  
   constructor(private backendService: BackendServiceService, private messageService: MessageService) {
     this.today = new Date();
    
   }
-
+  onUpload(event: UploadEvent) {
+    this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded with Basic Mode' });
+}
   showDialog() {
     this.visible = true;
   }
-
-  search(event: AutoCompleteCompleteEvent) {
-    const tenant = event.query;
-    console.log('Search query:', tenant);
-    this.backendService.getUsers().subscribe({
-      next: (response: any) => {
-        let tenants = [];
-        if (Array.isArray(response)) {
-          tenants = response;
-        }
-        const filteredTenants = tenants.filter((user: { user_type: string }) => {
-          return user.user_type === 'TENANT';
-        });
-
-        filteredTenants.forEach((tenant: { first_name: string; last_name: string; fullName?: string }) => {
-          tenant.fullName = `${tenant.first_name} ${tenant.last_name}`;
-        });
-
-        console.log('Filtered tenant data:', filteredTenants);
-        this.suggestions = filteredTenants.filter((user: { first_name: string; last_name: string; fullName: string }) =>
-          user.fullName.toLowerCase().includes(tenant.toLowerCase())
-        );
-
-        console.log('Filtered suggestions:', this.suggestions);
-      },
-      error: (error) => {
-        console.error('Error fetching tenants:', error);
-        this.suggestions = [];
-      }
-    });
-}
-
-onTenantSelected(event: any) {
-  const selectedTenant: Tenant = event.value;
-  console.log('Tenant selected:', selectedTenant);
-
-  if (!this.selectedTenants.some(tenant => tenant.user_id === selectedTenant.user_id)) {
-    this.selectedTenants.push(selectedTenant);
-  }
-
-  this.selectedTenant = null;
-}
-
-
 
   ngOnInit(): void {
     // this.getLease();
@@ -128,10 +85,136 @@ onTenantSelected(event: any) {
     }
     if (this.leases.length > 0) {
       this.selectedItem = this.leases[0];
-      
     }
+
     this.leases.forEach(lease => lease.numberOfMonths = 1);
+    // this.fetchLoggedInUser();
   }
+
+  search(event: AutoCompleteCompleteEvent) {
+    const tenantQuery = event.query;
+    console.log('Search query:', tenantQuery);
+  
+    const email = this.backendService.getEmail();
+    console.log('Logged-in user email:', email);
+  
+    this.backendService.getUser(email).subscribe({
+        next: (currentUser: { units: Array<{ tower_number: string, floor_number: string, unit_number: string }> }) => {
+        console.log('Current user details:', currentUser); 
+  
+          
+    this.backendService.getUsers().subscribe({
+    next: (response: any) => {
+    let tenants = [];
+    if (Array.isArray(response)) {
+        tenants = response;
+      }
+
+        const filteredTenants = tenants.filter((user: { user_type: string; units: Array<{ tower_number: string, floor_number: string, unit_number: string }> }) => {
+        return user.user_type === 'TENANT' &&
+          user.units.some(unit => 
+          unit.tower_number === currentUser.units[0].tower_number &&
+          unit.floor_number === currentUser.units[0].floor_number &&
+          unit.unit_number === currentUser.units[0].unit_number
+          );
+          });
+                    
+          console.log('Filtered tenants by unit details:', filteredTenants); 
+  
+          filteredTenants.forEach((tenant: { first_name: string; last_name: string; fullName?: string }) => {
+          tenant.fullName = `${tenant.first_name} ${tenant.last_name}`;
+          });
+  
+          this.suggestions = filteredTenants.filter((user: { fullName: string }) =>
+          user.fullName.toLowerCase().includes(tenantQuery.toLowerCase())
+          );
+  
+          console.log('Filtered suggestions:', this.suggestions); 
+          },
+          error: (error) => {
+          console.error('Error fetching tenants:', error);
+          this.suggestions = [];
+          }
+          });
+        },
+        error: (error) => {
+            console.error('Error fetching current user details:', error);
+            this.suggestions = [];
+        }
+    });
+}
+
+// onTenantSelected(event: any) {
+//   this.visible = false; // Close the search dialog
+//   const selectedTenant: Tenant = event.value;
+
+//   if (!this.selectedTenants.some(tenant => tenant.id === selectedTenant.id)) {
+//     this.selectedTenants.push(selectedTenant);
+//   }
+
+//   this.backendService.getLease(selectedTenant.id).subscribe({
+//       next: (leaseDetails: any) => {
+//         if (leaseDetails && leaseDetails.lease_agreement_id) {
+//           this.backendService
+//             .updateLease(leaseDetails.lease_agreement_id, {
+//               owner_id: this.loggedUser.owner_id,
+//             })
+//             .subscribe({
+//               next: (response) => {
+//                 console.log('Lease agreement updated successfully', response);
+//               },
+//               error: (error) => {
+//                 console.error('Error updating lease agreement', error);
+//               },
+//             });
+//         } else {
+//           console.error('No valid lease agreement found for selected tenant.');
+//         }
+//       },
+//     error: error => {
+//       console.error('Failed to fetch lease agreement:', error);
+//     }
+//   });
+
+//   this.selectedTenant = null;
+//   this.newDialogVisible = true;
+// }
+
+  onTenantSelected(event: any) {
+    this.visible = false; // Close the search dialog
+    const selectedTenant: Tenant = event.value;
+    console.log('Tenant selected:', selectedTenant);
+  
+    if (!this.selectedTenants.some(tenant => tenant.user_id === selectedTenant.user_id)) {
+      this.selectedTenants.push(selectedTenant);
+    }
+    this.selectedTenant = null;
+    this.newDialogVisible = true; 
+    
+  }
+
+updateLeaseAgreement(leaseAgreementId: number) {
+  if (!this.loggedUser || !this.loggedUser.owner_id) {
+      console.error('No logged-in user data available.');
+      return; 
+  }
+
+  console.log('Current logged-in user\'s owner_id:', this.loggedUser.owner_id);
+
+  const data = {
+      owner_id: this.loggedUser.owner_id
+  };
+
+  this.backendService.updateLease(leaseAgreementId, data).subscribe({
+      next: response => {
+          console.log('Lease agreement updated successfully', response);
+      },
+      error: error => {
+          console.error('Error updating lease agreement', error);
+      }
+  });
+}
+
 
   // getLease(): void {
   //   const email = this.backendService.getEmail();
