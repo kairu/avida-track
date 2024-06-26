@@ -16,6 +16,60 @@
                 </p-autoComplete>
             </div>
         </p-dialog>
+
+        <p-dialog header="Lease Agreement" [modal]="true" [(visible)]="newDialogVisible" [style]="{ width: '35rem'}">
+            <div class="container">
+                <div class="mb-4">
+                    <label for="currency-philippines" class="form-label font-weight-bold">
+                        Monthly Rent
+                    </label>
+                    <p-inputNumber id="currency-philippines" mode="currency" currency="PHP" class="form-control">
+                        <ng-template pTemplate="input">
+                            <span>Amount</span>
+                        </ng-template>
+                    </p-inputNumber>
+                </div>
+        
+                <div class="mb-4">
+                    <p-inputNumber id="integeronly" type="number" placeholder="Months" class="form-control" [min]="1" [max]="12" />
+                </div>
+        
+                <div class="mb-4">
+                    <p-fileUpload mode="basic" chooseLabel="Choose" chooseIcon="pi pi-upload" name="demo[]" url="https://www.primefaces.org/cdn/api/upload.php" accept="image/*" class="form-control" />
+                </div>
+        
+                <div class="mb-4">
+                    <p-calendar 
+                    [(ngModel)]="date" 
+                    [touchUI]="false"  
+                    [showIcon]="true" 
+                    [iconDisplay]="'input'" 
+                    [readonlyInput]="true" 
+                    [minDate]="today"
+                    class="form-control" />
+                </div>
+        
+                <div class="mb-4">
+                    <label for="currency-philippines-balance" class="form-label font-weight-bold">
+                        Remaining Balance
+                    </label>
+                    <p-inputNumber id="currency-philippines-balance" mode="currency" currency="PHP" class="form-control">
+                        <ng-template pTemplate="input">
+                            <span>Amount</span>
+                        </ng-template>
+                    </p-inputNumber>
+                </div>
+                <div class="card flex justify-content-center">
+                    <button 
+                        pButton 
+                        pRipple 
+                        label="Submit" 
+                        class="p-button-success">
+                    </button>
+                </div>
+            </div>
+        </p-dialog>
+        
     </div>
 
     <p-table [value]="leases" [tableStyle]="{ 'min-width': '50rem'}">
@@ -34,12 +88,12 @@
     <ng-template pTemplate="body" let-lease>
         <tr *ngFor="let tenant of selectedTenants">
             <td>{{ tenant.first_name }} {{ tenant.last_name }}</td>
-            <td>{{ tenant.monthly_rent }}</td>
-            <td>{{ tenant.number_of_months }}</td>
-            <td>{{ tenant.contract }}</td>
-            <td>{{ tenant.start_date }}</td>
-            <td>{{ tenant.end_date }}</td>
-            <td>{{ tenant.remaining_balance }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
           </tr>
      
         <tr>
