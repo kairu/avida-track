@@ -104,7 +104,7 @@ loadLeases() {
                   return null;
                 }).filter(lease => lease !== null);
     
-                console.log('Tenant Name:', tenantNames);
+                console.log('Tenant Name:', this.leases);
               },
               error: (err) => console.error('Failed to load users:', err)
             });
@@ -127,15 +127,15 @@ loadLeases() {
     console.log('Event Data:', event.data);
   
     // Check if event.data contains the full row data
-    const lease = event.data;
-    console.log('Lease:', lease);
+    const lease = event;
+    console.log('Lease:', lease.index);
   
     if (!lease) {
       console.error('Lease object is missing or undefined');
       return;
     }
   
-    const lease_agreement_id = lease.lease_agreement_id;
+    const lease_agreement_id = lease.index;
     console.log('Lease Agreement ID:', lease_agreement_id);
   
     if (lease_agreement_id) {
