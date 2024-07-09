@@ -6,6 +6,7 @@ import { BackendDataService } from 'src/app/services/backend-data.service';
 import { SeverityService } from 'src/app/services/severity.service';
 import { AdminModule } from 'src/app/shared-module/admin-module';
 import { ClientModule } from 'src/app/shared-module/client-module';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-manage-users',
@@ -22,6 +23,8 @@ import { ClientModule } from 'src/app/shared-module/client-module';
  * Maps user and unit data into table rows for display.
  * Handles CRUD operations on the table data.
  */
+
+// TODO: Remove balance(maybe). For Tenants, the admin side should not be able to edit the validated column.
 
 export class ManageUsersComponent {
 
@@ -136,8 +139,8 @@ export class ManageUsersComponent {
     delete this.clonedCellData;
   }
 
-  onCellEditComplete(rowData: any) {
-    if (this.shouldSkipCellEdit(rowData)) {
+  async onCellEditComplete(rowData: any) {
+    if (await this.shouldSkipCellEdit(rowData)) {
       return;
     }
 
@@ -148,7 +151,11 @@ export class ManageUsersComponent {
     }
   }
 
-  private shouldSkipCellEdit(rowData: any): boolean {
+  private async shouldSkipCellEdit(rowData: any): Promise<boolean> {
+    const isTenant = await firstValueFrom(await this.backendservice.getUser(rowData.index))
+    if (isTenant.user_type.toLowerCase() === 'tenant' && rowData.field === 'Validated') {
+      return true;
+    }
     const editableFields = ['User ID', 'Full Name', 'Balance'];
     return editableFields.includes(rowData.field);
   }
@@ -224,6 +231,10 @@ export class ManageUsersComponent {
         });
       }
     });
+  }
+
+  preventCellEdit(rowData: any): boolean {
+    return rowData['User Type'] != 'Tenant'
   }
 
 }

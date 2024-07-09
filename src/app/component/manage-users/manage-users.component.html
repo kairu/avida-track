@@ -30,7 +30,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th *ngFor="let column of datas?.slice()[0] | keys">
-          {{ column != 'unit_id' ? column : '' }}
+          <span *ngIf="column !== 'unit_id' && column !== 'Balance'"> {{ column }} </span>
         </th>
       </tr>
     </ng-template>
@@ -53,7 +53,7 @@
           </p-cellEditor> -->
 
           <!-- Balance -->
-          <span *ngIf="column == 'Balance'">{{ rowData[column] | number:'1.0' }}</span>
+          <!-- <span *ngIf="column == 'Balance'">{{ rowData[column] | number:'1.0' }}</span> -->
 
           <!-- User Type -->
           <p-cellEditor *ngIf="column == 'User Type'">
@@ -70,7 +70,7 @@
           </p-cellEditor>
 
           <!-- Validated -->
-          <p-cellEditor *ngIf="column == 'Validated'">
+          <p-cellEditor *ngIf="column == 'Validated' && preventCellEdit(rowData)">
             <ng-template pTemplate="input">
               <p-dropdown [options]="backenddata.validationTypes" optionLabel="name" [(ngModel)]="rowData[column]"
                 [placeholder]="rowData[column]"></p-dropdown>
@@ -82,6 +82,13 @@
                 [severity]="severity.getSeverity(rowData[column])"></p-tag>
             </ng-template>
           </p-cellEditor>
+
+          <span *ngIf="column == 'Validated' && !preventCellEdit(rowData)">
+            <p-tag *ngIf="rowData[column] && rowData[column].name" [value]="rowData[column].name"
+              [severity]="severity.getSeverity(rowData[column].name)"></p-tag>
+            <p-tag *ngIf="rowData[column] && !rowData[column].name" [value]="rowData[column]"
+              [severity]="severity.getSeverity(rowData[column])"></p-tag>
+          </span>
 
           <!-- Mobile Number -->
           <p-cellEditor *ngIf="column == 'Mobile Number'">
