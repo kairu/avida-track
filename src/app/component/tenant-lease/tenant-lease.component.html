@@ -30,7 +30,7 @@
                         </p-cellEditor>
                     </td>
                     
-                    <td [pEditableColumn]="lease.contract" pEditableColumnField="contract">
+                    <td [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.contract" pEditableColumnField="contract">
                         <p-cellEditor>
                         <ng-template pTemplate="input">
                             <div *ngIf="imageSrc">
@@ -55,14 +55,14 @@
                     </p-cellEditor>
                     </td>
             
-                    <td [pEditableColumn]="lease.numberOfMonths" pEditableColumnField="numberOfMonths">
+                    <td [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.numberOfMonths" pEditableColumnField="numberOfMonths">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <p-inputNumber inputId="integeronly" type="number"
                                                [(ngModel)]="lease.numberOfMonths"
                                                placeholder="Months"
                                                [disabled]="lease.startDateSaved"
-                                               (ngModelChange)="computeDates(lease)"
+                                               (ngModelChange)="onNumberOfMonthsChange(lease)"
                                                [inputStyle]="{'width':'100px'}"
                                                [min]="1" [max]="12">
                                 </p-inputNumber>
@@ -73,7 +73,7 @@
                         </p-cellEditor>
                     </td>
 
-                    <td [pEditableColumn]="lease.start_date" pEditableColumnField="start_date">
+                    <td [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.start_date" pEditableColumnField="start_date">
                 <p-cellEditor>
                     <ng-template pTemplate="input">
                         <p-calendar [(ngModel)]="lease.start_date"
@@ -84,9 +84,7 @@
                                     [touchUI]="true"
                                     [minDate]="today"
                                     [inputStyle]="{'width':'150px'}"
-                                    inputId="start_date"
-                                    [readonlyInput]="lease.startDateSaved"
-                                    [disabled]="lease.startDateSaved">
+                                    inputId="start_date">
                         </p-calendar>
                     </ng-template>
                     <ng-template pTemplate="output">
@@ -95,9 +93,9 @@
                 </p-cellEditor>
             </td>
     
-                    <td>{{ computedEndDates[lease.lease_agreement_id] }}</td>
+            <td>{{ lease.end_date | date:'shortDate' }}</td>
                     
-                    <td [pEditableColumn]="lease.remaining_balance" pEditableColumnField="remaining_balance">
+                    <td [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.remaining_balance" pEditableColumnField="remaining_balance">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <input pInputText type="number" [(ngModel)]="lease.remaining_balance" />
@@ -147,3 +145,29 @@
         </ng-template>
     </p-table>
 </div>
+
+<p-table [value]="leases">
+    <ng-template pTemplate="body" let-lease>
+      <tr>
+        <td colspan="8">
+          <p-table [value]="lease.paymentHistory" styleClass="payment-history-table">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Date of Payment</th>
+                <th>Payment Amount</th>
+                <th>Remaining Balance</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-payment>
+              <tr>
+                <td>{{ payment.date | date:'longDate' }}</td>
+                <td>{{ payment.paymentAmount | currency: 'PHP' }}</td>
+                <td>{{ payment.remainingBalance | currency: 'PHP' }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  
