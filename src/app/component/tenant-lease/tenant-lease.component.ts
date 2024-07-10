@@ -34,6 +34,7 @@ export class TenantLeaseComponent implements OnInit {
   fileName: string | undefined;
   imageSrc: any;
   leases: any[] = [];
+  lease: any[] = [];
   selectedItem: any;
   updatedMonthlyRents: { [leaseId: number]: number } = {};
   date: Date[] | undefined;
@@ -43,6 +44,8 @@ export class TenantLeaseComponent implements OnInit {
   units: any[] = []; 
   loggedUser: any;
   displayUsers: any;
+  paymentHistoryData: any[] = [];
+  
   
   constructor(private backendService: BackendServiceService, private messageService: MessageService) {
     this.today = new Date();
@@ -57,9 +60,8 @@ export class TenantLeaseComponent implements OnInit {
     this.leases.forEach(lease => lease.numberOfMonths = 1);
     this.loadTenantNames();
     this.loadLeases();
+    
   }
-
-
 
 loadLeases() {
   this.backendService.getLeases().subscribe({
@@ -113,60 +115,6 @@ loadLeases() {
       }
     });
   }
-  
-
-
-  onEditComplete(event: any) {
-    console.log('Entire Event Object:', event);
-    
-    if (!event.data) {
-      console.error('Event data is missing');
-      return;
-    }
-    // Directly log the event data to inspect its structure
-    console.log('Event Data:', event.data);
-  
-    // Check if event.data contains the full row data
-    const lease = event;
-    console.log('Lease:', lease.index);
-  
-    if (!lease) {
-      console.error('Lease object is missing or undefined');
-      return;
-    }
-  
-    const lease_agreement_id = lease.index;
-    console.log('Lease Agreement ID:', lease_agreement_id);
-  
-    if (lease_agreement_id) {
-      console.error('Lease ID is missing or undefined');
-      return;
-    }
-      const updateFields = {
-        lease_agreement_id: lease.lease_agreement_id,
-        unit_id: lease.unit_id,
-        owner_id: lease.owner_id,
-        tenant_id: lease.tenant_id,
-        contract: lease.contract,
-        start_date: lease.start_date,
-        end_date: lease.end_date,
-        monthly_rent: lease.monthly_rent, 
-        security_deposit: lease.security_deposit,
-        remaining_balance: lease.remaining_balance,
-      };
-      this.backendService.updateLease(lease_agreement_id, updateFields).subscribe({
-        next: (response) => {
-          console.log('Lease Agreement updated successfully:', response);
-          this.messageService.add({ severity: 'success', summary: 'Rent Updated', detail: 'Successfully Saved.' });
-          lease.updatedMonthlyRent = null;
-        },
-        error: (error) => {
-          console.error('Error updating Lease Agreement:', error);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to Save' });
-        }
-      });
-    }
-  
 
   
   async storeImageData(event: any, lease_agreement_id: number) {
@@ -197,7 +145,16 @@ loadLeases() {
         const remainingBalanceAfterRent = lease.remaining_balance - lease.updatedMonthlyRent;
         lease.remaining_balance = remainingBalanceAfterRent;
         console.log('Remaining balance:', lease.remaining_balance);
-  
+
+        const paymentHistory = {
+          date: new Date(), // Use the current date or any other relevant date
+          paymentAmount: lease.updatedMonthlyRent,
+          remainingBalance: lease.remaining_balance
+        };
+        lease.paymentHistory = lease.paymentHistory || [];
+        lease.paymentHistory.push(paymentHistory);
+
+        
       const email = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
         if (email) {
           this.backendService.getUser(email).subscribe({
@@ -248,30 +205,132 @@ loadLeases() {
   }
 
 
-getFormattedDate(date: string): string {
-        const startDateWithoutTime = new Date(date);
-        startDateWithoutTime.setHours(0, 0, 0, 0);
-        return startDateWithoutTime.toISOString().slice(0, 10);
-    }
+onEditComplete(event: any) {
+  console.log('Entire Event Object:', event);
 
-    computeDates(lease: any): void {
-        console.log('Computing dates for lease:', lease);
-        if (lease.numberOfMonths && lease.start_date) {
-            const startDate = new Date(lease.start_date);
-            const numberOfMonths = lease.numberOfMonths;
-            const endDate = new Date(startDate);
-            endDate.setMonth(startDate.getMonth() + numberOfMonths);
-            const formattedEndDate = `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}-${endDate.getDate().toString().padStart(2, '0')}`;
-            this.computedEndDates[lease.lease_agreement_id] = formattedEndDate;
-            lease.end_date = formattedEndDate;
-            
+  if (!event.data) {
+    console.error('Event data is missing');
+    return;
+  }
+
+  const editedField = event.field;
+  const editedValue = event.data;
+  const lease_agreement_id = event.index;
+
+  console.log('Edited Field:', editedField);
+  console.log('Edited Value:', editedValue);
+  console.log('Lease Agreement ID:', lease_agreement_id);
+
+  
+  this.backendService.getLeases().subscribe({
+    next: (response: any[]) => {
+      const lease = response.find(item => item.lease_agreement_id == lease_agreement_id);
+
+      if (!lease) {
+        console.error('Lease object is missing or undefined');
+        return;
+      }
+
+      
+      lease[editedField] = editedValue;
+
+      
+      if (!lease.numberOfMonths && editedField !== 'numberOfMonths') {
+        lease.numberOfMonths = response.find(item => item.lease_agreement_id == lease_agreement_id).numberOfMonths;
+      }
+
+      
+      console.log('Before formatting dates:', { start_date: lease.start_date, end_date: lease.end_date });
+      const formattedStartDate = this.convertDateToLocal(new Date(lease.start_date));
+      const formattedEndDate = this.convertDateToLocal(new Date(lease.end_date));
+      console.log('Formatted Dates:', { start_date: formattedStartDate, end_date: formattedEndDate });
+
+      const updateFields = {
+        lease_agreement_id: lease.lease_agreement_id,
+        unit_id: lease.unit_id,
+        owner_id: lease.owner_id,
+        tenant_id: lease.tenant_id,
+        contract: lease.contract || '',
+        start_date: formattedStartDate.toISOString().slice(0, 10),
+        end_date: formattedEndDate ? formattedEndDate.toISOString().slice(0, 10) : null, 
+        monthly_rent: lease.monthly_rent,
+        security_deposit: lease.security_deposit,
+        remaining_balance: lease.remaining_balance,
+        numberOfMonths: lease.numberOfMonths 
+      };
+
+      console.log('Fields:', updateFields);
+
+      this.backendService.updateLease(lease_agreement_id, updateFields).subscribe({
+        next: (response) => {
+          console.log('Lease Agreement updated successfully:', response);
+          this.messageService.add({ severity: 'success', summary: 'Lease Updated', detail: 'Successfully Saved.' });
+        },
+        error: (error) => {
+          console.error('Error updating Lease Agreement:', error);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to Save' });
         }
+      });
+    },
+    error: (error) => {
+      console.error('Error fetching Lease data:', error);
     }
+  });
+}
 
-    onStartDateChange(lease: any): void {
-        console.log('Start date changed for lease:', lease);
-        this.computeDates(lease);
-    }
+onStartDateChange(lease: any): void {
+  if (lease.numberOfMonths) {
+    this.computeDates(lease);
+    const formattedStartDate = this.getFormattedDate(lease.start_date);
+    lease.start_date = formattedStartDate;
+
+    // Update the lease with the new start and end dates
+    this.updateLeaseDates(lease);
+  }
+}
+
+onNumberOfMonthsChange(lease: any): void {
+  if (lease.start_date) {
+    this.computeDates(lease);
+    this.updateLeaseDates(lease);
+  }
+}
+
+getFormattedDate(date: string): string {
+  const dateObject = new Date(date);
+  dateObject.setUTCHours(0, 0, 0, 0);
+  return this.convertDate(dateObject);
+}
+
+convertDateToLocal(date: Date): Date {
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return localDate;
+}
+
+convertDate(date: any): string {
+  return date.toLocaleDateString('en-CA');
+}
+
+computeDates(lease: any): void {
+  console.log('Computing dates for lease:', lease);
+  if (lease.numberOfMonths && lease.start_date) {
+    const startDate = new Date(lease.start_date);
+    console.log('Initial Start Date:', startDate.toISOString());
+
+    const numberOfMonths = lease.numberOfMonths;
+    const endDate = new Date(startDate);
+    endDate.setMonth(startDate.getMonth() + numberOfMonths);
+    console.log('Initial End Date:', endDate.toISOString());
+
+    lease.end_date = this.convertDate(this.convertDateToLocal(endDate));
+    lease.start_date = this.convertDate(this.convertDateToLocal(startDate));
+    console.log('Computed End Date:', lease.end_date);
+    console.log('Computed Start Date:', lease.start_date);
+    console.log('Entered number of months:', lease.numberOfMonths);
+  } else {
+    console.log('Missing required fields for date computation.');
+  }
+}
 
     updateLeaseDates(lease: any): void {
         if (lease.start_date && lease.end_date) {
@@ -295,7 +354,7 @@ getFormattedDate(date: string): string {
                 next: (response) => {
                     console.log('Lease dates updated successfully:', response);
                     this.messageService.add({ severity: 'success', summary: 'Lease Dates Updated', detail: 'Start and end dates updated successfully.' });
-                    lease.startDateSaved = true;
+                    // lease.startDateSaved = true;
                 },
                 error: (error) => {
                     console.error('Error updating lease dates:', error);
@@ -305,5 +364,10 @@ getFormattedDate(date: string): string {
         } else {
             console.error('Start date or end date is missing.');
         }
-    }
+      }
+
 }
+
+
+
+
