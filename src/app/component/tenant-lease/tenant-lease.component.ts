@@ -60,6 +60,7 @@ export class TenantLeaseComponent implements OnInit {
     this.leases.forEach(lease => lease.numberOfMonths = 1);
     this.loadTenantNames();
     this.loadLeases();
+    // this.loadLeasesWithValidation();
     
   }
 
@@ -75,46 +76,108 @@ loadLeases() {
   });
 }
 
+markAsValid(lease: any): void {
+  const tenantId = lease.tenant_id;
+  this.backendService.getUser(tenantId).subscribe({
+    next: (tenant) => {
+      const updateData = {
+        first_name: tenant.first_name,
+        last_name: tenant.last_name,
+        email: tenant.email,
+        is_validated: 1,
+        mobile_number: tenant.mobile_number,
+      };
+      this.backendService.updateUser(tenant.email, updateData).subscribe({
+        next: () => {
+          // Update the isValidated property of the lease object
+          lease.isValidated = true;
+          this.messageService.add({ severity: 'success', summary: 'Approved', detail: 'Approved Tenant.' });
+        },
+        error: (err) => {
+          console.error('Failed to validate user:', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to validate user.' });
+        }
+      });
+    },
+    error: (err) => {
+      console.error('Failed to get tenant:', err);
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to get tenant.' });
+    }
+  });
+}
 
-  loadTenantNames() {
-    const email = this.backendService.getEmail();
-    this.backendService.getUser(email).subscribe({
-      next: (currentUser) => {
-        this.backendService.getUnits().subscribe({
-          next: (unitsResponse) => {
-            const filteredUnits = unitsResponse.filter((unit: { tower_number: any; unit_number: any; floor_number: any; }) =>
-              unit.tower_number === currentUser.units[0].tower_number &&
-              unit.unit_number === currentUser.units[0].unit_number &&
-              unit.floor_number === currentUser.units[0].floor_number
-            );
-            
-            this.backendService.getUsers().subscribe({
-              next: (usersResponse) => {
-                const tenantUsers = usersResponse.filter((user: { user_type: string; }) => user.user_type === 'TENANT');
-                const matchedTenants = tenantUsers.filter((user: { user_id: any; }) =>
-                  filteredUnits.some((unit: { user_id: any; }) => unit.user_id === user.user_id)
-                );
-                
-                const tenantNames = new Set();
-                this.leases = this.leases.map(lease => {
-                  const tenant = matchedTenants.find((user: { user_id: any; }) => user.user_id === lease.tenant_id);
-                  if (tenant) {
-                    lease.tenantName = tenant.first_name + ' ' + tenant.last_name;
-                    tenantNames.add(lease.tenantName);
-                    return lease; 
-                  }
-                  return null;
-                }).filter(lease => lease !== null);
-    
-                console.log('Tenant Name:', this.leases);
-              },
-              error: (err) => console.error('Failed to load users:', err)
-            });
-          }
-        });
-      }
-    });
-  }
+
+markAsInvalid(lease: any): void {
+  const tenantId = lease.tenant_id;
+  this.backendService.getUser(tenantId).subscribe({
+    next: (tenant) => {
+      const updateData = {
+        first_name: tenant.first_name,
+        last_name: tenant.last_name,
+        email: tenant.email,
+        is_validated: 0,
+        mobile_number: tenant.mobile_number,
+      };
+      this.backendService.updateUser(tenant.email, updateData).subscribe({
+        next: () => {
+          lease.isValidated = false;
+          this.messageService.add({ severity: 'success', summary: 'Invalidated', detail: 'Invalidated Tenant.' });
+        },
+        error: (err) => {
+          console.error('Failed to invalidate user:', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to invalidate user.' });
+        }
+      });
+    },
+    error: (err) => {
+      console.error('Failed to get tenant:', err);
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to get tenant.' });
+    }
+  });
+}
+
+
+loadTenantNames() {
+  const email = this.backendService.getEmail();
+  this.backendService.getUser(email).subscribe({
+    next: (currentUser) => {
+      this.backendService.getUnits().subscribe({
+        next: (unitsResponse) => {
+          const filteredUnits = unitsResponse.filter((unit: { tower_number: any; unit_number: any; floor_number: any; }) =>
+            unit.tower_number === currentUser.units[0].tower_number &&
+            unit.unit_number === currentUser.units[0].unit_number &&
+            unit.floor_number === currentUser.units[0].floor_number
+          );
+
+          this.backendService.getUsers().subscribe({
+            next: (usersResponse) => {
+              const tenantUsers = usersResponse.filter((user: { user_type: string; }) => user.user_type === 'TENANT');
+              const matchedTenants = tenantUsers.filter((user: { user_id: any; }) =>
+                filteredUnits.some((unit: { user_id: any; }) => unit.user_id === user.user_id)
+              );
+
+              const tenantNames = new Set();
+              this.leases = this.leases.map(lease => {
+                const tenant = matchedTenants.find((user: { user_id: any; is_validated: any; }) => user.user_id === lease.tenant_id);
+                if (tenant) {
+                  lease.tenantName = tenant.first_name + ' ' + tenant.last_name;
+                  tenantNames.add(lease.tenantName);
+                  lease.isValidated = tenant.is_validated === 1; // Set the isValidated property based on the tenant's is_validated value
+                  return lease;
+                }
+                return null;
+              }).filter(lease => lease !== null);
+
+              console.log('Tenant Name:', this.leases);
+            },
+            error: (err) => console.error('Failed to load users:', err)
+          });
+        }
+      });
+    }
+  });
+}
+
 
   
   async storeImageData(event: any, lease_agreement_id: number) {
@@ -141,13 +204,13 @@ loadLeases() {
 
   updateRent(lease: any): void {
     if (lease.updatedMonthlyRent !== null && lease.updatedMonthlyRent !== undefined) {
-      if (lease.updatedMonthlyRent >= 0) { // Change this condition to allow any positive value
+      if (lease.updatedMonthlyRent >= 0) { 
         const remainingBalanceAfterRent = lease.remaining_balance - lease.updatedMonthlyRent;
         lease.remaining_balance = remainingBalanceAfterRent;
         console.log('Remaining balance:', lease.remaining_balance);
 
         const paymentHistory = {
-          date: new Date(), // Use the current date or any other relevant date
+          date: new Date(), 
           paymentAmount: lease.updatedMonthlyRent,
           remainingBalance: lease.remaining_balance
         };

@@ -12,14 +12,15 @@
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th>Remaining Balance</th>
+                    <th>Validated</th>
                 </tr>
             </ng-template>
     
             <ng-template pTemplate="body" let-lease let-editing="editing">
-                <tr>
+                <tr >
                     <td>{{lease.tenantName}}</td>
 
-                    <td [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.monthly_rent" pEditableColumnField="monthly_rent">
+                    <td *ngIf="lease.isValidated; else readonlyMonthlyRent" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.monthly_rent" pEditableColumnField="monthly_rent">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <input pInputText type="number" [(ngModel)]="lease.monthly_rent" />
@@ -29,8 +30,12 @@
                             </ng-template>
                         </p-cellEditor>
                     </td>
-                    
-                    <td [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.contract" pEditableColumnField="contract">
+                    <ng-template #readonlyMonthlyRent>
+                        <td>{{ lease.monthly_rent | currency: 'PHP' }}</td>
+                    </ng-template>
+
+
+                    <td *ngIf="lease.isValidated; else readonlyContract" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.contract" pEditableColumnField="contract">
                         <p-cellEditor>
                         <ng-template pTemplate="input">
                             <div *ngIf="imageSrc">
@@ -54,8 +59,13 @@
                     </ng-template>
                     </p-cellEditor>
                     </td>
+                    <ng-template #readonlyContract>
+                        <td>
+                            <img *ngIf="imageSrc" [src]="imageSrc ? imageSrc : selectedItem.image_path" alt="Uploaded Image">
+                        </td>
+                    </ng-template>
             
-                    <td [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.numberOfMonths" pEditableColumnField="numberOfMonths">
+                    <td *ngIf="lease.isValidated; else readonlyNumberOfMonths" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.numberOfMonths" pEditableColumnField="numberOfMonths">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <p-inputNumber inputId="integeronly" type="number"
@@ -72,8 +82,11 @@
                             </ng-template>
                         </p-cellEditor>
                     </td>
+                    <ng-template #readonlyNumberOfMonths>
+                        <td>{{ lease.numberOfMonths }}</td>
+                    </ng-template>
 
-                    <td [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.start_date" pEditableColumnField="start_date">
+                    <td *ngIf="lease.isValidated; else readonlyStartDate" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.start_date" pEditableColumnField="start_date">
                 <p-cellEditor>
                     <ng-template pTemplate="input">
                         <p-calendar [(ngModel)]="lease.start_date"
@@ -92,10 +105,13 @@
                     </ng-template>
                 </p-cellEditor>
             </td>
-    
+            <ng-template #readonlyStartDate>
+                <td>{{ lease.start_date | date:'shortDate' }}</td>
+            </ng-template>
+
             <td>{{ lease.end_date | date:'shortDate' }}</td>
                     
-                    <td [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.remaining_balance" pEditableColumnField="remaining_balance">
+                    <td *ngIf="lease.isValidated; else readonlyRemainingBalance" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.remaining_balance" pEditableColumnField="remaining_balance">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <input pInputText type="number" [(ngModel)]="lease.remaining_balance" />
@@ -105,9 +121,19 @@
                             </ng-template>
                         </p-cellEditor>
                     </td>
-                    
-                </tr>
+                    <ng-template #readonlyRemainingBalance>
+                        <td>{{ lease.remaining_balance | currency: 'PHP' }}</td>
+                    </ng-template>
 
+                    <td>
+                        <div class="mb-3">
+                        <p-button label="Yes" [rounded]="true" severity="success" (click)="markAsValid(lease)"></p-button>
+                        </div>
+                        <div>
+                        <p-button label="No" [rounded]="true" severity="danger" (click)="markAsInvalid(lease)"></p-button>
+                        </div>
+                    </td>    
+                </tr>
             </ng-template>
     </p-table>
 </div>
