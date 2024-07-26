@@ -193,5 +193,12 @@ export class BackendServiceService {
     });
   }
   
+  
+addLeaseAgreement(data: any): Observable<any> {
+  return this.http.post(`${this.backendUrl}/lease`, JSON.stringify(data), {
+    headers: this.headers
+  });
+}
+
 }
 
