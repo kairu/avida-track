@@ -87,7 +87,6 @@ loadLeases() {
   });
 }
 
-
 onValidationChange(event: any, lease: any) {
   lease.validationStatus = event.value;
   lease.is_validated = event.value === 'valid' ? 1 : 0;
@@ -101,27 +100,6 @@ onValidationChange(event: any, lease: any) {
     this.markAsInvalid(lease);
   }
 }
-
-
-// onValidationChange(event: any, lease: any) {
-//   lease.validationStatus = event.value;
-//   lease.is_validated = event.value === 'valid' ? 1 : 0;
-//   lease.isEditable = lease.is_validated === 1;
-//   this.editingValidationStatus[lease.lease_agreement_id] = false;
-
-//   const updateData = {
-//     lease_agreement_id: lease.lease_agreement_id,
-//     is_validated: lease.is_validated,
-//     // Include other necessary fields here
-//   };
-
-//   this.backendService.updateLease(lease.lease_agreement_id, updateData).subscribe(() => {
-//     console.log('Lease validation status updated successfully');
-//     // Refresh the lease data or update the UI as needed
-//   }, error => {
-//     console.error('Error updating lease validation status', error);
-//   });
-// }
 
 markAsValid(lease: any): void {
   const tenantId = lease.tenant_id;
@@ -271,7 +249,7 @@ Confirm(tenant: any): void {
                 monthly_rent: 0,
                 security_deposit: 0,
                 remaining_balance: 0,
-                isValidated: true  // Set isValidated to true
+                // isValidated: true  // Set isValidated to true
               };
               console.log('New Lease Agreement Payload:', JSON.stringify(newLeaseAgreement));
 
