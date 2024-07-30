@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { BackendServiceService } from 'src/app/services/backend-service.service';
-import { Observable, catchError, forkJoin, switchMap, map, of } from 'rxjs';
 import { FileUploadModule } from 'primeng/fileupload';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
@@ -15,6 +14,8 @@ import { DialogModule } from 'primeng/dialog';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { TagModule } from 'primeng/tag';
 interface UploadEvent {
   originalEvent: Event;
   files: File[];
@@ -24,7 +25,7 @@ interface UploadEvent {
   standalone: true,
   imports: [TableModule, FileUploadModule, CommonModule, InputNumberModule, FormsModule, 
             ImageModule, CalendarModule, ButtonModule, RippleModule, DialogModule, AutoCompleteModule, ToastModule,
-            InputTextModule],
+            InputTextModule, DropdownModule, TagModule],
   templateUrl: './tenant-lease.component.html',
   styleUrls: ['./tenant-lease.component.scss']
 })
@@ -45,7 +46,8 @@ export class TenantLeaseComponent implements OnInit {
   loggedUser: any;
   displayUsers: any;
   paymentHistoryData: any[] = [];
-  
+  pendingTenants: any[] = [];
+  editingValidationStatus: { [key: string]: boolean } = {};
   
   constructor(private backendService: BackendServiceService, private messageService: MessageService) {
     this.today = new Date();
@@ -55,26 +57,71 @@ export class TenantLeaseComponent implements OnInit {
     this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded with Basic Mode' });
 }
 
-
   ngOnInit(): void {
     this.leases.forEach(lease => lease.numberOfMonths = 1);
     this.loadTenantNames();
     this.loadLeases();
     // this.loadLeasesWithValidation();
+    this.fetchPendingTenants();
     
   }
 
+  validationOptions = [
+    { label: 'Yes', value: 'valid' },
+    { label: 'No', value: 'invalid' }
+];
+
 loadLeases() {
-  this.backendService.getLeases().subscribe({
-    next: (data) => {
-      this.leases = data;
-      console.log('Loaded leases:', this.leases);
-    },
-    error: (error) => {
-      console.error('Error loading leases:', error);
-    }
+  this.backendService.getLeases().subscribe(leases => {
+    this.backendService.getUsers().subscribe(users => {
+      this.leases = leases.map((lease: { tenant_id: any; }) => {
+        const user = users.find((u: { user_id: any; }) => u.user_id === lease.tenant_id);
+        return {
+          ...lease,
+          is_validated: user ? user.is_validated : null,
+          validationStatus: user && user.is_validated ? 'valid' : 'invalid',
+          isValidated: user ? user.is_validated === 1 : true
+        };
+      });
+    });
   });
 }
+
+
+onValidationChange(event: any, lease: any) {
+  lease.validationStatus = event.value;
+  lease.is_validated = event.value === 'valid' ? 1 : 0;
+  this.editingValidationStatus[lease.lease_agreement_id] = false;
+  
+  if (event.value === 'valid') {
+    lease.isEditable = true;
+    this.markAsValid(lease);
+  } else if (event.value === 'invalid') {
+    lease.isEditable = false;
+    this.markAsInvalid(lease);
+  }
+}
+
+
+// onValidationChange(event: any, lease: any) {
+//   lease.validationStatus = event.value;
+//   lease.is_validated = event.value === 'valid' ? 1 : 0;
+//   lease.isEditable = lease.is_validated === 1;
+//   this.editingValidationStatus[lease.lease_agreement_id] = false;
+
+//   const updateData = {
+//     lease_agreement_id: lease.lease_agreement_id,
+//     is_validated: lease.is_validated,
+//     // Include other necessary fields here
+//   };
+
+//   this.backendService.updateLease(lease.lease_agreement_id, updateData).subscribe(() => {
+//     console.log('Lease validation status updated successfully');
+//     // Refresh the lease data or update the UI as needed
+//   }, error => {
+//     console.error('Error updating lease validation status', error);
+//   });
+// }
 
 markAsValid(lease: any): void {
   const tenantId = lease.tenant_id;
@@ -89,7 +136,6 @@ markAsValid(lease: any): void {
       };
       this.backendService.updateUser(tenant.email, updateData).subscribe({
         next: () => {
-          // Update the isValidated property of the lease object
           lease.isValidated = true;
           this.messageService.add({ severity: 'success', summary: 'Approved', detail: 'Approved Tenant.' });
         },
@@ -105,7 +151,6 @@ markAsValid(lease: any): void {
     }
   });
 }
-
 
 markAsInvalid(lease: any): void {
   const tenantId = lease.tenant_id;
@@ -136,6 +181,136 @@ markAsInvalid(lease: any): void {
   });
 }
 
+fetchPendingTenants(): void {
+  const email = this.backendService.getEmail();
+  this.backendService.getUser(email).subscribe({
+    next: (currentUser) => {
+      this.backendService.getUnits().subscribe({
+        next: (unitsResponse) => {
+          // Filter units to match the current user's unit details
+          const filteredUnits = unitsResponse.filter((unit: { tower_number: any; unit_number: any; floor_number: any; }) =>
+            unit.tower_number === currentUser.units[0].tower_number &&
+            unit.unit_number === currentUser.units[0].unit_number &&
+            unit.floor_number === currentUser.units[0].floor_number
+          );
+          console.log('Filtered Units:', filteredUnits);
+
+          this.backendService.getUsers().subscribe({
+            next: (usersResponse) => {
+              // Filter to get tenants only
+              const tenantUsers = usersResponse.filter((user: { user_type: string; }) => user.user_type === 'TENANT');
+              
+              // Further filter to get pending tenants only (is_validated is false)
+              const pendingTenants = tenantUsers.filter((user: any) =>
+                filteredUnits.some((unit: { user_id: any; }) => unit.user_id === user.user_id) &&
+              (!user.lease_agreements || user.lease_agreements.length === 0)
+              );
+              
+              console.log('Pending Tenants:', pendingTenants);
+              this.pendingTenants = pendingTenants;
+            },
+            error: (err) => console.error('Failed to load users:', err)
+          });
+        },
+        error: (err) => console.error('Failed to load units:', err)
+      });
+    },
+    error: (err) => console.error('Failed to load current user:', err)
+  });
+}
+
+Confirm(tenant: any): void {
+  const tenantId = tenant.user_id;
+  console.log('Initial Tenant Data:', tenant);
+  if (!tenant.units || !tenant.units[0].unit_id) {
+    console.error('Tenant object is missing unit_id:', tenant);
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Tenant data is incomplete.' });
+    return;
+  }
+
+  const unitId = tenant.units[0].unit_id;
+
+  this.backendService.getUser(tenantId).subscribe({
+    next: (tenantDetails) => {
+      const updateData = {
+        first_name: tenantDetails.first_name,
+        last_name: tenantDetails.last_name,
+        email: tenantDetails.email,
+        is_validated: 1,
+        mobile_number: tenantDetails.mobile_number,
+      };
+
+      this.backendService.updateUser(tenantDetails.email, updateData).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Approved', detail: 'Approved Tenant.' });
+          console.log('Tenant Details:', tenantDetails);
+
+          const currentUserEmail = this.backendService.getEmail();
+          this.backendService.getUser(currentUserEmail).subscribe({
+            next: (currentUser) => {
+              if (!currentUser || !currentUser.user_id) {
+                console.error('Current user details are missing:', currentUser);
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch current user details.' });
+                return;
+              }
+              const ownerId = currentUser.user_id;
+
+              // Provide default dates
+              const startDate = new Date().toISOString().split('T')[0]; // Today's date
+              const endDate = new Date();
+              endDate.setFullYear(endDate.getFullYear() + 1); // One year from today
+              const endDateStr = endDate.toISOString().split('T')[0];
+
+              const newLeaseAgreement = {
+                tenant_id: tenantId,
+                unit_id: unitId,
+                owner_id: unitId,
+                contract: '',
+                start_date: startDate,
+                end_date: endDateStr,
+                monthly_rent: 0,
+                security_deposit: 0,
+                remaining_balance: 0,
+                isValidated: true  // Set isValidated to true
+              };
+              console.log('New Lease Agreement Payload:', JSON.stringify(newLeaseAgreement));
+
+              this.backendService.addLeaseAgreement(newLeaseAgreement).subscribe({
+                next: (response) => {
+                  this.messageService.add({ severity: 'success', summary: 'Lease Created', detail: 'Lease Agreement Created Successfully.' });
+                  this.fetchPendingTenants();
+
+                  // Find the created lease and set its isValidated property to true
+                  const createdLease = this.leases.find(lease => lease.tenant_id === tenantId && lease.unit_id === unitId);
+                  if (createdLease) {
+                    createdLease.isValidated = true;
+                  }
+                },
+                error: (err) => {
+                  console.error('Failed to create lease agreement:', err);
+                  console.error('Error details:', err.error);
+                  this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create lease agreement.' });
+                }
+              });
+            },
+            error: (err) => {
+              console.error('Failed to fetch current user details:', err);
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch current user details.' });
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Failed to validate user:', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to validate user.' });
+        }
+      });
+    },
+    error: (err) => {
+      console.error('Failed to get tenant:', err);
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to get tenant.' });
+    }
+  });
+}
 
 loadTenantNames() {
   const email = this.backendService.getEmail();
@@ -162,13 +337,11 @@ loadTenantNames() {
                 if (tenant) {
                   lease.tenantName = tenant.first_name + ' ' + tenant.last_name;
                   tenantNames.add(lease.tenantName);
-                  lease.isValidated = tenant.is_validated === 1; // Set the isValidated property based on the tenant's is_validated value
+                  // lease.isValidated = tenant.is_validated === 1;
                   return lease;
                 }
                 return null;
               }).filter(lease => lease !== null);
-
-              console.log('Tenant Name:', this.leases);
             },
             error: (err) => console.error('Failed to load users:', err)
           });
@@ -178,8 +351,6 @@ loadTenantNames() {
   });
 }
 
-
-  
   async storeImageData(event: any, lease_agreement_id: number) {
     console.log(lease_agreement_id);
     this.uploadedFile = event.files[0];
@@ -229,7 +400,7 @@ loadTenantNames() {
                 const leaseData = {
                   lease_agreement_id: lease.lease_agreement_id,
                   unit_id: lease.unit_id,
-                  owner_id: ownerId,
+                  owner_id: lease.owner_id,
                   tenant_id: lease.tenant_id,
                   contract: lease.contract || '',
                   start_date: this.getFormattedDate(lease.start_date),
@@ -243,12 +414,11 @@ loadTenantNames() {
                 // lease.disabledInput = true;
                 this.backendService.updateLease(lease.lease_agreement_id, leaseData).subscribe({
                   next: (response) => {
-                    console.log('Lease Agreement updated successfully:', response);
                     this.messageService.add({ severity: 'success', summary: 'Rent Updated', detail: 'Remaining balance updated successfully.' });
                     lease.updatedMonthlyRent = null;
                   },
                   error: (error) => {
-                    console.error('Error updating Lease Agreement:', error);
+
                     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update Remaining Balance.' });
                   }
                 });
@@ -293,11 +463,8 @@ onEditComplete(event: any) {
         console.error('Lease object is missing or undefined');
         return;
       }
-
       
       lease[editedField] = editedValue;
-
-      
       if (!lease.numberOfMonths && editedField !== 'numberOfMonths') {
         lease.numberOfMonths = response.find(item => item.lease_agreement_id == lease_agreement_id).numberOfMonths;
       }
@@ -319,7 +486,8 @@ onEditComplete(event: any) {
         monthly_rent: lease.monthly_rent,
         security_deposit: lease.security_deposit,
         remaining_balance: lease.remaining_balance,
-        numberOfMonths: lease.numberOfMonths 
+        numberOfMonths: lease.numberOfMonths, 
+        isValidated: lease.isValidated
       };
 
       console.log('Fields:', updateFields);
@@ -387,9 +555,6 @@ computeDates(lease: any): void {
 
     lease.end_date = this.convertDate(this.convertDateToLocal(endDate));
     lease.start_date = this.convertDate(this.convertDateToLocal(startDate));
-    console.log('Computed End Date:', lease.end_date);
-    console.log('Computed Start Date:', lease.start_date);
-    console.log('Entered number of months:', lease.numberOfMonths);
   } else {
     console.log('Missing required fields for date computation.');
   }
@@ -430,7 +595,3 @@ computeDates(lease: any): void {
       }
 
 }
-
-
-
-
