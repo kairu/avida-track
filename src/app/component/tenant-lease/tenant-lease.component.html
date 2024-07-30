@@ -15,17 +15,18 @@
           <td>{{tenant.first_name}} {{tenant.last_name}}</td>
           <td>{{tenant.email}}</td>
           <td>
-            <p-button icon="pi pi-check" (click)="MarkAsValid(tenant)"></p-button>
+            <p-button icon="pi pi-check" severity="success" (click)="Confirm(tenant)"></p-button>
           </td>
         </tr>
       </ng-template>
     </p-table>
   </div>
 
-<div class="card" style="height: 500px; overflow-y: auto;">
+<div class="card" style="overflow-y: auto;">
     <p-table 
         [value]="leases" dataKey="lease_agreement_id" (onEditComplete)="onEditComplete($event)"
-        [tableStyle]="{ 'min-width': '50rem' }">
+        [scrollable]="true" 
+        scrollHeight="500px"[tableStyle]="{ 'min-width': '50rem' }">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Name</th>
@@ -35,7 +36,7 @@
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th>Remaining Balance</th>
-                    <!-- <th>Validated</th> -->
+                    <th>Validated</th>
                 </tr>
             </ng-template>
     
@@ -43,7 +44,7 @@
                 <tr >
                     <td>{{lease.tenantName}}</td>
 
-                    <td *ngIf="lease.isValidated; else readonlyMonthlyRent" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.monthly_rent" pEditableColumnField="monthly_rent">
+                    <td *ngIf="lease.is_validated; else readonlyMonthlyRent" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.monthly_rent" pEditableColumnField="monthly_rent">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <input pInputText type="number" [(ngModel)]="lease.monthly_rent" />
@@ -58,7 +59,7 @@
                     </ng-template>
 
 
-                    <td *ngIf="lease.isValidated; else readonlyContract" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.contract" pEditableColumnField="contract">
+                    <td *ngIf="lease.is_validated; else readonlyContract" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.contract" pEditableColumnField="contract">
                         <p-cellEditor>
                         <ng-template pTemplate="input">
                             <div *ngIf="imageSrc">
@@ -88,7 +89,7 @@
                         </td>
                     </ng-template>
             
-                    <td *ngIf="lease.isValidated; else readonlyNumberOfMonths" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.numberOfMonths" pEditableColumnField="numberOfMonths">
+                    <td *ngIf="lease.is_validated; else readonlyNumberOfMonths" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.numberOfMonths" pEditableColumnField="numberOfMonths">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <p-inputNumber inputId="integeronly" type="number"
@@ -109,7 +110,7 @@
                         <td>{{ lease.numberOfMonths }}</td>
                     </ng-template>
 
-                    <td *ngIf="lease.isValidated; else readonlyStartDate" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.start_date" pEditableColumnField="start_date">
+                    <td *ngIf="lease.is_validated; else readonlyStartDate" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.start_date" pEditableColumnField="start_date">
                 <p-cellEditor>
                     <ng-template pTemplate="input">
                         <p-calendar [(ngModel)]="lease.start_date"
@@ -134,7 +135,7 @@
 
             <td>{{ lease.end_date | date:'shortDate' }}</td>
                     
-                    <td *ngIf="lease.isValidated; else readonlyRemainingBalance" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.remaining_balance" pEditableColumnField="remaining_balance">
+                    <td *ngIf="lease.is_validated; else readonlyRemainingBalance" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.remaining_balance" pEditableColumnField="remaining_balance">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
                                 <input pInputText type="number" [(ngModel)]="lease.remaining_balance" />
@@ -147,14 +148,32 @@
                     <ng-template #readonlyRemainingBalance>
                         <td>{{ lease.remaining_balance | currency: 'PHP' }}</td>
                     </ng-template>
-                    <!-- <td>
-                        <div class="mb-3">
-                        <p-button label="Yes" [rounded]="true" severity="success" (click)="markAsValid(lease)"></p-button>
+
+                    <td>
+                        <p-dropdown *ngIf="editingValidationStatus[lease.lease_agreement_id]"
+                            [options]="validationOptions" 
+                            [(ngModel)]="lease.validationStatus" 
+                            (onChange)="onValidationChange($event, lease)"
+                            (onBlur)="editingValidationStatus[lease.lease_agreement_id] = false"
+                            optionLabel="label" 
+                            optionValue="value">
+                        </p-dropdown>
+                        <div *ngIf="!editingValidationStatus[lease.lease_agreement_id]" 
+                             (click)="editingValidationStatus[lease.lease_agreement_id] = true">
+                            <p-tag *ngIf="lease.validationStatus === 'valid'" 
+                                severity="success" 
+                                value="Yes">
+                            </p-tag>
+                            <p-tag *ngIf="lease.validationStatus === 'invalid'" 
+                                severity="danger" 
+                                value="No">
+                            </p-tag>
+                            <p-tag *ngIf="!lease.validationStatus" 
+                                severity="warning" 
+                                value="Select">
+                            </p-tag>
                         </div>
-                        <div>
-                        <p-button label="No" [rounded]="true" severity="danger" (click)="markAsInvalid(lease)"></p-button>
-                        </div>
-                    </td>     -->
+                    </td>
                 </tr>
             </ng-template>
     </p-table>
