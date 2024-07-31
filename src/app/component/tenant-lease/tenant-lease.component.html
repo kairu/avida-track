@@ -156,7 +156,7 @@
                             (onChange)="onValidationChange($event, lease)"
                             (onBlur)="editingValidationStatus[lease.lease_agreement_id] = false"
                             optionLabel="label" 
-                            optionValue="value">
+                            optionValue="value" appendTo="body">
                         </p-dropdown>
                         <div *ngIf="!editingValidationStatus[lease.lease_agreement_id]" 
                              (click)="editingValidationStatus[lease.lease_agreement_id] = true">

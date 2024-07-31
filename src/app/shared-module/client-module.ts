@@ -15,6 +15,11 @@ import { TimeFormatPipe } from 'src/app/pipe/time-format.pipe';
 import { PaginatorModule } from 'primeng/paginator';
 import { DialogModule } from 'primeng/dialog';
 import { CardModule } from 'primeng/card';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { InputMaskModule } from 'primeng/inputmask';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectButtonModule } from 'primeng/selectbutton';
 @NgModule({
   imports: [
     CommonModule,
@@ -32,7 +37,12 @@ import { CardModule } from 'primeng/card';
     TimeFormatPipe,
     PaginatorModule,
     DialogModule,
-    CardModule
+    CardModule,
+    RadioButtonModule,
+    KeyFilterModule,
+    InputMaskModule,
+    InputNumberModule,
+    SelectButtonModule
   ],
   exports: [
     CommonModule,
@@ -50,7 +60,12 @@ import { CardModule } from 'primeng/card';
     TimeFormatPipe,
     PaginatorModule,
     DialogModule,
-    CardModule
+    CardModule,
+    RadioButtonModule,
+    KeyFilterModule,
+    InputMaskModule,
+    InputNumberModule,
+    SelectButtonModule
   ]
 })
 export class ClientModule { }

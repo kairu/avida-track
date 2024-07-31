@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of, switchMap } from 'rxjs';
+import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { BackendDataService } from './backend-data.service';
 
 
@@ -27,28 +27,26 @@ export class BackendServiceService {
     });
   }
 
-  createUser(user: any): Observable<any> {
-    const rawBody = JSON.parse(JSON.stringify(user));
-    const userData = this.backendData.userData(
-      rawBody.first_name, 
-      rawBody.last_name, 
-      rawBody.mobile_number,
-      this.getEmail(),
-      rawBody.userType
-    );
+  createUser(userData: any, unit: any): Observable<any> {
     return this.http.post(this.backendUrl + '/user', userData, { 
       headers: this.headers 
     }).pipe(
       switchMap((uid: any) => {
-        const unitData = this.backendData.unitData(
-          uid.user_id, 
-          rawBody.tower_number, 
-          rawBody.floor_number, 
-          rawBody.unit_number
-        );
-        return this.http.post(this.backendUrl + '/unit', unitData, {
-           headers: this.headers 
+        const unitDataRequests = unit.map((u: { tower_number: number; floor_number: number; unit_number: number; }) => {
+          const unitData = this.backendData.unitData(
+            uid.user_id,
+            u.tower_number,
+            u.floor_number,
+            u.unit_number
+          );
+          return this.http.post(this.backendUrl + '/unit', unitData, {
+            headers: this.headers
+          });
         });
+
+        return forkJoin(unitDataRequests).pipe(
+          map(() => uid.user_id)
+        );      
       })
     );
   }

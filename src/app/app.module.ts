@@ -17,7 +17,6 @@ import { AppComponent } from './app.component';
 import { SpinnerComponent } from './shared/spinner.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { UserDataService } from './services/user-data.service';
-import { UserFormComponent } from './user-form/user-form.component';
 import { AccessControlComponent } from './component/access-control/access-control.component';
 import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
@@ -43,7 +42,6 @@ import { FieldsetModule } from 'primeng/fieldset';
   declarations: [
     AppComponent,
     SpinnerComponent,
-    UserFormComponent,
     AccessControlComponent,
     AboutComponent
   ],
