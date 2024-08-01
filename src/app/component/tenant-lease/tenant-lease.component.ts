@@ -48,9 +48,12 @@ export class TenantLeaseComponent implements OnInit {
   paymentHistoryData: any[] = [];
   pendingTenants: any[] = [];
   editingValidationStatus: { [key: string]: boolean } = {};
-  
+  paymentHistory: any[] = [];
+  isTENANT: boolean = true;
+
   constructor(private backendService: BackendServiceService, private messageService: MessageService) {
     this.today = new Date();
+    this.checkisTENANT();
   }
   
   onUpload(event: UploadEvent) {
@@ -58,12 +61,15 @@ export class TenantLeaseComponent implements OnInit {
 }
 
   ngOnInit(): void {
-    this.leases.forEach(lease => lease.numberOfMonths = 1);
+    this.leases.forEach(lease => {
+      lease.numberOfMonths = 1;
+      
+    });
     this.loadTenantNames();
     this.loadLeases();
     // this.loadLeasesWithValidation();
     this.fetchPendingTenants();
-    
+    this.fetchPaymentHistory();
   }
 
   validationOptions = [
@@ -72,19 +78,29 @@ export class TenantLeaseComponent implements OnInit {
 ];
 
 loadLeases() {
-  this.backendService.getLeases().subscribe(leases => {
-    this.backendService.getUsers().subscribe(users => {
-      this.leases = leases.map((lease: { tenant_id: any; }) => {
+  this.backendService.getLeases().subscribe((leases: any[]) => {
+    this.backendService.getUsers().subscribe((users: any[]) => {
+      this.leases = leases.map((lease: any) => {
         const user = users.find((u: { user_id: any; }) => u.user_id === lease.tenant_id);
+        const numberOfMonths = this.calculateMonthsBetweenDates(new Date(lease.start_date), new Date(lease.end_date));
         return {
           ...lease,
           is_validated: user ? user.is_validated : null,
           validationStatus: user && user.is_validated ? 'valid' : 'invalid',
-          isValidated: user ? user.is_validated === 1 : true
+          isValidated: user ? user.is_validated === 1 : true,
+          numberOfMonths: numberOfMonths
         };
       });
     });
   });
+}
+
+calculateMonthsBetweenDates(startDate: Date, endDate: Date): number {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const yearDiff = end.getFullYear() - start.getFullYear();
+  const monthDiff = end.getMonth() - start.getMonth();
+  return yearDiff * 12 + monthDiff;
 }
 
 onValidationChange(event: any, lease: any) {
@@ -171,7 +187,6 @@ fetchPendingTenants(): void {
             unit.unit_number === currentUser.units[0].unit_number &&
             unit.floor_number === currentUser.units[0].floor_number
           );
-          console.log('Filtered Units:', filteredUnits);
 
           this.backendService.getUsers().subscribe({
             next: (usersResponse) => {
@@ -183,8 +198,6 @@ fetchPendingTenants(): void {
                 filteredUnits.some((unit: { user_id: any; }) => unit.user_id === user.user_id) &&
               (!user.lease_agreements || user.lease_agreements.length === 0)
               );
-              
-              console.log('Pending Tenants:', pendingTenants);
               this.pendingTenants = pendingTenants;
             },
             error: (err) => console.error('Failed to load users:', err)
@@ -199,15 +212,12 @@ fetchPendingTenants(): void {
 
 Confirm(tenant: any): void {
   const tenantId = tenant.user_id;
-  console.log('Initial Tenant Data:', tenant);
   if (!tenant.units || !tenant.units[0].unit_id) {
     console.error('Tenant object is missing unit_id:', tenant);
     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Tenant data is incomplete.' });
     return;
   }
-
   const unitId = tenant.units[0].unit_id;
-
   this.backendService.getUser(tenantId).subscribe({
     next: (tenantDetails) => {
       const updateData = {
@@ -221,7 +231,6 @@ Confirm(tenant: any): void {
       this.backendService.updateUser(tenantDetails.email, updateData).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Approved', detail: 'Approved Tenant.' });
-          console.log('Tenant Details:', tenantDetails);
 
           const currentUserEmail = this.backendService.getEmail();
           this.backendService.getUser(currentUserEmail).subscribe({
@@ -251,8 +260,6 @@ Confirm(tenant: any): void {
                 remaining_balance: 0,
                 // isValidated: true  // Set isValidated to true
               };
-              console.log('New Lease Agreement Payload:', JSON.stringify(newLeaseAgreement));
-
               this.backendService.addLeaseAgreement(newLeaseAgreement).subscribe({
                 next: (response) => {
                   this.messageService.add({ severity: 'success', summary: 'Lease Created', detail: 'Lease Agreement Created Successfully.' });
@@ -351,29 +358,26 @@ loadTenantNames() {
     reader.readAsDataURL(event.files[0]);
   }
 
+
   updateRent(lease: any): void {
     if (lease.updatedMonthlyRent !== null && lease.updatedMonthlyRent !== undefined) {
       if (lease.updatedMonthlyRent >= 0) { 
+        const originalMonthlyRent = lease.monthly_rent;
+        const paymentAmount = lease.updatedMonthlyRent;
+        if (paymentAmount < originalMonthlyRent) {
+          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Payment cannot be less than monthly rent'});
+          return;
+        }
         const remainingBalanceAfterRent = lease.remaining_balance - lease.updatedMonthlyRent;
         lease.remaining_balance = remainingBalanceAfterRent;
         console.log('Remaining balance:', lease.remaining_balance);
 
-        const paymentHistory = {
-          date: new Date(), 
-          paymentAmount: lease.updatedMonthlyRent,
-          remainingBalance: lease.remaining_balance
-        };
-        lease.paymentHistory = lease.paymentHistory || [];
-        lease.paymentHistory.push(paymentHistory);
-
-        
       const email = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
         if (email) {
           this.backendService.getUser(email).subscribe({
             next: (userData: any) => {
               const ownerId = userData.owner_id || userData.user_id;
-              console.log('owner id:', ownerId);
-  
+              
               if (ownerId) {
                 const leaseData = {
                   lease_agreement_id: lease.lease_agreement_id,
@@ -383,19 +387,36 @@ loadTenantNames() {
                   contract: lease.contract || '',
                   start_date: this.getFormattedDate(lease.start_date),
                   end_date: lease.end_date,
-                  monthly_rent: lease.updatedMonthlyRent,
+                  monthly_rent: originalMonthlyRent,
                   security_deposit: lease.security_deposit,
                   remaining_balance: lease.remaining_balance
                 };
-                
-                console.log('leaseData:', leaseData);
+
                 // lease.disabledInput = true;
                 this.backendService.updateLease(lease.lease_agreement_id, leaseData).subscribe({
                   next: (response) => {
                     this.messageService.add({ severity: 'success', summary: 'Rent Updated', detail: 'Remaining balance updated successfully.' });
                     lease.updatedMonthlyRent = null;
+
+                    const paymentData = {
+                      lease_agreement_id: lease.lease_agreement_id,
+                      amount: paymentAmount,
+                      payment_date: this.getFormattedDate(new Date().toISOString()),
+                      status: 'PAID',
+                    };
+                    this.backendService.addPayment(paymentData).subscribe({
+                      next: (paymentResponse) => {
+                        console.log('Payment added successfully:', paymentResponse);
+                        // this.fetchPaymentHistory(lease);
+                        this.messageService.add({ severity: 'success', summary: 'Payment Recorded', detail: 'Payment has been recorded successfully.' });
+                      },
+                      error: (paymentError) => {
+                        console.error('Error adding payment:', paymentError);
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to record payment.' });
+                      }
+                    });
                   },
-                  error: (error) => {
+                    error: (error) => {
 
                     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update Remaining Balance.' });
                   }
@@ -415,10 +436,137 @@ loadTenantNames() {
     }
   }
 
+  fetchPaymentHistory(): void {
+    const email = this.backendService.getEmail();
+    this.backendService.getUser(email).subscribe({
+      next: (currentUser) => {
+        console.log('Current User:', currentUser);
+        this.backendService.getUnits().subscribe({
+          next: (unitsResponse) => {
+            console.log('Units Response:', unitsResponse);
+            const filteredUnits = unitsResponse.filter((unit: any) =>
+              unit.tower_number === currentUser.units[0].tower_number &&
+              unit.unit_number === currentUser.units[0].unit_number &&
+              unit.floor_number === currentUser.units[0].floor_number
+            );
+            console.log('Filtered Units:', filteredUnits);
+  
+            this.backendService.getUsers().subscribe({
+              next: (usersResponse) => {
+                console.log('Users Response:', usersResponse);
+                const tenantUsers = usersResponse.filter((user: any) =>
+                  user.user_type === 'TENANT' &&
+                  filteredUnits.some((unit: any) => unit.user_id === user.user_id)
+                );
+                console.log('Tenant Users:', tenantUsers);
+  
+                const tenantPaymentHistories = new Map<string, any[]>();
+  
+                this.backendService.getLeases().subscribe({
+                  next: (leaseResponse) => {
+                    console.log('Leases Response:', leaseResponse);
+                    const relevantLeases = leaseResponse.filter((lease: { lease_agreement_id: number; tenant_id: any; }) =>
+                      tenantUsers.some((tenant: { user_id: any; }) => tenant.user_id === lease.tenant_id)
+                    );
+                    console.log('Relevant Leases:', relevantLeases);
+  
+                    if (relevantLeases.length === 0) {
+                      console.warn('No relevant leases found.');
+                      this.paymentHistory = [];
+                      return;
+                    }
+  
+                    let pendingRequests = relevantLeases.length;
+  
+                    relevantLeases.forEach((lease: any) => {
+                      this.backendService.getPayment(`LEASE${lease.lease_agreement_id}`).subscribe({
+                        next: (payments) => {
+                          console.log(`Payments for Lease ${lease.lease_agreement_id}:`, payments);
+                          if (payments && payments.length > 0) {
+                            const tenantId = lease.tenant_id;
+                            if (!tenantPaymentHistories.has(tenantId)) {
+                              tenantPaymentHistories.set(tenantId, []);
+                            }
+                            tenantPaymentHistories.get(tenantId)!.push(...payments);
+                          }
+                          pendingRequests--;
+                          if (pendingRequests === 0) {
+                            this.processPaymentHistories(tenantUsers, tenantPaymentHistories, currentUser.user_id);
+                          }
+                        },
+                        error: (error) => {
+                          console.error('Error fetching payments:', error);
+                          pendingRequests--;
+                          if (pendingRequests === 0) {
+                            this.processPaymentHistories(tenantUsers, tenantPaymentHistories, currentUser.user_id);
+                          }
+                        }
+                      });
+                    });
+                  },
+                  error: (error) => console.error('Error fetching leases:', error)
+                });
+              },
+              error: (error) => console.error('Error fetching users:', error)
+            });
+          },
+          error: (error) => console.error('Error fetching units:', error)
+        });
+      },
+      error: (error) => console.error('Error fetching current user:', error)
+    });
+  }
+  
+  processPaymentHistories(tenantUsers: any[], tenantPaymentHistories: Map<string, any[]>, currentUserId: string) {
+    tenantUsers.forEach((tenant: { paymentHistory: any[]; user_id: string; }) => {
+      tenant.paymentHistory = tenantPaymentHistories.get(tenant.user_id) || [];
+    });
+    const currentUserPayments = tenantPaymentHistories.get(currentUserId) || [];
+    this.backendService.getLeases().subscribe({
+      next: (leases) => {
+        const currentUserLeases = leases.filter((lease: any) => lease.tenant_id === currentUserId);
+        currentUserPayments.forEach((payment: any) => {
+          const lease = currentUserLeases.find((lease: any) => lease.lease_agreement_id === payment.lease_agreement_id);
+          if (lease) {
+            payment.remaining_balance = lease.remaining_balance;
+          }
+        });
+        this.paymentHistory = currentUserPayments;
+      },
+      error: (error) => console.error('Error fetching leases for remaining balance:', error)
+    });
+  }
+  
+  getPaymentStatusSeverity(status: string | undefined | null): string {
+    if (!status) {
+      return 'info'; // or any default value you prefer
+    }
+    switch (status.toUpperCase()) {
+      case 'PAID':
+        return 'success';
+      case 'REVIEW':
+        return 'info';
+      case 'PENDING':
+        return 'warning';
+      default:
+        return 'info';
+    }
+  }
+  
+  checkisTENANT(){
+    const email = this.backendService.getEmail();
+    this.backendService.getUser(email).subscribe({
+      next: (response: any) => {
+        if (response.user_type === 'TENANT') {
+          this.isTENANT = true;
+        } else {
+          this.isTENANT = false;
+        }
+      }
+    })
+  }
 
 onEditComplete(event: any) {
-  console.log('Entire Event Object:', event);
-
   if (!event.data) {
     console.error('Event data is missing');
     return;
@@ -428,11 +576,6 @@ onEditComplete(event: any) {
   const editedValue = event.data;
   const lease_agreement_id = event.index;
 
-  console.log('Edited Field:', editedField);
-  console.log('Edited Value:', editedValue);
-  console.log('Lease Agreement ID:', lease_agreement_id);
-
-  
   this.backendService.getLeases().subscribe({
     next: (response: any[]) => {
       const lease = response.find(item => item.lease_agreement_id == lease_agreement_id);
@@ -443,16 +586,21 @@ onEditComplete(event: any) {
       }
       
       lease[editedField] = editedValue;
+
+      if (lease.monthly_rent && lease.numberOfMonths) {
+        lease.remaining_balance = lease.monthly_rent * lease.numberOfMonths;
+      }
+
       if (!lease.numberOfMonths && editedField !== 'numberOfMonths') {
         lease.numberOfMonths = response.find(item => item.lease_agreement_id == lease_agreement_id).numberOfMonths;
       }
 
-      
-      console.log('Before formatting dates:', { start_date: lease.start_date, end_date: lease.end_date });
+      if (editedField === 'start_date' || editedField === 'numberOfMonths') {
+        this.computeDates(lease);
+      }
       const formattedStartDate = this.convertDateToLocal(new Date(lease.start_date));
       const formattedEndDate = this.convertDateToLocal(new Date(lease.end_date));
-      console.log('Formatted Dates:', { start_date: formattedStartDate, end_date: formattedEndDate });
-
+      
       const updateFields = {
         lease_agreement_id: lease.lease_agreement_id,
         unit_id: lease.unit_id,
@@ -467,8 +615,6 @@ onEditComplete(event: any) {
         numberOfMonths: lease.numberOfMonths, 
         isValidated: lease.isValidated
       };
-
-      console.log('Fields:', updateFields);
 
       this.backendService.updateLease(lease_agreement_id, updateFields).subscribe({
         next: (response) => {
@@ -492,10 +638,9 @@ onStartDateChange(lease: any): void {
     this.computeDates(lease);
     const formattedStartDate = this.getFormattedDate(lease.start_date);
     lease.start_date = formattedStartDate;
-
-    // Update the lease with the new start and end dates
     this.updateLeaseDates(lease);
   }
+  
 }
 
 onNumberOfMonthsChange(lease: any): void {
@@ -503,12 +648,19 @@ onNumberOfMonthsChange(lease: any): void {
     this.computeDates(lease);
     this.updateLeaseDates(lease);
   }
+ // Calculate remaining balance
+ if (lease.monthly_rent && lease.numberOfMonths) {
+  lease.remaining_balance = lease.monthly_rent * lease.numberOfMonths;
+}
+
+// Call onEditComplete to update the lease
+this.onEditComplete({data: lease, field: 'numberOfMonths'});
 }
 
 getFormattedDate(date: string): string {
   const dateObject = new Date(date);
-  dateObject.setUTCHours(0, 0, 0, 0);
-  return this.convertDate(dateObject);
+  const localDate = this.convertDateToLocal(dateObject);
+  return this.convertDate(localDate);
 }
 
 convertDateToLocal(date: Date): Date {
@@ -571,5 +723,4 @@ computeDates(lease: any): void {
             console.error('Start date or end date is missing.');
         }
       }
-
 }

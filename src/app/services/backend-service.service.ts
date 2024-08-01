@@ -198,5 +198,12 @@ addLeaseAgreement(data: any): Observable<any> {
   });
 }
 
+addPayment(paymentData: any): Observable<any> {
+  return this.http.post(`${this.backendUrl}/payment`, paymentData, {
+    headers: this.headers
+  });
+}
+
+
 }
 
