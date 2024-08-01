@@ -47,7 +47,7 @@
                     <td *ngIf="lease.is_validated; else readonlyMonthlyRent" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.monthly_rent" pEditableColumnField="monthly_rent">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
-                                <input pInputText type="number" [(ngModel)]="lease.monthly_rent" (ngModelChange)="onEditComplete({data: lease, field: 'monthly_rent'})"/>
+                                <input pInputText type="number" [(ngModel)]="lease.monthly_rent" (ngModelChange)="onMonthlyRentChange(lease)"/>
                             </ng-template>
                             <ng-template pTemplate="output">
                                 {{ lease.monthly_rent | currency: 'PHP' }}

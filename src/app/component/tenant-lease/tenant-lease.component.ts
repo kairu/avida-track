@@ -587,10 +587,25 @@ onEditComplete(event: any) {
       
       lease[editedField] = editedValue;
 
-      if (lease.monthly_rent && lease.numberOfMonths) {
-        lease.remaining_balance = lease.monthly_rent * lease.numberOfMonths;
+      if (editedField === 'monthly_rent') {
+        const startDate = new Date(lease.start_date);
+        const endDate = new Date(lease.end_date);
+        const monthsDiff = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+        lease.numberOfMonths = monthsDiff;
+      
+        this.computeRemainingBalance(lease);
       }
 
+      if (editedField === 'numberOfMonths') {
+        // Recompute end date
+        const startDate = new Date(lease.start_date);
+        const newEndDate = new Date(startDate.setMonth(startDate.getMonth() + parseInt(editedValue)));
+        lease.end_date = newEndDate.toISOString().slice(0, 10);
+      
+        // Recompute remaining balance
+        this.computeRemainingBalance(lease);
+      }
+      
       if (!lease.numberOfMonths && editedField !== 'numberOfMonths') {
         lease.numberOfMonths = response.find(item => item.lease_agreement_id == lease_agreement_id).numberOfMonths;
       }
@@ -612,7 +627,7 @@ onEditComplete(event: any) {
         monthly_rent: lease.monthly_rent,
         security_deposit: lease.security_deposit,
         remaining_balance: lease.remaining_balance,
-        numberOfMonths: lease.numberOfMonths, 
+        numberOfMonths: lease.numberOfMonths || 1, 
         isValidated: lease.isValidated
       };
 
@@ -631,6 +646,18 @@ onEditComplete(event: any) {
       console.error('Error fetching Lease data:', error);
     }
   });
+}
+
+computeRemainingBalance(lease: any) {
+  lease.remaining_balance = lease.monthly_rent * lease.numberOfMonths;
+}
+
+
+
+onMonthlyRentChange(lease: any): void {
+  this.computeRemainingBalance(lease);
+  this.onEditComplete({data: lease, field: 'monthly_rent'});
+  
 }
 
 onStartDateChange(lease: any): void {
@@ -652,9 +679,7 @@ onNumberOfMonthsChange(lease: any): void {
  if (lease.monthly_rent && lease.numberOfMonths) {
   lease.remaining_balance = lease.monthly_rent * lease.numberOfMonths;
 }
-
-// Call onEditComplete to update the lease
-this.onEditComplete({data: lease, field: 'numberOfMonths'});
+// this.onEditComplete({data: lease, field: 'numberOfMonths'});
 }
 
 getFormattedDate(date: string): string {
