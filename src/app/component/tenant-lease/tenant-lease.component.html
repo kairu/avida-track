@@ -1,4 +1,4 @@
-<h1>Tenant Information</h1>
+<h1 *ngIf="!isTENANT">Tenant Information</h1>
 <br/>
 <div *ngIf="pendingTenants && pendingTenants.length > 0">
     <h2>Pending Tenants</h2>
@@ -22,7 +22,7 @@
     </p-table>
   </div>
 
-<div class="card" style="overflow-y: auto;">
+<div *ngIf="!isTENANT" class="card" style="overflow-y: auto;">
     <p-table 
         [value]="leases" dataKey="lease_agreement_id" (onEditComplete)="onEditComplete($event)"
         [scrollable]="true" 
@@ -47,7 +47,7 @@
                     <td *ngIf="lease.is_validated; else readonlyMonthlyRent" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.monthly_rent" pEditableColumnField="monthly_rent">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
-                                <input pInputText type="number" [(ngModel)]="lease.monthly_rent" />
+                                <input pInputText type="number" [(ngModel)]="lease.monthly_rent" (ngModelChange)="onEditComplete({data: lease, field: 'monthly_rent'})"/>
                             </ng-template>
                             <ng-template pTemplate="output">
                                 {{ lease.monthly_rent | currency: 'PHP' }}
@@ -135,19 +135,19 @@
 
             <td>{{ lease.end_date | date:'shortDate' }}</td>
                     
-                    <td *ngIf="lease.is_validated; else readonlyRemainingBalance" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.remaining_balance" pEditableColumnField="remaining_balance">
+                    <!-- <td *ngIf="lease.is_validated; else readonlyRemainingBalance" [pEditableColumnRowIndex]="lease.lease_agreement_id" [pEditableColumn]="lease.remaining_balance" pEditableColumnField="remaining_balance">
                         <p-cellEditor>
                             <ng-template pTemplate="input">
-                                <input pInputText type="number" [(ngModel)]="lease.remaining_balance" />
+                                <input pInputText type="number" [(ngModel)]="lease.remaining_balance" [disabled]="true" />
                             </ng-template>
                             <ng-template pTemplate="output">
                                 {{ lease.remaining_balance | currency: 'PHP' }}
                             </ng-template>
                         </p-cellEditor>
-                    </td>
-                    <ng-template #readonlyRemainingBalance>
+                    </td> -->
+                    <!-- <ng-template #readonlyRemainingBalance> -->
                         <td>{{ lease.remaining_balance | currency: 'PHP' }}</td>
-                    </ng-template>
+                    <!-- </ng-template> -->
 
                     <td>
                         <p-dropdown *ngIf="editingValidationStatus[lease.lease_agreement_id]"
@@ -179,7 +179,7 @@
     </p-table>
 </div>
 
-<div class="card" style="margin-top: 20px;">
+<div *ngIf="!isTENANT" class="card" style="margin-top: 20px;">
     <h2>Compute Remaining Balance</h2>
     <p-table [value]="leases" dataKey="lease_agreement_id">
         <ng-template pTemplate="header">
@@ -213,29 +213,31 @@
     </p-table>
 </div>
 
-<h2>Payment History</h2>
-<p-table [value]="leases">
-    <ng-template pTemplate="body" let-lease>
+<div *ngIf="isTENANT">
+  <h2>Payment History</h2>
+  <p-table [value]="paymentHistory" styleClass="p-datatable-striped" >
+    <ng-template pTemplate="header">
       <tr>
-        <td colspan="8">
-          <p-table [value]="lease.paymentHistory" styleClass="payment-history-table">
-            <ng-template pTemplate="header">
-              <tr>
-                <th>Date of Payment</th>
-                <th>Payment Amount</th>
-                <th>Remaining Balance</th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-payment>
-              <tr>
-                <td>{{ payment.date | date:'longDate' }}</td>
-                <td>{{ payment.paymentAmount | currency: 'PHP' }}</td>
-                <td>{{ payment.remainingBalance | currency: 'PHP' }}</td>
-              </tr>
-            </ng-template>
-          </p-table>
+        <th>Date of Payment</th>
+        <th>Payment Amount</th>
+        <th>Status</th>
+        <th>Remaining Balance</th> <!-- New Column -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-payment>
+      <tr>
+        <td>{{ payment.payment_date | date:'shortDate' }}</td>
+        <td>{{ payment.amount | currency:'PHP' }}</td>
+        <td>
+          <p-tag [severity]="getPaymentStatusSeverity(payment.status)">
+            {{ payment.status }}
+          </p-tag>
         </td>
+        <td>{{ payment.remaining_balance | currency:'PHP' }}</td>
       </tr>
     </ng-template>
   </p-table>
+</div>
+
+
   
