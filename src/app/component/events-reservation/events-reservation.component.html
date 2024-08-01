@@ -2,140 +2,162 @@
 <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
   <div class="reservation-form">
     <p-fieldset [legend]="isAdmin ? 'Entries' : 'Reservation Form'" class="custom">
-    <div *ngIf="!isAdmin" class="registration-form">
+      <div *ngIf="!isAdmin" class="registration-form">
         <div class="form-group">
           <label for="venue"></label>
-          <p-dropdown [options]="venue" formControlName="selectedVenue" optionLabel="name" placeholder="Select Venue"></p-dropdown>
+          <p-dropdown [options]="venue" formControlName="selectedVenue" optionLabel="name"
+            placeholder="Select Venue"></p-dropdown>
         </div>
-  
+
         <div class="form-group">
           <label for="title"></label>
           <input type="text" pInputText placeholder="Enter Title" formControlName="title" />
         </div>
-  
+
         <div class="form-group">
           <label for="buttondisplay"></label>
-          <p-calendar
-            formControlName="date_to_post"
-            [touchUI]="true"
-            [iconDisplay]="'input'"
-            [showIcon]="true"
-            [showTime]="true"
-            hourFormat="12"
-            inputId="buttondisplay"
-            id="date_to_post"
-            [minDate]="today"
-            [disabledDates]="disableReservedDate"
-            (onSelect)="onDateSelect($event)"
-          ></p-calendar>
+          <p-calendar formControlName="date_to_post" [touchUI]="true" [iconDisplay]="'input'" [showIcon]="true"
+            [showTime]="true" hourFormat="12" inputId="buttondisplay" id="date_to_post" [minDate]="today"
+            [disabledDates]="disableReservedDate" (onSelect)="onDateSelect($event)"></p-calendar>
         </div>
-  
+
         <div class="form-group">
           <label for="description"></label>
           <textarea rows="5" pInputTextarea formControlName="description" placeholder="Enter Description"></textarea>
         </div>
-  
+
         <div class="form-group">
           <label for="selectedTimeSlot"></label>
-          <p-dropdown [options]="timeSlots" formControlName="selectedTimeSlot" optionLabel="label" placeholder="Select Time Slot"></p-dropdown>
+          <p-dropdown [options]="timeSlots" formControlName="selectedTimeSlot" optionLabel="label"
+            placeholder="Select Time Slot"></p-dropdown>
 
-        <div class="button" *ngIf="!isAdmin">
-          <p-toast/>
-          <button pButton pRipple label="Submit" class="p-button-danger mt-3" style="border-radius: 10px;"></button>
+          <div class="button" *ngIf="!isAdmin">
+            <p-toast />
+            <button pButton pRipple label="Submit" class="p-button-danger mt-3" style="border-radius: 10px;"></button>
+          </div>
         </div>
       </div>
-    </div>
     </p-fieldset>
-</div>
+  </div>
 </form>
-    
-    
-    <div *ngIf="isAdmin" class="card">
-      <p-table [value]="cmsData" styleClass="p-datatable-striped" [tableStyle]="{ 'min-width': '50rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Title</th>
-            <th>Venue</th>
-            <th>Time Slot</th>
-            <th>Booking Date</th>
-            <th>Description</th>
-            <th>Action</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-cms>
-          <tr>
-            <td>{{ cms.title }}</td>
-            <td>{{ cms.selectedVenue }}</td>
-            <td>{{ cms.selectedTimeSlot }}</td>
-            <td>{{ cms.date_to_post }}</td>
-            <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
-            <td>
-              <div class="button-group">
-                <p-toast/>
-                
-                <button icon="pi pi-check" pButton pRipple class="p-button-success" 
-                style="border-radius: 10px; height: 35px;" (click)="confirmApprove(cms, $event)"></button>
-                <button icon="pi pi-times" pButton pRipple  class="p-button-danger" 
-                style="border-radius: 10px; height: 35px;" (click)="confirmReject(cms, $event)"></button>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
 
-    <div *ngIf="isAdmin" class="card flex justify-content-center">
-      <p-panel header="Approved Entries" [toggleable]="true">
-          <p-table [value]="approvedEntries" styleClass="p-datatable-striped">
-              <ng-template pTemplate="header">
-                  <tr>
-                      <th>Title</th>
-                      <th>Venue</th>
-                      <th>Time Slot</th>
-                      <th>Booking Date</th>
-                      <th>Description</th>
-                      <th>Status</th>
-                  </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-cms>
-                  <tr>
-                      <td>{{ cms.title }}</td>
-                      <td>{{ cms.selectedVenue }}</td>
-                      <td>{{ cms.selectedTimeSlot }}</td>
-                      <td>{{ cms.date_to_post }}</td>
-                      <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
-                      <td>
-                          <p-tag [value]="'Approved'" [severity]="'success'" />
-                      </td>
-                  </tr>
-              </ng-template>
-          </p-table>
-      </p-panel>
-  </div>
-  
-  <div *ngIf="isAdmin" class="card flex justify-content-center">
-      <p-panel header="Rejected Entries" [toggleable]="true">
-          <p-table [value]="rejectedEntries" styleClass="p-datatable-striped">
-              <ng-template pTemplate="header">
-                  <tr>
-                      <th>Title</th>
-                      <th>Venue</th>
-                      <th>Time Slot</th>
-                      <th>Description</th>
-                      <th>Status</th>
-                  </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-cms>
-                  <tr>
-                      <td>{{ cms.title }}</td>
-                      <td>{{ cms.selectedVenue }}</td>
-                      <td>{{ cms.selectedTimeSlot }}</td>
-                      <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
-                      <td>
-                          <p-tag [value]="'Rejected'" [severity]="'danger'" />
-                      </td>
-                  </tr>
-              </ng-template>
-          </p-table>
-      </p-panel>
-  </div>
+<div class="container-fluid my-4 card" *ngIf="!isAdmin">
+  <h3 class="text-center">Reservation Information</h3>
+  <p-table [value]="cmsData" [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}"
+    styleClass="p-datatable-striped p-datatable-gridlines">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Title</th>
+        <th>Venue</th>
+        <th>Time Slot</th>
+        <th>Booking Date</th>
+        <th>Description</th>
+        <th>Status</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-cms>
+      <tr>
+        <td>{{ cms.title }}</td>
+        <td>{{ cms.selectedVenue }}</td>
+        <td>{{ cms.selectedTimeSlot }}</td>
+        <td>{{ cms.date_to_post }}</td>
+        <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
+        <td>
+          <p-tag [severity]="severity.getSeverity(cms.status)" [value]="cms.status == 'PAID' ? 'Approved' : (cms.status == 'REVIEW' ? 'Denied' : 'Pending')"></p-tag>        
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+
+<div *ngIf="isAdmin" class="card">
+  <p-table [value]="cmsData" styleClass="p-datatable-striped" [tableStyle]="{ 'min-width': '50rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Title</th>
+        <th>Venue</th>
+        <th>Time Slot</th>
+        <th>Booking Date</th>
+        <th>Description</th>
+        <th>Action</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-cms>
+      <tr>
+        <td>{{ cms.title }}</td>
+        <td>{{ cms.selectedVenue }}</td>
+        <td>{{ cms.selectedTimeSlot }}</td>
+        <td>{{ cms.date_to_post }}</td>
+        <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
+        <td>
+          <div class="button-group">
+            <p-toast />
+
+            <button icon="pi pi-check" pButton pRipple class="p-button-success"
+              style="border-radius: 10px; height: 35px;" (click)="confirmApprove(cms, $event)"></button>
+            <button icon="pi pi-times" pButton pRipple class="p-button-danger"
+              style="border-radius: 10px; height: 35px;" (click)="confirmReject(cms, $event)"></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<div *ngIf="isAdmin" class="card flex justify-content-center">
+  <p-panel header="Approved Entries" [toggleable]="true">
+    <p-table [value]="approvedEntries" styleClass="p-datatable-striped">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Title</th>
+          <th>Venue</th>
+          <th>Time Slot</th>
+          <th>Booking Date</th>
+          <th>Description</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-cms>
+        <tr>
+          <td>{{ cms.title }}</td>
+          <td>{{ cms.selectedVenue }}</td>
+          <td>{{ cms.selectedTimeSlot }}</td>
+          <td>{{ cms.date_to_post }}</td>
+          <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
+          <td>
+            <p-tag [value]="'Approved'" [severity]="'success'" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-panel>
+</div>
+
+<div *ngIf="isAdmin" class="card flex justify-content-center">
+  <p-panel header="Rejected Entries" [toggleable]="true">
+    <p-table [value]="rejectedEntries" styleClass="p-datatable-striped">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Title</th>
+          <th>Venue</th>
+          <th>Time Slot</th>
+          <th>Description</th>
+          <th>Status</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-cms>
+        <tr>
+          <td>{{ cms.title }}</td>
+          <td>{{ cms.selectedVenue }}</td>
+          <td>{{ cms.selectedTimeSlot }}</td>
+          <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
+          <td>
+            <p-tag [value]="'Rejected'" [severity]="'danger'" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-panel>
+</div>
