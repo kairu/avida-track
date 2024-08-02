@@ -102,6 +102,11 @@ export class EventsReservationComponent implements OnInit {
     });
   }
 
+  rsrveWndow: boolean = false;
+  reserveWindow(){
+    this.rsrveWndow = true;
+  }
+
   onSubmit() {
     if (this.reservationForm.valid) {
       const email = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
@@ -129,6 +134,8 @@ export class EventsReservationComponent implements OnInit {
                   severity: 'success', summary: 'Reservation Submitted',
                   detail: 'Your reservation has been submitted successfully.'
                 });
+                this.rsrveWndow = false;
+                this.fetchCmsData();
               },
               (error: any) => {
                 console.error('Error adding reservation:', error);
