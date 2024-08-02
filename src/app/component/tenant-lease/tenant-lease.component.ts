@@ -16,6 +16,8 @@ import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 interface UploadEvent {
   originalEvent: Event;
   files: File[];
@@ -25,9 +27,10 @@ interface UploadEvent {
   standalone: true,
   imports: [TableModule, FileUploadModule, CommonModule, InputNumberModule, FormsModule, 
             ImageModule, CalendarModule, ButtonModule, RippleModule, DialogModule, AutoCompleteModule, ToastModule,
-            InputTextModule, DropdownModule, TagModule],
+            InputTextModule, DropdownModule, TagModule, ConfirmDialogModule],
   templateUrl: './tenant-lease.component.html',
-  styleUrls: ['./tenant-lease.component.scss']
+  styleUrls: ['./tenant-lease.component.scss'],
+  providers: [ConfirmationService]
 })
 
 export class TenantLeaseComponent implements OnInit {
@@ -51,9 +54,10 @@ export class TenantLeaseComponent implements OnInit {
   paymentHistory: any[] = [];
   isTENANT: boolean = true;
 
-  constructor(private backendService: BackendServiceService, private messageService: MessageService) {
+  constructor(private backendService: BackendServiceService, private messageService: MessageService, private confirmationService: ConfirmationService) {
     this.today = new Date();
     this.checkisTENANT();
+
   }
   
   onUpload(event: UploadEvent) {
@@ -294,6 +298,26 @@ Confirm(tenant: any): void {
       console.error('Failed to get tenant:', err);
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to get tenant.' });
     }
+  });
+}
+
+confirm1(tenant: any, event: Event) {
+  this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure that you want to proceed?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptIcon:"none",
+      rejectIcon:"none",
+      acceptButtonStyleClass: "p-button-success p-button-text",
+      rejectButtonStyleClass: "p-button-text",
+      accept: () => {
+        this.Confirm(tenant);
+          this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'You have accepted' });
+      },
+      reject: () => {
+          this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+      }
   });
 }
 

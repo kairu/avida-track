@@ -1,3 +1,4 @@
+<p-confirmDialog />
 <h1 *ngIf="!isTENANT">Tenant Information</h1>
 <br/>
 <div *ngIf="pendingTenants && pendingTenants.length > 0 && !isTENANT">
@@ -15,7 +16,7 @@
           <td>{{tenant.first_name}} {{tenant.last_name}}</td>
           <td>{{tenant.email}}</td>
           <td>
-            <p-button icon="pi pi-check" severity="success" (click)="Confirm(tenant)"></p-button>
+            <p-button icon="pi pi-check" severity="success" (click)="confirm1(tenant, $event)"></p-button>
           </td>
         </tr>
       </ng-template>
