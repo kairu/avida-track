@@ -1,6 +1,6 @@
 <h1 *ngIf="!isTENANT">Tenant Information</h1>
 <br/>
-<div *ngIf="pendingTenants && pendingTenants.length > 0">
+<div *ngIf="pendingTenants && pendingTenants.length > 0 && !isTENANT">
     <h2>Pending Tenants</h2>
     <p-table [value]="pendingTenants" dataKey="user_id">
       <ng-template pTemplate="header">

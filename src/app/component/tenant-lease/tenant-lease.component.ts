@@ -370,7 +370,6 @@ loadTenantNames() {
         }
         const remainingBalanceAfterRent = lease.remaining_balance - lease.updatedMonthlyRent;
         lease.remaining_balance = remainingBalanceAfterRent;
-        console.log('Remaining balance:', lease.remaining_balance);
 
       const email = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
         if (email) {
@@ -406,7 +405,6 @@ loadTenantNames() {
                     };
                     this.backendService.addPayment(paymentData).subscribe({
                       next: (paymentResponse) => {
-                        console.log('Payment added successfully:', paymentResponse);
                         // this.fetchPaymentHistory(lease);
                         this.messageService.add({ severity: 'success', summary: 'Payment Recorded', detail: 'Payment has been recorded successfully.' });
                       },
@@ -440,48 +438,39 @@ loadTenantNames() {
     const email = this.backendService.getEmail();
     this.backendService.getUser(email).subscribe({
       next: (currentUser) => {
-        console.log('Current User:', currentUser);
+
         this.backendService.getUnits().subscribe({
           next: (unitsResponse) => {
-            console.log('Units Response:', unitsResponse);
+            
             const filteredUnits = unitsResponse.filter((unit: any) =>
               unit.tower_number === currentUser.units[0].tower_number &&
               unit.unit_number === currentUser.units[0].unit_number &&
               unit.floor_number === currentUser.units[0].floor_number
             );
-            console.log('Filtered Units:', filteredUnits);
-  
             this.backendService.getUsers().subscribe({
               next: (usersResponse) => {
-                console.log('Users Response:', usersResponse);
+
                 const tenantUsers = usersResponse.filter((user: any) =>
                   user.user_type === 'TENANT' &&
                   filteredUnits.some((unit: any) => unit.user_id === user.user_id)
                 );
-                console.log('Tenant Users:', tenantUsers);
-  
                 const tenantPaymentHistories = new Map<string, any[]>();
-  
                 this.backendService.getLeases().subscribe({
                   next: (leaseResponse) => {
-                    console.log('Leases Response:', leaseResponse);
                     const relevantLeases = leaseResponse.filter((lease: { lease_agreement_id: number; tenant_id: any; }) =>
                       tenantUsers.some((tenant: { user_id: any; }) => tenant.user_id === lease.tenant_id)
                     );
-                    console.log('Relevant Leases:', relevantLeases);
-  
                     if (relevantLeases.length === 0) {
                       console.warn('No relevant leases found.');
                       this.paymentHistory = [];
                       return;
                     }
-  
                     let pendingRequests = relevantLeases.length;
   
                     relevantLeases.forEach((lease: any) => {
                       this.backendService.getPayment(`LEASE${lease.lease_agreement_id}`).subscribe({
                         next: (payments) => {
-                          console.log(`Payments for Lease ${lease.lease_agreement_id}:`, payments);
+
                           if (payments && payments.length > 0) {
                             const tenantId = lease.tenant_id;
                             if (!tenantPaymentHistories.has(tenantId)) {
@@ -597,12 +586,10 @@ onEditComplete(event: any) {
       }
 
       if (editedField === 'numberOfMonths') {
-        // Recompute end date
         const startDate = new Date(lease.start_date);
         const newEndDate = new Date(startDate.setMonth(startDate.getMonth() + parseInt(editedValue)));
         lease.end_date = newEndDate.toISOString().slice(0, 10);
       
-        // Recompute remaining balance
         this.computeRemainingBalance(lease);
       }
       
@@ -633,7 +620,7 @@ onEditComplete(event: any) {
 
       this.backendService.updateLease(lease_agreement_id, updateFields).subscribe({
         next: (response) => {
-          console.log('Lease Agreement updated successfully:', response);
+
           this.messageService.add({ severity: 'success', summary: 'Lease Updated', detail: 'Successfully Saved.' });
         },
         error: (error) => {
@@ -651,8 +638,6 @@ onEditComplete(event: any) {
 computeRemainingBalance(lease: any) {
   lease.remaining_balance = lease.monthly_rent * lease.numberOfMonths;
 }
-
-
 
 onMonthlyRentChange(lease: any): void {
   this.computeRemainingBalance(lease);
@@ -698,20 +683,14 @@ convertDate(date: any): string {
 }
 
 computeDates(lease: any): void {
-  console.log('Computing dates for lease:', lease);
   if (lease.numberOfMonths && lease.start_date) {
     const startDate = new Date(lease.start_date);
-    console.log('Initial Start Date:', startDate.toISOString());
-
     const numberOfMonths = lease.numberOfMonths;
     const endDate = new Date(startDate);
     endDate.setMonth(startDate.getMonth() + numberOfMonths);
-    console.log('Initial End Date:', endDate.toISOString());
-
     lease.end_date = this.convertDate(this.convertDateToLocal(endDate));
     lease.start_date = this.convertDate(this.convertDateToLocal(startDate));
   } else {
-    console.log('Missing required fields for date computation.');
   }
 }
 
@@ -735,7 +714,6 @@ computeDates(lease: any): void {
 
             this.backendService.updateLease(lease.lease_agreement_id, data).subscribe({
                 next: (response) => {
-                    console.log('Lease dates updated successfully:', response);
                     this.messageService.add({ severity: 'success', summary: 'Lease Dates Updated', detail: 'Start and end dates updated successfully.' });
                     // lease.startDateSaved = true;
                 },
