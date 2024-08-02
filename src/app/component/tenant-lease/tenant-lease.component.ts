@@ -196,13 +196,13 @@ fetchPendingTenants(): void {
             next: (usersResponse) => {
               // Filter to get tenants only
               const tenantUsers = usersResponse.filter((user: { user_type: string; }) => user.user_type === 'TENANT');
-              
               // Further filter to get pending tenants only (is_validated is false)
               const pendingTenants = tenantUsers.filter((user: any) =>
                 filteredUnits.some((unit: { user_id: any; }) => unit.user_id === user.user_id) &&
-              (!user.lease_agreements || user.lease_agreements.length === 0)
+              ((!user.lease_agreements || user.lease_agreements.length === 0) && !user.is_validated)
               );
               this.pendingTenants = pendingTenants;
+              
             },
             error: (err) => console.error('Failed to load users:', err)
           });
@@ -255,7 +255,7 @@ Confirm(tenant: any): void {
               const newLeaseAgreement = {
                 tenant_id: tenantId,
                 unit_id: unitId,
-                owner_id: unitId,
+                owner_id: ownerId,
                 contract: '',
                 start_date: startDate,
                 end_date: endDateStr,

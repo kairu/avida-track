@@ -74,8 +74,13 @@ export class TopCardsComponent implements OnInit {
     const user_id = JSON.parse(userData || '{}').user_id;
     this.backendservice.getLease(user_id + "TENANT").subscribe({
       next: (response: any) => {
-        response.monthly_rent = this.currencyPipe.transform(response.monthly_rent, 'PHP');
-        this.backendservice.getPayment(response.lease_agreement_id + "LEASE").subscribe({
+        let lease_agreement_id = response.find((item: any) => item.hasOwnProperty('lease_agreement_id'))
+        lease_agreement_id = lease_agreement_id.lease_agreement_id;
+        let monthlyRent = response.find((item: any) => item.hasOwnProperty('monthly_rent'))
+        monthlyRent = monthlyRent.monthly_rent;
+        monthlyRent = this.currencyPipe.transform(monthlyRent, 'PHP');
+
+        this.backendservice.getPayment(lease_agreement_id + "LEASE").subscribe({
           next: (response2: any) => {
             this.topcards[0].title = response2.filter((payment: { status: string; }) => payment.status === 'PENDING').length.toString();
             this.topcards[0].subtitle = 'Pending Bills';
@@ -85,7 +90,7 @@ export class TopCardsComponent implements OnInit {
             this.topcards[3] = { 
               bgcolor: 'info', 
               icon: 'bi bi-wallet', 
-              title: response.monthly_rent.toString(), 
+              title: monthlyRent.toString(), 
               subtitle: 'Monthly Rent' };
           }
         });
@@ -111,6 +116,7 @@ export class TopCardsComponent implements OnInit {
         response.lease_agreements.forEach((lease_agreement_id: any) => {
           leases.push(lease_agreement_id);
         });
+
         this.topcards = [
           {
             bgcolor: 'danger',
@@ -128,7 +134,7 @@ export class TopCardsComponent implements OnInit {
             bgcolor: 'success',
             icon: 'bi bi-hand-thumbs-up',
             title: paid.toString(),
-            subtitle: 'Paid'
+            subtitle: 'Paid Bills'
           },
           {
             bgcolor: 'info',

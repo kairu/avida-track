@@ -72,8 +72,8 @@ export class FeedsComponent implements OnInit {
           this.isOwnerTenant = isOwnerTenant;
           if (this.isOwnerTenant) {
             this.collectedRent();
-          }else{
-            
+          } else {
+
           }
         });
       }
@@ -87,11 +87,10 @@ export class FeedsComponent implements OnInit {
     const user_id = JSON.parse(userData || '{}').user_id;
     this.backendservice.getUser(user_id).subscribe(
       (response: any) => {
-        response.lease_agreements.forEach((agreement: { start_date: string | number | Date; end_date: string | number | Date; monthly_rent: number; payments: any[]; }) => {
-          const startDate = new Date(agreement.start_date);
-          const endDate = new Date(agreement.end_date);
-          const duration = (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24 * 30); // Duration in months
-          totalBalance += Math.floor(duration * agreement.monthly_rent);
+        response.lease_agreements.forEach((agreement: {
+          remaining_balance: number; payments: any[];
+        }) => {
+          totalBalance += agreement.remaining_balance;
 
           agreement.payments.forEach(payment => {
             if (payment.status === "REVIEW" || payment.status === "PAID") {
@@ -105,14 +104,14 @@ export class FeedsComponent implements OnInit {
           chart: {
             type: 'donut',
           },
-          plotOptions:{
+          plotOptions: {
             pie: {
               startAngle: -90,
               endAngle: 90,
               offsetY: 10,
             }
           },
-          labels: [ 'Collected', 'Outstanding Balance'],
+          labels: ['Collected', 'Outstanding Balance'],
           dataLabels: {
             enabled: true
           },

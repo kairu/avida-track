@@ -13,7 +13,7 @@
       </ng-template>
       <ng-template pTemplate="body" let-tenant>
         <tr>
-          <td>{{tenant.first_name}} {{tenant.last_name}}</td>
+          <td>{{tenant.last_name}}, {{tenant.first_name}} </td>
           <td>{{tenant.email}}</td>
           <td>
             <p-button icon="pi pi-check" severity="success" (click)="confirm1(tenant, $event)"></p-button>

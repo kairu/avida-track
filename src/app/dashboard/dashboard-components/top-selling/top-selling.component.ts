@@ -45,8 +45,9 @@ export class TopSellingComponent implements OnInit {
     const user_id = JSON.parse(userData || '{}').user_id;
     this.backendService.getLease(user_id + "TENANT").subscribe({
       next: (response: any) => {
-
-        this.backendService.getPayment(response.lease_agreement_id + "LEASE").subscribe({
+        let lease_agreement_id = response.find((item: any) => item.hasOwnProperty('lease_agreement_id'))
+        lease_agreement_id = lease_agreement_id.lease_agreement_id;
+        this.backendService.getPayment(lease_agreement_id + "LEASE").subscribe({
           next: (response2: any) => {
             this.datas = [
               ...response2.map((item: { amount: any; image_path: any; payment_date: any; reference_number: any; status: any; }) => ({
@@ -67,6 +68,7 @@ export class TopSellingComponent implements OnInit {
 
   serve_image() {
     this.datas.forEach((item: { Image: any; }) => {
+      if (item.Image === null) return
       this.backendService.getPaymentImage(item.Image).subscribe({
         next: (response: any) => {
           item.Image = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(response));
@@ -86,7 +88,7 @@ export class TopSellingComponent implements OnInit {
           return this.backendService.getUnit(unit_id).pipe(
             map((unit: any) => {
               return {
-                'Full Name': `${tenant.last_name} ${tenant.first_name}`,
+                'Full Name': `${tenant.last_name}, ${tenant.first_name}`,
                 'Unit': `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}`,
                 'Email': tenant.email,
                 'Phone Number': tenant.mobile_number,
