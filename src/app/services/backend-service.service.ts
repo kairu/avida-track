@@ -9,11 +9,11 @@ import { BackendDataService } from './backend-data.service';
   providedIn: 'root'
 })
 export class BackendServiceService {
- 
-  // Temporary
-  private backendUrl = 'http://127.0.0.1:5000';  
 
-  constructor(private http: HttpClient, private backendData: BackendDataService) {}
+  // Temporary
+  private backendUrl = 'http://127.0.0.1:5000';
+
+  constructor(private http: HttpClient, private backendData: BackendDataService) { }
 
   headers = new HttpHeaders({
     // TODO Add authorization
@@ -21,15 +21,15 @@ export class BackendServiceService {
     'Content-Type': 'application/json'
   });
 
-  updateAccessControls(data: any): Observable<any>{
+  updateAccessControls(data: any): Observable<any> {
     return this.http.put(`${this.backendUrl}/accesscontrol`, JSON.stringify(data), {
       headers: this.headers
     });
   }
 
   createUser(userData: any, unit: any): Observable<any> {
-    return this.http.post(this.backendUrl + '/user', userData, { 
-      headers: this.headers 
+    return this.http.post(this.backendUrl + '/user', userData, {
+      headers: this.headers
     }).pipe(
       switchMap((uid: any) => {
         const unitDataRequests = unit.map((u: { tower_number: number; floor_number: number; unit_number: number; }) => {
@@ -46,7 +46,7 @@ export class BackendServiceService {
 
         return forkJoin(unitDataRequests).pipe(
           map(() => uid.user_id)
-        );      
+        );
       })
     );
   }
@@ -58,7 +58,7 @@ export class BackendServiceService {
       last_name: userData.last_name,
       mobile_number: userData.mobile_number
     };
-  
+
     return this.http.put(`${this.backendUrl}/user/${email}`, updatedUserData, { headers: this.headers });
   }
 
@@ -78,19 +78,19 @@ export class BackendServiceService {
   getBills(): Observable<any> {
     return this.http.get(`${this.backendUrl}/bill`);
   }
-  
+
   getUsers(): Observable<any> {
     return this.http.get(`${this.backendUrl}/user`);
   }
 
   getUser(user: any): Observable<any> {
-    return this.http.get(`${this.backendUrl}/user/${user}`, {headers: this.headers});
+    return this.http.get(`${this.backendUrl}/user/${user}`, { headers: this.headers });
   }
 
   getLease(leaseIDorTenantID: string): Observable<any> {
     return this.http.get(`${this.backendUrl}/lease/${leaseIDorTenantID}`);
   }
-  
+
   getLeases(): Observable<any> {
     return this.http.get(`${this.backendUrl}/lease`);
   }
@@ -98,11 +98,11 @@ export class BackendServiceService {
   getPayment(agreementOrPaymentID: string): Observable<any> {
     return this.http.get(`${this.backendUrl}/payment/${agreementOrPaymentID}`);
   }
-  
+
   getTenant(): Observable<any> {
     return this.http.get(`${this.backendUrl}/user/tenant`);
   }
-  
+
 
   getAccessControls(): Observable<any> {
     return this.http.get(`${this.backendUrl}/accesscontrol`);
@@ -112,24 +112,24 @@ export class BackendServiceService {
     return this.http.get(`${this.backendUrl}/cms`);
   }
 
-  async getCMSById(id: number){
+  async getCMSById(id: number) {
     return this.http.get(`${this.backendUrl}/cms/${id}`);
   }
 
-  getReceiptImage(image: any){
-    return this.http.get(`${this.backendUrl}/ocr/${image}`, {responseType: 'blob'});
+  getReceiptImage(image: any) {
+    return this.http.get(`${this.backendUrl}/ocr/${image}`, { responseType: 'blob' });
   }
 
-  getImage(image: any){
-    return this.http.get(`${this.backendUrl}/bulletin/${image}`, {responseType: 'blob'});
+  getImage(image: any) {
+    return this.http.get(`${this.backendUrl}/bulletin/${image}`, { responseType: 'blob' });
   }
 
-  getPaymentImage(image: any){
-    return this.http.get(`${this.backendUrl}/paymentImage/${image}`, {responseType: 'blob'});
+  getPaymentImage(image: any) {
+    return this.http.get(`${this.backendUrl}/paymentImage/${image}`, { responseType: 'blob' });
   }
 
-  async renderImageCard(image: any){
-    return this.http.get(`${this.backendUrl}/bulletin/${image}`, {responseType: 'blob'});
+  async renderImageCard(image: any) {
+    return this.http.get(`${this.backendUrl}/bulletin/${image}`, { responseType: 'blob' });
   }
 
   addCMS(data: any): Observable<any> {
@@ -144,13 +144,13 @@ export class BackendServiceService {
     });
   }
 
-  async uploadImage(filename: any){
+  async uploadImage(filename: any) {
     const formData = new FormData();
     formData.append('file', filename);
     return this.http.post(`${this.backendUrl}/bulletin`, formData);
   }
 
-  ocrImageDetails(filename: any, data: any){
+  ocrImageDetails(filename: any, data: any) {
     const formData = new FormData();
     formData.append('file', filename);
     formData.append('data', JSON.stringify(data));
@@ -162,7 +162,7 @@ export class BackendServiceService {
       headers: this.headers
     });
   }
-  async uploadImageToLease(formData: FormData, lease_agreement_id: number){
+  async uploadImageToLease(formData: FormData, lease_agreement_id: number) {
     return this.http.post(`${this.backendUrl}/contract`, formData);
   }
 
@@ -190,20 +190,24 @@ export class BackendServiceService {
       headers: this.headers
     });
   }
-  
-  
-addLeaseAgreement(data: any): Observable<any> {
-  return this.http.post(`${this.backendUrl}/lease`, JSON.stringify(data), {
-    headers: this.headers
-  });
-}
 
-addPayment(paymentData: any): Observable<any> {
-  return this.http.post(`${this.backendUrl}/payment`, paymentData, {
-    headers: this.headers
-  });
-}
+  updatePayment(payment_id: number, paymentData: any): Observable<any> {
+    return this.http.put(`${this.backendUrl}/payment/${payment_id}`, JSON.stringify(paymentData), {
+      headers: this.headers
+    });
+  }
 
 
+  addLeaseAgreement(data: any): Observable<any> {
+    return this.http.post(`${this.backendUrl}/lease`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
+
+  addPayment(paymentData: any): Observable<any> {
+    return this.http.post(`${this.backendUrl}/payment`, paymentData, {
+      headers: this.headers
+    });
+  }
 }
 

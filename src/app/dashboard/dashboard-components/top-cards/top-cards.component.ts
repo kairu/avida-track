@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BackendServiceService } from 'src/app/services/backend-service.service';
 import { CheckisAdminService } from 'src/app/services/checkis-admin.service';
 import { CurrencyPipe } from '@angular/common';
+import { forkJoin, map, of, switchMap } from 'rxjs';
 export type topcard = {
   bgcolor: string,
   icon: string,
@@ -72,30 +73,50 @@ export class TopCardsComponent implements OnInit {
   getTenantData() {
     const userData = sessionStorage.getItem('backendUserData');
     const user_id = JSON.parse(userData || '{}').user_id;
-    this.backendservice.getLease(user_id + "TENANT").subscribe({
-      next: (response: any) => {
-        let lease_agreement_id = response.find((item: any) => item.hasOwnProperty('lease_agreement_id'))
-        lease_agreement_id = lease_agreement_id.lease_agreement_id;
-        let monthlyRent = response.find((item: any) => item.hasOwnProperty('monthly_rent'))
-        monthlyRent = monthlyRent.monthly_rent;
-        monthlyRent = this.currencyPipe.transform(monthlyRent, 'PHP');
-
-        this.backendservice.getPayment(lease_agreement_id + "LEASE").subscribe({
-          next: (response2: any) => {
-            this.topcards[0].title = response2.filter((payment: { status: string; }) => payment.status === 'PENDING').length.toString();
-            this.topcards[0].subtitle = 'Pending Bills';
-            this.topcards[1].title = response2.filter((payment: { status: string; }) => payment.status === 'REVIEW').length.toString();
-            this.topcards[2].title = response2.filter((payment: { status: string; }) => payment.status === 'PAID').length.toString();
-            this.topcards[2].subtitle = 'Paid';
-            this.topcards[3] = { 
-              bgcolor: 'info', 
-              icon: 'bi bi-wallet', 
-              title: monthlyRent.toString(), 
-              subtitle: 'Monthly Rent' };
+    this.backendservice.getLease(user_id + "TENANT").pipe(
+      map((response: any[]) => ({
+        lease_agreement_id: response.find((item: any) => item.hasOwnProperty('lease_agreement_id'))?.lease_agreement_id,
+        monthlyRent: this.currencyPipe.transform(response.find((item: any) => item.hasOwnProperty('monthly_rent'))?.monthly_rent, 'PHP'),
+        remaining_balance: this.currencyPipe.transform(response.find((item: {remaining_balance: number;}) => item.remaining_balance)?.remaining_balance || 0, 'PHP')
+      })),
+      map(({ lease_agreement_id, monthlyRent, remaining_balance }) => 
+        forkJoin({
+          leaseData: of({ lease_agreement_id, monthlyRent, remaining_balance }),
+          paymentData: this.backendservice.getPayment(lease_agreement_id + "LEASE")
+        })
+      ),
+      switchMap(combined => combined)
+    ).subscribe({
+      next: ({ leaseData, paymentData }) => {
+        const pendingCount = paymentData.filter((payment: { status: string; }) => payment.status === 'PENDING').length;
+        const paidCount = paymentData.filter((payment: { status: string; }) => payment.status === 'PAID').length;
+        this.topcards = [
+          {
+            bgcolor: 'danger',
+            icon: 'bi bi-arrow-right',
+            title: pendingCount.toString(),
+            subtitle: 'Pending Bills'
+          },
+          {
+            bgcolor: 'success',
+            icon: 'bi bi-hand-thumbs-up',
+            title: paidCount.toString(),
+            subtitle: 'Paid'
+          },
+          { 
+            bgcolor: 'info', 
+            icon: 'bi bi-cash-coin', 
+            title: leaseData.monthlyRent, 
+            subtitle: 'Monthly Rent' 
+          },
+          {
+            bgcolor: 'help',
+            icon: 'bi bi-wallet',
+            title: leaseData.remaining_balance,
+            subtitle: 'Remaining Balance'
           }
-        });
+        ];
       }
-
     });
   }
 

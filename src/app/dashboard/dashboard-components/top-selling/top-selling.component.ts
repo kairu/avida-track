@@ -50,9 +50,9 @@ export class TopSellingComponent implements OnInit {
         this.backendService.getPayment(lease_agreement_id + "LEASE").subscribe({
           next: (response2: any) => {
             this.datas = [
-              ...response2.map((item: { amount: any; image_path: any; payment_date: any; reference_number: any; status: any; }) => ({
-                'Image': item.image_path,
-                'Payment Date': item.payment_date,
+              ...response2.map((item: { amount: any; image_path: any; due_date: any; reference_number: any; status: any; }) => ({
+                // 'Image': item.image_path,
+                'Due Date': item.due_date,
                 'Amount': item.amount,
                 'Status': item.status
               }))
@@ -68,7 +68,7 @@ export class TopSellingComponent implements OnInit {
 
   serve_image() {
     this.datas.forEach((item: { Image: any; }) => {
-      if (item.Image === null) return
+      if (item.Image == null) return
       this.backendService.getPaymentImage(item.Image).subscribe({
         next: (response: any) => {
           item.Image = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(response));
