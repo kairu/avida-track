@@ -24,7 +24,7 @@ interface UploadEvent {
     KeysPipe],
   templateUrl: './tenant-lease.component.html',
   styleUrls: ['./tenant-lease.component.scss'],
-  providers: [ConfirmationService]
+  
 })
 
 export class TenantLeaseComponent implements OnInit {
