@@ -168,7 +168,7 @@ export class BackendDataService {
     return data;
   }
 
-  leaseData(unit_id: number, owner_id: number, tenant_id: number, start_date: Date, end_date: Date, monthly_rent: number, security_deposit: number) {
+  leaseData(unit_id: number, owner_id: number, tenant_id: number, start_date: Date, end_date: Date, monthly_rent: number, remaining_balance: number, security_deposit?: number, contract?: string) {
     const data = {
       unit_id: unit_id,
       owner_id: owner_id,
@@ -176,20 +176,23 @@ export class BackendDataService {
       start_date: start_date,
       end_date: end_date,
       monthly_rent: monthly_rent,
-      security_deposit: security_deposit
+      remaining_balance: remaining_balance,
+      security_deposit: security_deposit || null,
+      contract: contract || null
     };
 
     return data;
   }
 
-  paymentData(payment_date: Date, amount: number, payment_method: string, reference_number: string, image_path: string, status: STATUS) {
+  paymentData(lease_agreement_id: number, amount: number, status?: STATUS,payment_date?: Date, payment_method?: string, reference_number?: string, image_path?: string) {
     const data = {
-      payment_date: payment_date,
+      lease_agreement_id: lease_agreement_id,
       amount: amount,
-      payment_method: payment_method,
-      reference_number: reference_number,
-      image_path: image_path,
-      status: status
+      payment_date: payment_date || null,
+      status: status || STATUS.PENDING,
+      payment_method: payment_method || null,
+      reference_number: reference_number || null,
+      image_path: image_path || null,
     };
 
     return data;

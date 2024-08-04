@@ -129,7 +129,6 @@ export class ManageUsersComponent {
   }
 
   clonedCellData: any;
-
   onCellEditInit(rowData: any) {
     this.clonedCellData = { ...rowData };
   }

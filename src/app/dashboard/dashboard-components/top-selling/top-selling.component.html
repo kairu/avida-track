@@ -104,12 +104,11 @@
                 <ng-template pTemplate="body" let-rowData let-editing="editing">
                     <tr>
                         <td *ngFor="let column of datas?.slice()[0] | keys">
-                            <span *ngIf="column == 'Image'">  
+                            <!-- <span *ngIf="column == 'Image'">  
                                 <p-image [src]="rowData[column]" 
-                                alt="Image" 
                                 width="100" [preview]="true" />
-                            </span>
-                            <span *ngIf="column == 'Payment Date'">
+                            </span> -->
+                            <span *ngIf="column == 'Due Date'">
                                 {{ rowData[column] | date:"MMM dd, yyyy" }}
                             </span>
                             <span *ngIf="column == 'Amount'">
