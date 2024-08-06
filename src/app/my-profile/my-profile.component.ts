@@ -13,7 +13,7 @@ export class MyProfileComponent implements OnInit {
   errorMessage!: string;
   userData: any;
 
-  constructor(private fb: FormBuilder, private backendService: BackendServiceService, private messageService: MessageService ) {}
+  constructor(private fb: FormBuilder, private backendService: BackendServiceService, private messageService: MessageService) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -25,33 +25,28 @@ export class MyProfileComponent implements OnInit {
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
       mobile_number: ['', Validators.required],
-      
+
     });
   }
 
   fetchUserData() {
-    this.backendService.getEmail().subscribe(email => {
-      if (email) {
-        this.backendService.getUser(email).subscribe({
-          next: (data: any) => {
-            this.userDataForm.patchValue({
-              first_name: data.first_name,
-              last_name: data.last_name,
-              mobile_number: data.mobile_number
-              
-            });
-            this.userData = data; // Assign fetched user data to userData variable
-          },
-          error: (error: any) => {
-            console.error('Error fetching user data:', error);
-            this.errorMessage = 'Error fetching user data';
-          }
-        });
-      } else {
-        console.error('No email found for logged-in user');
-        this.errorMessage = 'No email found for logged-in user';
-      }
-    });
+    const email = this.backendService.getEmail()
+    if (email) {
+      this.backendService.getUser(email).subscribe({
+        next: (data: any) => {
+          this.userDataForm.patchValue({
+            first_name: data.first_name,
+            last_name: data.last_name,
+            mobile_number: data.mobile_number
+          });
+          this.userData = data; // Assign fetched user data to userData variable
+        },
+      });
+    } else {
+      console.error('No email found for logged-in user');
+      this.errorMessage = 'No email found for logged-in user';
+    }
+
   }
 
   updateUserData() {
@@ -68,13 +63,13 @@ export class MyProfileComponent implements OnInit {
       mobile_number: this.userDataForm.value.mobile_number,
       email: email
     };
-  
+
     this.backendService.updateUserData(userData).subscribe({
       next: (data: any) => {
-        this.showSuccess(); 
+        this.showSuccess();
       },
       error: (error: any) => {
-        this.showError(); 
+        this.showError();
       }
     });
   }

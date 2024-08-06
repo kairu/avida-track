@@ -1,7 +1,48 @@
 <div *ngIf="!isTENANT" class="d-flex flex-row-reverse bd-highlight">
     <p-button pRipple (click)="showSingleInvoiceWindow()" icon="pi pi-plus" label="Issue Rent Invoice"></p-button>
     <p-dialog [(visible)]="singleInvoice" [style]="{'width': '45vw'}" [breakpoints]="{ '960px': '90vw' }" [modal]="true"
-        [dismissableMask]="true" [draggable]="false">
+        [dismissableMask]="true" [draggable]="true" (onHide)="resetSingleInvoiceWindow()">
+
+        <ng-template pTemplate="header">
+            <div class="container">
+                <h2 class="text-center">Issue Rent Invoice</h2>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="body">
+            <form [formGroup]="invoiceForm">
+                <div class="d-flex justify-content-center gap-3 my-4">
+
+                    <span class="p-float-label">
+                        <p-dropdown [options]="issue_names" optionLabel="name" formControlName="issue_to"
+                            appendTo="body" [filter]="true" filterBy="name" [showClear]="true" />
+                        <label for="issue_to">Issue To:</label>
+                    </span>
+
+                    <span class="p-float-label">
+                        <p-calendar formControlName="due_date" [iconDisplay]="'input'" [showIcon]="true" appendTo="body"
+                            [showButtonBar]="true" [touchUI]="true" [minDate]="today" [inputStyle]="{'width':'150px'}"
+                            inputId="start_date">
+                        </p-calendar>
+                        <label for="start_date">Due Date:</label>
+                    </span>
+
+                    <span class="p-float-label">
+                        <p-inputNumber formControlName="amount" [min]="0" mode="currency" currency="PHP"
+                            locale="en-US"></p-inputNumber>
+                        <label for="float-label" class="ms-2">Amount:</label>
+                    </span>
+                </div>
+            </form>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+            <div>
+                <button type="submit" class="btn btn-rounded btn-success" [disabled]="invoiceForm.invalid"
+                    (click)="btnCreateInvoice()">Submit</button>
+            </div>
+        </ng-template>
+
 
     </p-dialog>
 </div>
@@ -71,7 +112,7 @@
 
                 <span class="p-float-label">
                     <p-inputNumber (ngModelChange)="computeEndDateTotalBalance()" formControlName="monthly_rent"
-                        mode="currency" currency="PHP" locale="en-US"></p-inputNumber>
+                        [min]="0" mode="currency" currency="PHP" locale="en-US"></p-inputNumber>
                     <label for="float-label" class="ms-2">Monthly Rent</label>
                 </span>
             </div>
@@ -120,11 +161,11 @@
             <ng-template pTemplate="header">
                 <tr>
                     <th *ngFor="let column of leases.slice()[0] | keys">
-                        <span *ngIf="column !== 'lease_agreement_id'">
+                        <span *ngIf="column !== 'lease_agreement_id' && column !== 'user_id'">
                             {{ column }}
                         </span>
                     </th>
-                    <th>Action</th>
+                    <!-- <th>Action</th> -->
                 </tr>
             </ng-template>
 
@@ -144,10 +185,11 @@
                             {{ rowData[column] | date:'longDate'}}
                         </span>
                     </td>
-                    <td>
-                        <button class="bi bi-x btn btn-danger rounded-circle" type="button"></button>
+                    <!-- <td>
+                        <button (click)="removeTenant(rowData)" class="bi bi-x btn btn-danger rounded-circle"
+                            type="button"></button>
 
-                    </td>
+                    </td> -->
                 </tr>
             </ng-template>
 
@@ -159,23 +201,23 @@
     <h3>Invoices</h3>
     <div class="table-responsive">
         <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="historyInvoice"
-            styleClass="p-datatable-striped p-datatable-gridlines" (onEditInit)="onCellEditInit($event)"
-            (onEditCancel)="onCellEditCancel($event)" (onEditComplete)="onCellEditComplete($event)">
+            styleClass="p-datatable-striped p-datatable-gridlines">
 
             <ng-template pTemplate="header">
                 <tr>
                     <th *ngFor="let column of historyInvoice[0] | keys">
-                        <span *ngIf="column !== 'lease_agreement_id' && column !== 'user_id'">
+                        <span
+                            *ngIf="column !== 'lease_agreement_id' && column !== 'user_id' && column !== 'payment_id'">
                             {{ column }}
                         </span>
                     </th>
+                    <th>Action</th>
                 </tr>
             </ng-template>
 
-            <ng-template pTemplate="body" let-rowData let-editing="editing">
+            <ng-template pTemplate="body" let-rowData>
                 <tr>
-                    <td [pEditableColumnRowIndex]="rowData['payment_id']" [pEditableColumn]="rowData[column]"
-                        [pEditableColumnField]="column" *ngFor="let column of historyInvoice.slice()[0] | keys">
+                    <td *ngFor="let column of historyInvoice.slice()[0] | keys">
                         <span *ngIf="column == 'Due Date'">
                             {{ rowData[column] | date:'fullDate'}}
                         </span>
@@ -185,21 +227,17 @@
                         <span *ngIf="column == 'Image' || column == 'Full Name'">
                             {{ rowData[column] }}
                         </span>
-                        <p-cellEditor *ngIf="column == 'Status'">
-                            <ng-template pTemplate="input">
-                                <p-dropdown [options]="backendData.statusTypes" optionLabel="name"
-                                [placeholder]="rowData[column]" [(ngModel)]="rowData[column]">
-                                </p-dropdown>
-                            </ng-template>
-                            <ng-template pTemplate="output">
-                                <p-tag [severity]="severity.getSeverity(rowData[column])"
-                                    [value]="rowData[column]"></p-tag>
-                            </ng-template>
-                        </p-cellEditor>
-                        <!-- <span *ngIf="column == 'Status' && rowData[column] == 'PENDING'">
-                            <p-tag [severity]="severity.getSeverity(rowData[column])"
-                                    [value]="rowData[column]"></p-tag>
-                        </span> -->
+
+                        <span *ngIf="column == 'Status'">
+                            <p-tag [value]="rowData[column]" [severity]="severity.getSeverity(rowData[column])"></p-tag>
+                        </span>
+                    </td>
+                    <td class="d-flex flex-row gap-1" *ngIf="rowData['Status'] == 'REVIEW';">
+                        <button (click)="markPaid(rowData)" class="bi bi-check btn btn-success rounded-circle"
+                            type="button"></button>
+                        <button (click)="markPending(rowData)" class="bi bi-x btn btn-danger rounded-circle"
+                            type="button"></button>
+                    </td>
                 </tr>
             </ng-template>
 
@@ -209,7 +247,7 @@
 </div>
 
 <div *ngIf="isTENANT">
-    <div>
+    <div *ngIf="ownerName == 'placeholder' && ownerMobileNo == 99999">
         <h2>Owner Information</h2>
         <div class="container-fluid mb-4 card">
             <div class="row">
@@ -251,8 +289,9 @@
                         <p-tag [severity]="severity.getSeverity(rowData[column])" [value]="rowData[column]"></p-tag>
                     </span>
                 </td>
-                <td>
-                    <button class="bi bi-caret-right btn btn-primary rounded-circle" type="button"></button>
+                <td *ngIf="rowData['Status'] == 'PENDING';">
+                    <button (click)="ownerReview(rowData)" class="bi bi-caret-right btn btn-primary rounded-circle"
+                        type="button"></button>
                 </td>
             </tr>
         </ng-template>

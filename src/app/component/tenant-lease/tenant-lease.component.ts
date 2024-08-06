@@ -6,7 +6,7 @@ import { MessageService } from 'primeng/api';
 import { CalendarModule } from 'primeng/calendar';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
-import { from, lastValueFrom, map } from 'rxjs';
+import { from, lastValueFrom, map, switchMap } from 'rxjs';
 import { KeysPipe } from "../../pipe/keys.pipe";
 import { ClientModule } from 'src/app/shared-module/client-module';
 import { BackendDataService } from 'src/app/services/backend-data.service';
@@ -59,6 +59,7 @@ export class TenantLeaseComponent implements OnInit {
     await this.checkisTENANT();
     if (!this.isTENANT) {
       this.initForm();
+      this.initInvoiceForm();
       this.reloadTables();
     } else {
       this.loadTenantInvoiceHistory()
@@ -134,6 +135,21 @@ export class TenantLeaseComponent implements OnInit {
     });
   }
 
+  invoiceForm!: FormGroup;
+  private initInvoiceForm() {
+    this.invoiceForm = this.fb.group({
+      issue_to: [null,
+        Validators.required,
+      ],
+      due_date: [null,
+        Validators.required,
+      ],
+      amount: [null,
+        Validators.required,
+      ],
+    })
+  }
+
   leaseWindow: boolean = false;
   selectedRowData: any;
   showLeaseWindow(rowData: any) {
@@ -146,38 +162,85 @@ export class TenantLeaseComponent implements OnInit {
     this.singleInvoice = true;
   }
 
-  clonedCellData: any;
-  onCellEditInit(rowData: any) {
-    this.clonedCellData = { ...rowData };
+  resetSingleInvoiceWindow() {
+    this.invoiceForm.reset();
+    this.singleInvoice = false;
   }
 
-  
-  onCellEditCancel(rowData: any) {
-    this.historyInvoice.find((data: { payment_id: number; }) => data.payment_id === this.clonedCellData.index)[this.clonedCellData.field] = this.clonedCellData.data;    
-    delete this.clonedCellData;
-  }
-
-  onCellEditComplete(rowData: any) {
-    delete this.clonedCellData;
-    const data = {
-      status: rowData.data.code
+  btnCreateInvoice(){
+    const paymentInvoice = {
+      lease_agreement_id: this.invoiceForm.value.issue_to.lease_id,
+      amount: this.invoiceForm.value.amount,
+      due_date: this.backendData.convertDate(this.invoiceForm.value.due_date),
+      status: 'PENDING'
     }
-    this.backendService.updatePayment(rowData.index, data).subscribe({
-      next: (response) => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Payment Updated' });
+    const leaseData = {
+      add_balance: this.invoiceForm.value.amount
+    }
+
+    this.backendService.addPayment(paymentInvoice).pipe(
+      switchMap(() => this.backendService.updateLease(this.invoiceForm.value.issue_to.lease_id, leaseData))
+    ).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'New Rent Invoice Added!' });
         this.reloadTables();
-      },
-      error: (error) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update payment' });
+        this.resetSingleInvoiceWindow();
       }
     });
 
-    
+  }
+
+  ownerReview(rowData: any) {
+    const paymentData = {
+      status: 'REVIEW'
+    }
+
+    this.backendService.updatePayment(rowData.payment_id, paymentData).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Invoice Updated' });
+        this.loadTenantInvoiceHistory()
+      }
+    })
+  }
+
+  markPaid(rowData: any) {
+    const paymentData = {
+      status: 'PAID'
+    }
+    const leaseData = {
+      deduct_balance: rowData['Amount']
+    }
+    this.backendService.updatePayment(rowData.payment_id, paymentData).pipe(
+      switchMap(() => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Invoice Updated' });
+        return this.backendService.updateLease(rowData.lease_agreement_id, leaseData);
+      })
+    ).subscribe({
+      next: () => {
+        this.reloadTables();
+      }
+    });
+  }
+
+  markPending(rowData: any) {
+    const data = {
+      status: 'PENDING'
+    }
+    this.backendService.updatePayment(rowData.payment_id, data).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Invoice Updated' });
+        this.reloadTables();
+      },
+    });
   }
 
   resetLeaseWindow() {
     this.leaseForm.reset();
     this.leaseWindow = false;
+  }
+
+  removeTenant(rowData: any) {
+    console.log(rowData)
   }
 
   endDate!: Date;
@@ -229,8 +292,7 @@ export class TenantLeaseComponent implements OnInit {
                 await lastValueFrom(this.backendService.addPayment(paymentInvoice));
               }
               this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Lease agreement added successfully' });
-              this.leaseForm.reset();
-              this.leaseWindow = false;
+              this.resetLeaseWindow();
               this.reloadTables();
             } catch (error) {
               console.error('Error adding payment:', error);
@@ -241,12 +303,14 @@ export class TenantLeaseComponent implements OnInit {
     });
   }
 
+  issue_names!: [{ name: string; user_id: number; lease_id: number; }];
   loadLeases() {
     this.backendService.getUser(this.user_id).subscribe({
       next: (response) => {
         if (response.lease_agreements) {
-          this.leases = response.lease_agreements.map((lease: { unit_id: number; contract: any; end_date: any; lease_agreement_id: any; monthly_rent: any; remaining_balance: any; start_date: any; tenant_info: { first_name: any; last_name: any; }; }) => ({
+          this.leases = response.lease_agreements.map((lease: { unit_id: number; contract: any; end_date: any; lease_agreement_id: any; monthly_rent: any; remaining_balance: any; start_date: any; tenant_info: { user_id: number; first_name: any; last_name: any; }; }) => ({
             lease_agreement_id: lease.lease_agreement_id,
+            user_id: lease.tenant_info.user_id,
             'Full Name': `${lease.tenant_info.last_name}, ${lease.tenant_info.first_name}`,
             'Unit': this.backendService.getUnit(lease.unit_id).pipe(
               map((unit: { tower_number: any; floor_number: any; unit_number: any; }) => `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}`)
@@ -257,9 +321,16 @@ export class TenantLeaseComponent implements OnInit {
             'End Date': lease.end_date,
             'Remaining Balance': lease.remaining_balance,
           }))
+          this.issue_names = this.leases.map(lease => ({
+            name: lease['Full Name'],
+            // user_id: lease.user_id,
+            lease_id: lease.lease_agreement_id
+          })) as [{ name: string; user_id: number; lease_id: number; }]
         }
       }
     })
+
+
   }
 
   historyInvoice: any[] = [];
@@ -290,8 +361,8 @@ export class TenantLeaseComponent implements OnInit {
   }
 
   tenantHistoryInvoice: any[] = [];
-  ownerName: string = 'Last name, First name';
-  ownerMobileNo: number = 9123456789;
+  ownerName: string = 'placeholder';
+  ownerMobileNo: number = 99999;
   loadTenantInvoiceHistory() {
     this.backendService.getLease(this.user_id + 'TENANT').subscribe({
       next: (leaseResponse) => {
@@ -321,7 +392,6 @@ export class TenantLeaseComponent implements OnInit {
               this.tenantHistoryInvoice.sort((a, b) => new Date(a['Due Date']).getTime() - new Date(b['Due Date']).getTime())
             }
           })
-
         });
       }
     });
