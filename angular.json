@@ -40,7 +40,7 @@
               "raf",
               "rgbcolor"
             ],
-            "outputPath": "dist/monster-angular-lite",
+            "outputPath": "dist/AvidaTrack",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -67,7 +67,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500mb",
-                  "maximumError": "1mb"
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -92,10 +92,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "monster-angular-lite:build:production"
+              "buildTarget": "AvidaTrack:build:production"
             },
             "development": {
-              "buildTarget": "monster-angular-lite:build:development"
+              "buildTarget": "AvidaTrack:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -103,7 +103,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "monster-angular-lite:build"
+            "buildTarget": "AvidaTrack:build"
           }
         },
         "test": {
@@ -118,6 +118,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
+              "src/manifest.webmanifest",
               "src/manifest.webmanifest"
             ],
             "styles": [
