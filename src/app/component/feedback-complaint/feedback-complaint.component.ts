@@ -69,6 +69,9 @@ export class FeedbackComplaintComponent {
 
     this.backendservice.getUser(user_id).subscribe({
       next: (response: any) => {
+        if (!response.cms || !Array.isArray(response.cms)) {
+          return
+        }
         this.datas = response.cms.filter((data: any) => {
           return data.cms_type === "FEEDBACK" ||
             data.cms_type === "COMPLAINT" ||

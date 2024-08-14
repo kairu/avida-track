@@ -36,61 +36,64 @@
             </ng-template>
             <ng-template pTemplate="footer">
                 <div>
-                    <p-button icon="pi pi-check" (click)="createFeedbackComplaint()" [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
+                    <p-button icon="pi pi-check" (click)="createFeedbackComplaint()"
+                        [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
                 </div>
             </ng-template>
         </p-dialog>
     </div>
 
-    <h2 class="text-center">Your Feedbacks and Complaints</h2>
-    <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()" #dt1 dataKey="id"
-        styleClass="p-datatable-striped p-datatable-gridlines"
-        [globalFilterFields]="['Title', 'Description', 'Type', 'Date Posted']" [paginator]="datas?.length > rows"
-        [rows]="rows" [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+    <div *ngIf="datas != null">
+        <h2 class="text-center">Your Feedbacks and Complaints</h2>
+        <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()" #dt1 dataKey="id"
+            styleClass="p-datatable-striped p-datatable-gridlines"
+            [globalFilterFields]="['Title', 'Description', 'Type', 'Date Posted']" [paginator]="datas?.length > rows"
+            [rows]="rows" [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
-        <ng-template pTemplate="caption">
-            <div class="container d-flex justify-content-between">
-                <div>
-                    <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
-                        (click)="refreshTable(dt1)"></p-button>
+            <ng-template pTemplate="caption">
+                <div class="container d-flex justify-content-between">
+                    <div>
+                        <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
+                            (click)="refreshTable(dt1)"></p-button>
+                    </div>
+
+                    <div>
+                        <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash"
+                            (click)="clear(dt1);" class="me-3">
+                        </p-button>
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" [(ngModel)]="searchText"
+                                (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
+                                placeholder="Search keyword" />
+                        </span>
+                    </div>
                 </div>
+            </ng-template>
 
-                <div>
-                    <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash"
-                        (click)="clear(dt1);" class="me-3">
-                    </p-button>
-                    <span class="p-input-icon-left">
-                        <i class="pi pi-search"></i>
-                        <input pInputText type="text" [(ngModel)]="searchText"
-                            (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
-                            placeholder="Search keyword" />
-                    </span>
-                </div>
-            </div>
-        </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="text-center" *ngFor="let column of datas?.slice()[0] | keys">
+                        <ng-container *ngIf="column !== 'user_id'">
+                            {{ column }}
+                        </ng-container>
+                    </th>
 
-        <ng-template pTemplate="header">
-            <tr>
-                <th class="text-center" *ngFor="let column of datas?.slice()[0] | keys">
-                    <ng-container *ngIf="column !== 'user_id'">
-                        {{ column }}
-                    </ng-container>
-                </th>
+                </tr>
+            </ng-template>
 
-            </tr>
-        </ng-template>
+            <ng-template pTemplate="body" let-rowData let-editing="editing">
+                <tr>
+                    <td *ngFor="let column of datas?.slice()[0] | keys">
+                        <span *ngIf="column !== 'Date Posted' && column !== 'Time Posted' && column !== 'user_id'">{{
+                            rowData[column] }}</span>
+                        <span *ngIf="column === 'Date Posted'">{{rowData[column] | date:"MMM dd, yyyy 'at' hh:mm a"}}</span>
+                        <!-- <span *ngIf="column === 'Time Posted'">{{rowData[column] | convertFrom24To12Format}}</span> -->
+                    </td>
 
-        <ng-template pTemplate="body" let-rowData let-editing="editing">
-            <tr>
-                <td *ngFor="let column of datas?.slice()[0] | keys">
-                    <span *ngIf="column !== 'Date Posted' && column !== 'Time Posted' && column !== 'user_id'">{{
-                        rowData[column] }}</span>
-                    <span *ngIf="column === 'Date Posted'">{{rowData[column] | date:"MMM dd, yyyy 'at' hh:mm a"}}</span>
-                    <!-- <span *ngIf="column === 'Time Posted'">{{rowData[column] | convertFrom24To12Format}}</span> -->
-                </td>
-
-            </tr>
-        </ng-template>
-    </p-table>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
 </div>

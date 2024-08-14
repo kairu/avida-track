@@ -3,6 +3,7 @@ import { BackendServiceService } from 'src/app/services/backend-service.service'
 import { CheckisAdminService } from 'src/app/services/checkis-admin.service';
 import { CurrencyPipe } from '@angular/common';
 import { forkJoin, map, of, switchMap } from 'rxjs';
+import { forkJoin, map, of, switchMap } from 'rxjs';
 export type topcard = {
   bgcolor: string,
   icon: string,
@@ -134,10 +135,12 @@ export class TopCardsComponent implements OnInit {
         const paid = allBills.filter((bill: { status: string; }) => bill.status === 'PAID').length;
 
         const leases: any[] = [];
-        response.lease_agreements.forEach((lease_agreement_id: any) => {
-          leases.push(lease_agreement_id);
-        });
 
+        if (response.lease_agreements) {
+          response.lease_agreements.forEach((lease_agreement_id: any) => {
+            leases.push(lease_agreement_id);
+          });
+        }
         this.topcards = [
           {
             bgcolor: 'danger',

@@ -5,7 +5,7 @@ import { ClientModule } from '../shared-module/client-module';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators, FormArray, FormBuilder, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Location } from '@angular/common';
 import { BackendDataService } from '../services/backend-data.service';
-import { Observable, of, tap } from 'rxjs';
+import { Observable, of, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-user-form',
@@ -47,21 +47,24 @@ export class UserFormComponent implements OnInit {
 
   private initForm() {
     this.registerForm = this.fb.group({
-      first_name: ['',
+      first_name: ['', [
         Validators.required,
         Validators.pattern('^[a-zA-Z]+$'),
         Validators.minLength(3)
+      ]
       ],
-      last_name: ['',
-        Validators.required,
+      last_name: ['', [
+        Validators.required, 
         Validators.pattern('^[a-zA-Z]+$'),
         Validators.minLength(3)
+      ]
       ],
-      mobile_number: ['',
+      mobile_number: ['', [
         Validators.required,
-        Validators.pattern('^09\\d{3}-\\d{3}-\\d{4}$')
+        Validators.pattern('^09\\d{2}-\\d{3}-\\d{4}$')
+      ]
       ],
-      userType: [''],
+      userType: ['', Validators.required],
       unit_address: this.fb.array([this.createUnitAddress()], { validators: this.uniqueUnitValidator() })
     });
   }
@@ -72,15 +75,16 @@ export class UserFormComponent implements OnInit {
 
   checkExistingAccount() {
     const storedUser = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
-    this.backendService.getUser(storedUser.email).subscribe({
-      next: (response: any) => {
+    this.backendService.getUser(storedUser.email).pipe(
+      switchMap((response: any) => {
         if (response.hasOwnProperty('email')) {
-          this.ngZone.run(() => this.router.navigate(['dashboard']));
+          return this.ngZone.run(() => this.router.navigate(['dashboard']));
         } else if (Object.keys(storedUser).length === 0) {
-          this.router.navigate(['/']);
+          return this.router.navigate(['/']);
         }
-      }
-    });
+        return of(null);
+      })
+    ).subscribe();
   }
 
   private fetchAndCacheUnits(): Observable<any[]> {
