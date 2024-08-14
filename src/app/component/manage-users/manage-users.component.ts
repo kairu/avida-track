@@ -196,41 +196,34 @@ export class ManageUsersComponent {
     return { towerNumber, floor, unit };
   }
 
-  private processUserCellEdit(rowData: any): void {
-    const fullName = this.datas.find((u: any) => u['User ID'] === rowData.index)['Full Name'];
-    const [last_name, first_name] = fullName.split(', ');
-    const user = this.datas.find((u: any) => u['User ID'] === rowData.index);
-
-    const user_type = user['User Type'].code || user['User Type'].toUpperCase();
-    const is_validated = user['Validated'].code || user['Validated'] === 'Yes';
-
-    this.backendservice.getUsers().subscribe({
-      next: (response: any) => {
-        const email = response.find((u: any) => u['user_id'] === rowData.index).email;
-        let mobileNumber = '';
-        if (rowData.field === 'Mobile Number') {
-          mobileNumber = rowData.data.replace(/-/g, '');
-        } else {
-          mobileNumber = user['Mobile Number']
-        }
-
-        const data = this.backenddata.userData(
-          first_name,
-          last_name,
-          mobileNumber,
-          email,
-          user_type,
-          is_validated,
-        );
-
-        this.backendservice.updateUser(email, data).subscribe({
-          next: (response: any) => {
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
-          }
-        });
-      }
-    });
+  private async processUserCellEdit(rowData: any): Promise<void> {
+    try {
+      const user = this.datas.find((u: any) => u['User ID'] === rowData.index);
+      const [last_name, first_name] = user['Full Name'].split(', ');
+      const user_type = user['User Type'].code || user['User Type'].toUpperCase();
+      const is_validated = user['Validated'].code || user['Validated'] === 'Yes';
+  
+      const users = await lastValueFrom(this.backendservice.getUsers());
+      const email = users.find((u: any) => u['user_id'] === rowData.index).email;
+      const mobileNumber = rowData.field === 'Mobile Number' ? rowData.data.replace(/-/g, '') : user['Mobile Number'];
+  
+      const userData = this.backenddata.userData(
+        first_name,
+        last_name,
+        mobileNumber,
+        email,
+        user_type,
+        is_validated
+      );
+  
+      const response = await this.backendservice.updateUser(email, userData).toPromise();
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message });
+    } catch (error) {
+      console.error('Error updating user:', error);
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update user' });
+    }
   }
+  
 
   preventCellEdit(rowData: any): boolean {
     return rowData['User Type'] != 'Tenant'
