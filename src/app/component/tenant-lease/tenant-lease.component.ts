@@ -6,11 +6,7 @@ import { MessageService } from 'primeng/api';
 import { CalendarModule } from 'primeng/calendar';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
-<<<<<<< HEAD
-import { from, lastValueFrom, map } from 'rxjs';
-=======
 import { from, lastValueFrom, map, switchMap } from 'rxjs';
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
 import { KeysPipe } from "../../pipe/keys.pipe";
 import { ClientModule } from 'src/app/shared-module/client-module';
 import { BackendDataService } from 'src/app/services/backend-data.service';
@@ -27,8 +23,7 @@ interface UploadEvent {
     CalendarModule, AutoCompleteModule, ToastModule,
     KeysPipe],
   templateUrl: './tenant-lease.component.html',
-  styleUrls: ['./tenant-lease.component.scss'],
-  
+  styleUrls: ['./tenant-lease.component.scss']
 })
 
 export class TenantLeaseComponent implements OnInit {
@@ -64,10 +59,7 @@ export class TenantLeaseComponent implements OnInit {
     await this.checkisTENANT();
     if (!this.isTENANT) {
       this.initForm();
-<<<<<<< HEAD
-=======
       this.initInvoiceForm();
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
       this.reloadTables();
     } else {
       this.loadTenantInvoiceHistory()
@@ -143,15 +135,6 @@ export class TenantLeaseComponent implements OnInit {
     });
   }
 
-<<<<<<< HEAD
-  leaseWindow: boolean = false;
-  selectedRowData: any;
-  showLeaseWindow(rowData: any) {
-    this.selectedRowData = rowData;
-    this.leaseWindow = true;
-  }
-
-=======
   invoiceForm!: FormGroup;
   private initInvoiceForm() {
     this.invoiceForm = this.fb.group({
@@ -174,41 +157,11 @@ export class TenantLeaseComponent implements OnInit {
     this.leaseWindow = true;
   }
 
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
   singleInvoice: boolean = false;
   showSingleInvoiceWindow() {
     this.singleInvoice = true;
   }
 
-<<<<<<< HEAD
-  clonedCellData: any;
-  onCellEditInit(rowData: any) {
-    this.clonedCellData = { ...rowData };
-  }
-
-  
-  onCellEditCancel(rowData: any) {
-    this.historyInvoice.find((data: { payment_id: number; }) => data.payment_id === this.clonedCellData.index)[this.clonedCellData.field] = this.clonedCellData.data;    
-    delete this.clonedCellData;
-  }
-
-  onCellEditComplete(rowData: any) {
-    delete this.clonedCellData;
-    const data = {
-      status: rowData.data.code
-    }
-    this.backendService.updatePayment(rowData.index, data).subscribe({
-      next: (response) => {
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Payment Updated' });
-        this.reloadTables();
-      },
-      error: (error) => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update payment' });
-      }
-    });
-
-    
-=======
   resetSingleInvoiceWindow() {
     this.invoiceForm.reset();
     this.singleInvoice = false;
@@ -279,7 +232,6 @@ export class TenantLeaseComponent implements OnInit {
         this.reloadTables();
       },
     });
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
   }
 
   resetLeaseWindow() {
@@ -287,13 +239,10 @@ export class TenantLeaseComponent implements OnInit {
     this.leaseWindow = false;
   }
 
-<<<<<<< HEAD
-=======
   removeTenant(rowData: any) {
     console.log(rowData)
   }
 
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
   endDate!: Date;
   totalBalance!: number;
   computeEndDateTotalBalance() {
@@ -343,12 +292,7 @@ export class TenantLeaseComponent implements OnInit {
                 await lastValueFrom(this.backendService.addPayment(paymentInvoice));
               }
               this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Lease agreement added successfully' });
-<<<<<<< HEAD
-              this.leaseForm.reset();
-              this.leaseWindow = false;
-=======
               this.resetLeaseWindow();
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
               this.reloadTables();
             } catch (error) {
               console.error('Error adding payment:', error);
@@ -359,22 +303,14 @@ export class TenantLeaseComponent implements OnInit {
     });
   }
 
-<<<<<<< HEAD
-=======
   issue_names!: [{ name: string; user_id: number; lease_id: number; }];
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
   loadLeases() {
     this.backendService.getUser(this.user_id).subscribe({
       next: (response) => {
         if (response.lease_agreements) {
-<<<<<<< HEAD
-          this.leases = response.lease_agreements.map((lease: { unit_id: number; contract: any; end_date: any; lease_agreement_id: any; monthly_rent: any; remaining_balance: any; start_date: any; tenant_info: { first_name: any; last_name: any; }; }) => ({
-            lease_agreement_id: lease.lease_agreement_id,
-=======
           this.leases = response.lease_agreements.map((lease: { unit_id: number; contract: any; end_date: any; lease_agreement_id: any; monthly_rent: any; remaining_balance: any; start_date: any; tenant_info: { user_id: number; first_name: any; last_name: any; }; }) => ({
             lease_agreement_id: lease.lease_agreement_id,
             user_id: lease.tenant_info.user_id,
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
             'Full Name': `${lease.tenant_info.last_name}, ${lease.tenant_info.first_name}`,
             'Unit': this.backendService.getUnit(lease.unit_id).pipe(
               map((unit: { tower_number: any; floor_number: any; unit_number: any; }) => `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}`)
@@ -385,11 +321,6 @@ export class TenantLeaseComponent implements OnInit {
             'End Date': lease.end_date,
             'Remaining Balance': lease.remaining_balance,
           }))
-<<<<<<< HEAD
-        }
-      }
-    })
-=======
           this.issue_names = this.leases.map(lease => ({
             name: lease['Full Name'],
             // user_id: lease.user_id,
@@ -400,7 +331,6 @@ export class TenantLeaseComponent implements OnInit {
     })
 
 
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
   }
 
   historyInvoice: any[] = [];
@@ -431,13 +361,8 @@ export class TenantLeaseComponent implements OnInit {
   }
 
   tenantHistoryInvoice: any[] = [];
-<<<<<<< HEAD
-  ownerName: string = 'Last name, First name';
-  ownerMobileNo: number = 9123456789;
-=======
   ownerName: string = 'placeholder';
   ownerMobileNo: number = 99999;
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
   loadTenantInvoiceHistory() {
     this.backendService.getLease(this.user_id + 'TENANT').subscribe({
       next: (leaseResponse) => {
@@ -467,10 +392,6 @@ export class TenantLeaseComponent implements OnInit {
               this.tenantHistoryInvoice.sort((a, b) => new Date(a['Due Date']).getTime() - new Date(b['Due Date']).getTime())
             }
           })
-<<<<<<< HEAD
-
-=======
->>>>>>> 03a178395f13cca59c12d9bf325016090ff777ce
         });
       }
     });
