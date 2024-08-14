@@ -3,7 +3,7 @@ import { BackendServiceService } from 'src/app/services/backend-service.service'
 import { CheckisAdminService } from 'src/app/services/checkis-admin.service';
 import { CurrencyPipe } from '@angular/common';
 import { forkJoin, map, of, switchMap } from 'rxjs';
-import { forkJoin, map, of, switchMap } from 'rxjs';
+
 export type topcard = {
   bgcolor: string,
   icon: string,
