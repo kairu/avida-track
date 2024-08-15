@@ -168,7 +168,7 @@ export class BackendDataService {
     return data;
   }
 
-  leaseData(unit_id: number, owner_id: number, tenant_id: number, start_date: Date, end_date: Date, monthly_rent: number, remaining_balance: number, security_deposit?: number, contract?: string) {
+  leaseData(unit_id: number, owner_id: number, tenant_id: number, start_date: Date, end_date: Date, monthly_rent: number, remaining_balance: number, contract?: string, security_deposit?: number) {
     const data = {
       unit_id: unit_id,
       owner_id: owner_id,
@@ -177,8 +177,9 @@ export class BackendDataService {
       end_date: end_date,
       monthly_rent: monthly_rent,
       remaining_balance: remaining_balance,
-      security_deposit: security_deposit || null,
-      contract: contract || null
+      contract: contract || null,
+      security_deposit: security_deposit || null
+      
     };
 
     return data;

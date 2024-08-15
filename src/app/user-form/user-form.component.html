@@ -18,26 +18,32 @@
 
             <div formArrayName="unit_address" *ngFor="let unitInfo of unitAddress; let i = index">
                 <div [formGroupName]="i" class="border">
-                    <h3 class="text-center my-3">Select a Tower:</h3>
+                        <div class="d-flex justify-content-around mt-4">
+                            <div></div>
+                            <div *ngIf="i != 0">
+                                <button (click)="removeUnitClick(i)" type="button" class="bi bi-x btn btn-danger btn-sm btn-link text-primary"></button>
+                            </div>
+                        </div>
 
+                    <h3 class="text-center mb-3">Select a Tower:</h3>
                     <div class="d-flex flex-row gap-3 justify-content-center mb-3">
                         <div *ngFor="let towerOption of towerOptions" class="border field-checkbox">
                             <label class="h4">
-                                <input type="radio" [value]="towerOption.value" formControlName="tower_number" />
-                                {{ towerOption.label }}
+                                <input type="radio" [value]="towerOption.value" formControlName="tower_number" (click)="onTowerSelect(towerOption.value, i)" />                                {{ towerOption.label }}
                             </label>
                         </div>
                     </div>
 
                     <div class="d-flex flex-row gap-3 justify-content-center mb-4">
                         <span>
-                            <p-dropdown [options]="floors" [filter]="true" [id]="'floor_number'+i"
-                                formControlName="floor_number" placeholder="Select Floor No." [showClear]="true">
+                            <p-dropdown [options]="getFloorOptions(i)" [filter]="true" [id]="'floor_number'+i"
+                                formControlName="floor_number" placeholder="Select Floor No." [showClear]="true"
+                                (onChange)="onFloorSelect($event, i)">
                             </p-dropdown>
                         </span>
 
                         <span>
-                            <p-dropdown [options]="units" [filter]="true" [id]="'floor_number'+i"
+                            <p-dropdown [options]="getUnitOptions(i)" [filter]="true" [id]="'floor_number'+i"
                                 formControlName="unit_number" placeholder="Select Unit No." [showClear]="true">
                             </p-dropdown>
                         </span>
@@ -80,5 +86,4 @@
             </div>
 
         </div>
-    </div>
-</form>
+    </div></form>

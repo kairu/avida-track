@@ -121,7 +121,14 @@ export class BackendServiceService {
   }
 
   getImage(image: any) {
-    return this.http.get(`${this.backendUrl}/bulletin/${image}`, { responseType: 'blob' });
+    return this.http.get(`${this.backendUrl}/bulletin/${image}`, {
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate, post-check=0, pre-check=0',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      })
+    });
   }
 
   getPaymentImage(image: any) {
@@ -162,7 +169,12 @@ export class BackendServiceService {
       headers: this.headers
     });
   }
-  async uploadImageToLease(formData: FormData, lease_agreement_id: number) {
+
+  getContractImage(image: any) {
+    return this.http.get(`${this.backendUrl}/contract/${image}`, { responseType: 'blob' });
+  }
+  
+  uploadImageToLease(formData: FormData) {
     return this.http.post(`${this.backendUrl}/contract`, formData);
   }
 

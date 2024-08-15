@@ -7,6 +7,7 @@ import { Location } from '@angular/common';
 import { BackendDataService } from '../services/backend-data.service';
 import { Observable, of, switchMap, tap } from 'rxjs';
 
+
 @Component({
   selector: 'app-user-form',
   templateUrl: './user-form.component.html',
@@ -23,8 +24,6 @@ export class UserFormComponent implements OnInit {
   ];
 
   towerOptions = Array.from({ length: 5 }, (_, i) => ({ label: `Tower ${i + 1}`, value: i + 1 }));
-  floors = Array.from({ length: 19 }, (_, i) => ({ label: (i + 2).toString(), value: i + 2 }));
-  units = Array.from({ length: 10 }, (_, i) => ({ label: (i + 1).toString(), value: i + 1 }));
 
   showUnitButton = false;
   isTenant = false;
@@ -54,7 +53,7 @@ export class UserFormComponent implements OnInit {
       ]
       ],
       last_name: ['', [
-        Validators.required, 
+        Validators.required,
         Validators.pattern('^[a-zA-Z]+$'),
         Validators.minLength(3)
       ]
@@ -101,11 +100,81 @@ export class UserFormComponent implements OnInit {
     }
   }
 
+  // floors: { label: string, value: number }[] = [];
+  // units: { label: string, value: number }[] = [];
+
+  towerSelected!: number;
+  // tower 2: 21 floors 2nd floor to 14th floor = 18 units, 15 to 21 = 24 units ???
+  onFloorSelect(event: any, index: number) {
+    if (this.towerSelected != 2) return;
+    const unitGroup = (this.registerForm.get('unit_address') as FormArray).at(index) as FormGroup;
+    let units: { label: string, value: number }[] = [], noOfUnits = 0;
+    if (event.value < 15) {
+      noOfUnits = 20;
+    } else {
+      noOfUnits = 25;
+    }
+
+    units = Array.from({ length: noOfUnits }, (_, i) => ({ label: (i + 1).toString(), value: i + 1 })).filter(units => units.label !== '13')
+    unitGroup.get('unit_number')?.setValue(null);
+    unitGroup.get('units')?.setValue(units)
+  }
+
+  onTowerSelect(event: any, index: number) {
+    const unitGroup = (this.registerForm.get('unit_address') as FormArray).at(index) as FormGroup;
+    this.towerSelected = event;
+    let floors: { label: string, value: number }[] = [];
+    let units: { label: string, value: number }[] = [];
+    let noOfFloors = 0, noOfUnits = 0;
+    switch (this.towerSelected) {
+      case 1:
+        noOfFloors = 20;
+        noOfUnits = 20;
+        break;
+      case 2:
+        noOfFloors = 21;
+        // Units will be set when floor is selected
+        break;
+      case 3:
+        noOfFloors = 21;
+        noOfUnits = 19;
+        break;
+      case 4:
+        noOfFloors = 18;
+        noOfUnits = 19;
+        break;
+      case 5:
+        noOfFloors = 18;
+        noOfUnits = 17;
+        break;
+      default:
+        break;
+    }
+
+    floors = Array.from({ length: noOfFloors }, (_, i) => ({ label: (i + 2).toString(), value: i + 2 })).filter(floor => floor.label !== '13');
+    units = Array.from({ length: noOfUnits }, (_, i) => ({ label: (i + 1).toString(), value: i + 1 })).filter(unit => unit.label !== '13');
+    unitGroup.get('floor_number')?.setValue(null);
+    unitGroup.get('unit_number')?.setValue(null);
+    unitGroup.get('floors')?.setValue(floors)
+    unitGroup.get('units')?.setValue(units)
+
+  }
+
+  getFloorOptions(index: number){
+    return (this.registerForm.get('unit_address') as FormArray).at(index).get('floors')?.value
+  }
+
+  getUnitOptions(index: number){
+    return (this.registerForm.get('unit_address') as FormArray).at(index).get('units')?.value
+  }
+
   createUnitAddress(): FormGroup {
     const group = this.fb.group({
       tower_number: [, Validators.required],
       floor_number: [, Validators.required],
-      unit_number: [, Validators.required]
+      unit_number: [, Validators.required],
+      floors: [[]],
+      units: [[]]
     });
     group.valueChanges.subscribe(() => this.registerForm.get('unit_address')?.updateValueAndValidity());
     return group;
@@ -113,6 +182,13 @@ export class UserFormComponent implements OnInit {
 
   addUnitClick(): void {
     (this.registerForm.get('unit_address') as FormArray).push(this.createUnitAddress());
+  }
+
+  removeUnitClick(index: number) {
+    const unitAddressArray = this.registerForm.get('unit_address') as FormArray
+    if (unitAddressArray.length > 1) {
+      unitAddressArray.removeAt(index)
+    }
   }
 
   get unitAddress() {
