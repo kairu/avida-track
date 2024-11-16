@@ -178,6 +178,10 @@ export class BackendServiceService {
     return this.http.post(`${this.backendUrl}/contract`, formData);
   }
 
+  uploadPaymentImage(formData: FormData){
+    return this.http.post(`${this.backendUrl}/paymentImage`, formData);
+  }
+
 
   updateCMS(cms_id: number, data: any): Observable<any> {
     return this.http.put(`${this.backendUrl}/cms/${cms_id}`, JSON.stringify(data), {

@@ -153,11 +153,11 @@
         </div>
         <div *ngIf="isTENANT">
             <div class="mb-4 text-center">
-                <p-fileUpload mode="basic" chooseLabel="Upload Proof of Payment" accept="image/*" [maxFileSize]="1000000"
-                    (uploadHandler)="storeImageData($event)" [auto]="true" [customUpload]="true"
+                <p-fileUpload mode="basic" chooseLabel="Upload Proof of Payment" accept="image/*"
+                    [maxFileSize]="1000000" (uploadHandler)="storeImageData($event)" [auto]="true" [customUpload]="true"
                     invalidFileTypeMessageDetail="Allowed file types: jpg, jpeg, png, gif, bmp" width="100">
                 </p-fileUpload>
-                <span class="h6 text-secondary" *ngIf="!imageSrc">* This is optional</span>
+                <span class="h6 text-secondary" *ngIf="!imageSrc">*Optional</span>
 
                 <div class="mb-4 text-center" *ngIf="imageSrc">
                     <p-image [src]="imageSrc" width="250" [preview]="true"></p-image>
@@ -172,8 +172,7 @@
                 (click)="onConfirm()">Submit</button>
         </div>
         <div *ngIf="isTENANT">
-            <button type="submit" class="btn btn-rounded btn-success"
-            (click)="onConfirm()">Submit</button>
+            <button type="submit" class="btn btn-rounded btn-success" (click)="onTenantConfirm()">Submit</button>
         </div>
     </ng-template>
 </p-dialog>
@@ -256,8 +255,12 @@
                         <span *ngIf="column == 'Amount'">
                             {{ rowData[column] | currency:'PHP'}}
                         </span>
-                        <span *ngIf="column == 'Image' || column == 'Full Name'">
+                        <span *ngIf="column == 'Full Name'">
                             {{ rowData[column] }}
+                        </span>
+                        <span *ngIf="column == 'Image'">
+                            <p-image [src]="rowData[column]" [preview]="true"
+                                width="250" />
                         </span>
 
                         <span *ngIf="column == 'Status'">
@@ -319,7 +322,8 @@
                         {{ rowData[column] | date:'fullDate'}}
                     </span>
                     <span *ngIf="column == 'Image'">
-                        {{ rowData[column] ? rowData[column] : '' }}
+                        <p-image [src]="rowData[column]" [preview]="true"
+                                width="250" />
                     </span>
                     <span *ngIf="column == 'Amount'">
                         {{ rowData[column] | currency:'PHP' }}

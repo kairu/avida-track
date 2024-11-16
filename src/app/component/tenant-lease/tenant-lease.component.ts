@@ -230,7 +230,7 @@ export class TenantLeaseComponent implements OnInit {
   }
 
   resetLeaseWindow() {
-    if(this.leaseForm){
+    if (this.leaseForm) {
       this.leaseForm.reset();
     }
     this.imageSrc = null;
@@ -251,6 +251,38 @@ export class TenantLeaseComponent implements OnInit {
       this.totalBalance = totalBalance;
       this.endDate = new Date(this.leaseForm.value.start_date)
       this.endDate.setMonth(this.endDate.getMonth() + numberOfMonths)
+    }
+  }
+
+  onTenantConfirm() {
+    if (this.imgFormData && this.imgFormData.has('file')) {
+      this.backendService.uploadPaymentImage(this.imgFormData).pipe(
+        switchMap((response: any) => {
+          const imgName = response.file;
+          const data = {
+            status: 'REVIEW',
+            image_path: imgName
+          }
+          return this.backendService.updatePayment(this.selectedRowData.payment_id, data)
+        })
+      ).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Invoice to Review by Owner' });
+          this.resetLeaseWindow();
+          this.loadTenantInvoiceHistory();
+        }
+      })
+    } else {
+      const data = {
+        status: 'REVIEW'
+      }
+      this.backendService.updatePayment(this.selectedRowData.payment_id, data).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Invoice to Review by Owner' });
+          this.resetLeaseWindow();
+          this.loadTenantInvoiceHistory();
+        },
+      });
     }
   }
 
@@ -305,6 +337,7 @@ export class TenantLeaseComponent implements OnInit {
         }
       });
     } else {
+
       // Handle case when imgFormData is not available
       this.backendService.updateUser(this.selectedRowData.tenant_id, { is_validated: true }).pipe(
         switchMap(() => {
@@ -352,8 +385,8 @@ export class TenantLeaseComponent implements OnInit {
   }
 
   serveContractImage() {
-    this.leases.forEach((data: { Contract: any;}) => {
-      if(data.Contract) {
+    this.leases.forEach((data: { Contract: any; }) => {
+      if (data.Contract) {
         this.backendService.getContractImage(data.Contract).subscribe({
           next: (imageResponse) => {
             const imageUrl = URL.createObjectURL(imageResponse);
@@ -417,8 +450,22 @@ export class TenantLeaseComponent implements OnInit {
           )
           this.historyInvoice.sort((a, b) => new Date(a['Due Date']).getTime() - new Date(b['Due Date']).getTime())
         }
+        this.serveOwnerInvoiceImage();
       }
     });
+  }
+
+  serveOwnerInvoiceImage(){
+      this.historyInvoice.forEach((data: { 'Image': any; }) => {
+        if (data['Image']) {
+          this.backendService.getPaymentImage(data['Image']).subscribe({
+            next: (imageResponse) => {
+              const imageUrl = URL.createObjectURL(imageResponse);
+              data['Image'] = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
+            }
+          });
+        }
+      })
   }
 
   tenantHistoryInvoice: any[] = [];
@@ -459,7 +506,21 @@ export class TenantLeaseComponent implements OnInit {
         'Status': payment.status
       }));
       this.tenantHistoryInvoice.sort((a, b) => new Date(a['Due Date']).getTime() - new Date(b['Due Date']).getTime());
+      this.serveTenantInvoiceImage();
     });
+  }
+
+  serveTenantInvoiceImage(){
+    this.tenantHistoryInvoice.forEach((data: { 'Image': any; }) => {
+      if (data['Image']) {
+        this.backendService.getPaymentImage(data['Image']).subscribe({
+          next: (imageResponse) => {
+            const imageUrl = URL.createObjectURL(imageResponse);
+            data['Image'] = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
+          }
+        });
+      }
+    })
   }
 
   storeImageData(event: any) {
