@@ -20,12 +20,14 @@ export class SeverityService {
       case 'TENANT':
       case 'YES':
       case 'PAID':
+      case 'RESOLVED':
         return 'success';
       case 'REVIEW':
         return 'info'
       case 'GUEST':
       case 'NO':
       case 'PENDING':
+      case 'DENIED':
       default:
         return 'danger';
     }

@@ -151,6 +151,12 @@ export class BackendServiceService {
     });
   }
 
+  addCMSNotes(data: any){
+    return this.http.post(`${this.backendUrl}/feedbackcomplaintnotes`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
+
   async uploadImage(filename: any) {
     const formData = new FormData();
     formData.append('file', filename);
