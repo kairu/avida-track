@@ -58,7 +58,9 @@ export class AdminViewComponent {
   processUserData(users: any[]): any[] {
     let allInvoices: any[] = [];
     users.forEach((user: any) => {
-      allInvoices = allInvoices.concat(this.processUserUnits(user));
+      if (user.user_type !== 'ADMIN' && user.user_type !== 'SUPER_ADMIN') {
+        allInvoices = allInvoices.concat(this.processUserUnits(user));
+      }
     });
     return allInvoices;
   }
