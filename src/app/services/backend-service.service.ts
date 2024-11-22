@@ -135,6 +135,23 @@ export class BackendServiceService {
     return this.http.get(`${this.backendUrl}/paymentImage/${image}`, { responseType: 'blob' });
   }
 
+  getDelinquentBills(): Observable<any>{
+    return this.http.get(`${this.backendUrl}/delinquent-bills`);
+  }
+
+  getBillingPerformance(month?: string, year?: number, status?: string): Observable<any>{
+    const params: any = {};
+    if (month) params['month'] = month;
+    if (year) params['year'] = year;
+    if (status) params['status'] = status;
+
+    return this.http.get(`${this.backendUrl}/billing-performance`, { params });
+  }
+
+  getAvailableYears(): Observable<any>{
+    return this.http.get(`${this.backendUrl}/billing-years`);
+  }
+
   async renderImageCard(image: any) {
     return this.http.get(`${this.backendUrl}/bulletin/${image}`, { responseType: 'blob' });
   }

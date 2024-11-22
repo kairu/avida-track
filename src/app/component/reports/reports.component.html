@@ -1,62 +1,189 @@
 <div class="container-fluid">
     <h2 class="text-center">Reports</h2>
-    <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()" #dt1 dataKey="id"
-        exportFilename="Reports" [columns]="exportHeader" [paginator]="datas?.length > rows" [rows]="rows"
-        styleClass="p-datatable-striped p-datatable-gridlines"
-        [globalFilterFields]="['Full Name', 'Title', 'Description', 'Type', 'Date Posted']"
-        [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+    <div class="d-flex gap-2">
+        <p-button label="Revenue" (click)="showReport(1)"></p-button>
+        <p-button label="Delinquent Users" (click)="showReport(2)"></p-button>
+        <p-button label="Bills Breakdown per Tower" (click)="showReport(3)"></p-button>
+    </div>
+    <div *ngIf="revenueBtnSelected">
+        <h2 class="text-center">Overall Revenue</h2>
+        <p-table [value]="groupedData" [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" #dt1 dataKey="id"
+            exportFilename="Revenue_Reports" [columns]="exportHeaderOverallRevenue"
+            styleClass="p-datatable-striped p-datatable-gridlines">
+            <ng-template pTemplate="caption">
+                <div class="container mt-4">
+                    <div class="col d-flex">
+                    <h5 class="me-3">Export as:</h5>
+                    <div class="p-buttongroup">
+                        <p-button class="me-2" [raised]="true" icon="pi pi-external-link" size="small" pTooltip="CSV"
+                            (click)="dt1.exportCSV()" />
+                        <p-button class="me-2" severity="success" [raised]="true" icon="pi pi-file-excel" size="small"
+                            pTooltip="XLSX" (click)="exportToExcel(groupedData, 'Avida-Reports-Revenue')" />
+                        <p-button class="me-2" severity="danger" [raised]="true" icon="pi pi-file-pdf" size="small"
+                            pTooltip="PDF" (click)="exportToPDF(groupedData, 'AvidaRevenue-PDF')" />
+                    </div>
+                </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th *ngFor="let column of groupedData[0] | keys">{{ column }}</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData>
+                <tr>
+                    <td *ngFor="let column of groupedData[0] | keys">
+                        <!-- Apply the pipe for number format -->
+                        <span
+                            *ngIf="column !== 'Tower Number' && column !== 'Total Paid Amount' && column !== 'Total Unpaid Amount' && column !== 'Revenue'">
+                            {{ rowData[column] | decimalFormat}}</span>
+                        <!-- Other columns without formatting -->
+                        <span *ngIf="column === 'Tower Number'">{{ rowData[column]}}</span>
 
-        <ng-template pTemplate="caption">
-            <div class="container d-flex justify-content-between">
-                <div>
-                    <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
-                        (click)="refreshTable()"></p-button>
+                        <span
+                            *ngIf="column == 'Total Paid Amount' || column == 'Total Unpaid Amount' || column == 'Revenue'"
+                            [ngClass]="{'negative-revenue': column === 'Revenue' && rowData[column] < 0}">
+                            {{ rowData[column] | currency:'PHP' }}
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <div *ngIf="delinquentBtnSelected" class="my-3">
+        <h2 class="text-center">Delinquent Users</h2>
+        <div *ngIf="delinquentData.length > 0">
+            <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="delinquentData"
+                [paginator]="true" [rows]="10" #dt2 dataKey="id" exportFilename="DelinquentUsers"
+                [columns]="exportHeaderDelinquentUsers" styleClass="p-datatable-striped p-datatable-gridlines">
+                <ng-template pTemplate="caption">
+                    <div class="container mt-4">
+                        <div class="col d-flex">
+                            <h5 class="me-3">Export as:</h5>
+                            <div class="p-buttongroup">
+                                <p-button class="me-2" [raised]="true" icon="pi pi-external-link" size="small"
+                                    pTooltip="CSV"
+                                    (click)="exportAsCSVDelinquentData(delinquentData, 'Delinquent-Reports')" />
+                                <p-button class="me-2" severity="success" [raised]="true" icon="pi pi-file-excel"
+                                    size="small" pTooltip="XLSX"
+                                    (click)="exportAsXLSXDelinquentData(delinquentData, 'Delinquent-Reports')" />
+                                <p-button class="me-2" severity="danger" [raised]="true" icon="pi pi-file-pdf"
+                                    size="small" pTooltip="PDF"
+                                    (click)="exportAsPDFDelinquentData(delinquentData, 'Delinquent-PDF')" />
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Owner</th>
+                        <th>Unit</th>
+                        <th>Bill Type</th>
+                        <th>Due Date</th>
+                        <th>Amount</th>
+                        <th>Delinquent Amount</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-delinquent>
+                    <tr>
+                        <td>{{ delinquent.user_name }}</td>
+                        <td>{{ delinquent.Unit }}</td>
+                        <td>
+                            <ul>
+                                <li *ngFor="let bill of delinquent.delinquent_bills">{{ bill.bill_type }}</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li *ngFor="let bill of delinquent.delinquent_bills">{{ bill.due_date | date:
+                                    'longDate' }}</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li *ngFor="let bill of delinquent.delinquent_bills">{{ bill.amount | currency:'PHP' }}
+                                </li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li *ngFor="let bill of delinquent.delinquent_bills">{{ bill.delinquent_amount |
+                                    currency:'PHP' }}</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li *ngFor="let bill of delinquent.delinquent_bills">{{ bill.total_amount |
+                                    currency:'PHP' }}</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <div *ngIf="billsBreakdownBtnSelected" class="filter-container my-3">
+        <h2 class="text-center">Bill Breakdown per Tower Number</h2>
+        <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="utilityServiceData" #dt3
+            dataKey="id" exportFilename="BillsBreakdownPerTower" [columns]="exportHeaderBillBreakdownPerTower"
+            styleClass="p-datatable-striped p-datatable-gridlines">
+            <ng-template pTemplate="caption">
+                <div class="container mt-4">
+                    <div class="row align-items-center">
+                        <!-- Buttons aligned to the left -->
+                        <div class="col d-flex">
+                            <h5 class="me-3">Export as:</h5>
+                            <div class="p-buttongroup">
+                                <p-button class="me-2" [raised]="true" icon="pi pi-external-link" size="small"
+                                    pTooltip="CSV" (click)="dt3.exportCSV()"></p-button>
+                                <p-button class="me-2" severity="success" [raised]="true" icon="pi pi-file-excel"
+                                    size="small" pTooltip="XLSX"
+                                    (click)="exportToExcel(utilityServiceData, 'BillBreakdown-Reports')"></p-button>
+                                <p-button class="me-2" severity="danger" [raised]="true" icon="pi pi-file-pdf"
+                                    size="small" pTooltip="PDF"
+                                    (click)="exportToPDF(utilityServiceData, 'BillBreakdown-PDF')"></p-button>
+                            </div>
+                        </div>
+
+                        <!-- Dropdowns aligned to the right -->
+                        <div class="col d-flex justify-content-end gap-2">
+                            <p-dropdown [options]="months" [(ngModel)]="selectedMonth" placeholder="Select Month"
+                                optionLabel="label" optionValue="value" [style]="{ width: '200px' }"></p-dropdown>
+                            <p-dropdown [options]="yearOptions" [(ngModel)]="selectedYear" placeholder="Select Year"
+                                optionLabel="label" optionValue="value" [style]="{ width: '200px' }"></p-dropdown>
+                            <p-dropdown [options]="statusOptions" [(ngModel)]="selectedStatus"
+                                placeholder="Select Status" optionLabel="label" optionValue="value"
+                                [style]="{ width: '200px' }"></p-dropdown>
+                            <button pButton type="button" label="Filter" (click)="applyFilter()"></button>
+                        </div>
+                    </div>
                 </div>
 
-                <div>
-                    <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash"
-                        (click)="clear(dt1);" class="me-3">
-                    </p-button>
-                    <span class="p-input-icon-left">
-                        <i class="pi pi-search"></i>
-                        <input pInputText type="text" [(ngModel)]="searchText"
-                            (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
-                            placeholder="Search keyword" />
-                    </span>
-                </div>
-            </div>
-            <div class="container row mt-4">
-                <h5>Export as:</h5>
-                <div class="p-buttongroup">
-                    <p-button class="me-2" [raised]="true" icon="pi pi-external-link" size="small" pTooltip="CSV" (click)="dt1.exportCSV()" />
-                    <p-button class="me-2" severity="success" [raised]="true" icon="pi pi-file-excel" size="small" pTooltip="XLSX" (click)="exportToExcel(datas, 'Avida-Reports')" />
-                    <p-button class="me-2" severity="danger" [raised]="true" icon="pi pi-file-pdf" size="small" pTooltip="PDF" (click)="exportToPDF(datas, 'Avida-PDF')" />
-                </div>
-            </div>
-        </ng-template>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Tower</th>
+                    <th>Water</th>
+                    <th>Association</th>
+                    <th>Parking</th>
+                    <th>Maintenance</th>
+                    <th>Other Costs</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData>
+                <tr>
+                    <td>{{ rowData.tower_number }}</td>
+                    <td>{{ rowData.WATER | currency:'PHP' }}</td>
+                    <td>{{ rowData.ASSOCIATION | currency:'PHP' }}</td>
+                    <td>{{ rowData.PARKING | currency:'PHP' }}</td>
+                    <td>{{ rowData.MAINTENANCE | currency:'PHP' }}</td>
+                    <td>{{ rowData.ETC | currency:'PHP' }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
 
-        <ng-template pTemplate="header">
-            <tr>
-                <th class="text-center" *ngFor="let column of datas?.slice()[0] | keys">
-                    <ng-container *ngIf="column !== 'user_id'">
-                        {{ column }}
-                    </ng-container>
-                </th>
-
-            </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-rowData let-editing="editing">
-            <tr>
-                <td *ngFor="let column of datas?.slice()[0] | keys">
-                    <span *ngIf="column !== 'Date Posted' && column !== 'Time Posted' && column !== 'user_id'">{{
-                        rowData[column] }}</span>
-                    <span *ngIf="column === 'Date Posted'">{{rowData[column] | date:"MMM dd, yyyy 'at' hh:mm a"}}</span>
-                    <!-- <span *ngIf="column === 'Time Posted'">{{rowData[column] | convertFrom24To12Format}}</span> -->
-                </td>
-
-            </tr>
-        </ng-template>
-    </p-table>
 </div>
