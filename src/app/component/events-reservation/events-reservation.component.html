@@ -1,40 +1,47 @@
 <div class="d-flex flex-row-reverse mb-4">
-  <p-button *ngIf="!isAdmin" pRipple label="Reserve a Date" (click)="reserveWindow()" icon="bi bi-calendar4-event"></p-button>
+  <p-button *ngIf="!isAdmin" pRipple label="Reserve a Date" (click)="reserveWindow()"
+    icon="bi bi-calendar4-event"></p-button>
   <p-dialog [(visible)]="rsrveWndow" [style]="{'width': '45vw', 'height': '100vh'}" [breakpoints]="{ '960px': '90vw' }"
     [modal]="true" [dismissableMask]="true" [draggable]="false">
 
     <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
-      <div class="reservation-form">
+      <div class="reservation-form container">
         <p-fieldset [legend]="'Entries'" class="custom">
+
           <div *ngIf="!isAdmin" class="registration-form">
-            <div class="form-group">
-              <label for="venue"></label>
-              <p-dropdown [options]="venue" formControlName="selectedVenue" optionLabel="name"
-                placeholder="Select Venue"></p-dropdown>
+            <div class="row justify-content-center">
+              <div class="form-group col">
+                <p-dropdown [options]="venue" formControlName="selectedVenue" optionLabel="name"
+                  placeholder="Select Venue" (onChange)="onVenueSelect($event)"></p-dropdown>
+              </div>
+
+              <div class="form-group col">
+                <p-calendar placeholder="Select Date" formControlName="date_to_post" [touchUI]="true"
+                  [iconDisplay]="'input'" [showIcon]="true" [showTime]="true" hourFormat="12" inputId="buttondisplay"
+                  id="date_to_post" [minDate]="today" (onSelect)="onDateSelect($event)"
+                  appendTo="body"></p-calendar>
+              </div>
+
+              <div class="col">
+                <input class="opacity-100" type="text" pInputText [disabled]="true" variant="filled" [(ngModel)]="timeSlots" [ngModelOptions]="{standalone: true}"/>
+              </div>
             </div>
 
             <div class="form-group">
-              <label for="title"></label>
+              <p-inputNumber *ngIf="venueSelected" placeholder="No. of Pax" suffix=" pax" formControlName="pax" [min]="paxMin" [max]="paxMax" />
+              <label for="No. of Pax" *ngIf="venueSelected">*Maximum of {{ paxMax }}</label>
+            </div>
+
+            <div class="form-group">
               <input type="text" pInputText placeholder="Enter Title" formControlName="title" />
             </div>
 
             <div class="form-group">
-              <label for="buttondisplay"></label>
-              <p-calendar formControlName="date_to_post" [touchUI]="true" [iconDisplay]="'input'" [showIcon]="true"
-                [showTime]="true" hourFormat="12" inputId="buttondisplay" id="date_to_post" [minDate]="today"
-                [disabledDates]="disableReservedDate" (onSelect)="onDateSelect($event)" appendTo="body"></p-calendar>
-            </div>
-
-            <div class="form-group">
-              <label for="description"></label>
               <textarea rows="5" pInputTextarea formControlName="description"
                 placeholder="Enter Description"></textarea>
             </div>
 
             <div class="form-group">
-              <label for="selectedTimeSlot"></label>
-              <p-dropdown [options]="timeSlots" formControlName="selectedTimeSlot" optionLabel="label"
-                placeholder="Select Time Slot"></p-dropdown>
 
               <div class="button" *ngIf="!isAdmin">
                 <p-toast />
@@ -60,6 +67,7 @@
       <tr>
         <th>Title</th>
         <th>Venue</th>
+        <th>No. of Pax</th>
         <th>Time Slot</th>
         <th>Booking Date</th>
         <th>Description</th>
@@ -70,6 +78,7 @@
       <tr>
         <td>{{ cms.title }}</td>
         <td>{{ cms.selectedVenue }}</td>
+        <td>{{ cms.pax}}</td>
         <td>{{ cms.selectedTimeSlot }}</td>
         <td>{{ (cms.date_to_post | date: 'fullDate') }}</td>
         <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
@@ -90,6 +99,7 @@
         <tr>
           <th>Title</th>
           <th>Venue</th>
+          <th>No. of Pax</th>
           <th>Time Slot</th>
           <th>Booking Date</th>
           <th>Description</th>
@@ -100,6 +110,7 @@
         <tr>
           <td>{{ cms.title }}</td>
           <td>{{ cms.selectedVenue }}</td>
+          <td>{{ cms.pax}}</td>
           <td>{{ cms.selectedTimeSlot }}</td>
           <td>{{ (cms.date_to_post | date: 'fullDate') }}</td>
           <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
@@ -125,6 +136,7 @@
           <tr>
             <th>Title</th>
             <th>Venue</th>
+            <th>No. of Pax</th>
             <th>Time Slot</th>
             <th>Booking Date</th>
             <th>Description</th>
@@ -135,6 +147,7 @@
           <tr>
             <td>{{ cms.title }}</td>
             <td>{{ cms.selectedVenue }}</td>
+            <td>{{ cms.pax}}</td>
             <td>{{ cms.selectedTimeSlot }}</td>
             <td>{{ (cms.date_to_post | date: 'fullDate') }}</td>
             <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
@@ -154,6 +167,7 @@
           <tr>
             <th>Title</th>
             <th>Venue</th>
+            <th>No. of Pax</th>
             <th>Time Slot</th>
             <th>Description</th>
             <th>Status</th>
@@ -163,6 +177,7 @@
           <tr>
             <td>{{ cms.title }}</td>
             <td>{{ cms.selectedVenue }}</td>
+            <td>{{ cms.pax}}</td>
             <td>{{ (cms.selectedTimeSlot | date: 'fullDate') }}</td>
             <td>{{ getDescriptionWithoutVenueAndTimeSlot(cms.description) }}</td>
             <td>

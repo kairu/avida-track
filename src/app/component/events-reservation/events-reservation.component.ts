@@ -34,6 +34,7 @@ interface CMSData {
   cms_type: string;
   date_to_post: string;
   selectedVenue: string;
+  pax: string;
   selectedTimeSlot: string;
   user_id: number;
 }
@@ -50,7 +51,6 @@ interface CMSData {
 export class EventsReservationComponent implements OnInit {
   reservationForm!: FormGroup;
   today: Date;
-  disableReservedDate!: Date[];
   reservedDates: Date[] = [];
   isAdmin: boolean = true;
   cmsData: CMSData[] = [];
@@ -63,8 +63,12 @@ export class EventsReservationComponent implements OnInit {
     { name: 'Clubhouse' },
     { name: 'Swimming Pool' },
   ];
-  timeSlots: any[] = [];
+  timeSlots!: string;
   cmsEntry: any;
+
+  paxMin: number = 1;
+  paxMax: number = 30;
+  enablePax: boolean = true;
 
 
   constructor(
@@ -76,6 +80,7 @@ export class EventsReservationComponent implements OnInit {
     public severity: SeverityService
   ) {
     this.today = new Date();
+    this.today.setDate(this.today.getDate() + 1);
     this.checkisAdmin();
   }
 
@@ -86,6 +91,25 @@ export class EventsReservationComponent implements OnInit {
 
   }
 
+  venueSelected: boolean = false;
+  onVenueSelect(event: any){
+    switch(event.value.name){
+      case 'Outdoor Gym':
+        this.paxMax = 15;
+        break;
+      case 'Clubhouse':
+        this.paxMax = 30;
+        break;
+      case 'Swimming Pool':
+        this.paxMax = 20;
+        break;
+      default:
+        break;
+    }
+    this.venueSelected = true;
+    return;
+  }
+
 
   getDescriptionWithoutVenueAndTimeSlot(description: string): string {
     const parts = description.split(' Venue: ');
@@ -94,76 +118,149 @@ export class EventsReservationComponent implements OnInit {
 
   initForm(): void {
     this.reservationForm = this.fb.group({
-      selectedVenue: ['', Validators.required],
-      date_to_post: ['', Validators.required],
-      title: ['', Validators.required],
-      description: ['', Validators.required],
-      selectedTimeSlot: ['', Validators.required],
+      selectedVenue: [, Validators.required],
+      date_to_post: [, Validators.required],
+      title: [, Validators.required],
+      pax: [, Validators.required],
+      description: [, Validators.required],
     });
   }
 
   rsrveWndow: boolean = false;
-  reserveWindow(){
+  reserveWindow() {
     this.rsrveWndow = true;
   }
 
+  convertTo24HourFormat(time: string): string {
+    const [timePart, modifier] = time.split(' ');
+    let [hours, minutes] = timePart.split(':').map(Number);
+
+    if (modifier === 'PM' && hours < 12) {
+      hours += 12;
+    } else if (modifier === 'AM' && hours === 12) {
+      hours = 0;
+    }
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  }
+
+  reserveList: any[] = [];
   onSubmit() {
     if (this.reservationForm.valid) {
-      const email = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
-      if (email) {
-        this.backendService.getUser(email).subscribe({
-          next: (userId: any) => {
-            const dateTime = new Date(this.reservationForm.value.date_to_post);
-            // const hours = dateTime.getHours().toString().padStart(2, '0');
-            // const minutes = dateTime.getMinutes().toString().padStart(2, '0');
-            const backendData = {
-              user_id: userId.user_id,
-              title: this.reservationForm.value.title,
-              description: this.reservationForm.value.description +
-                ` Venue: ${this.reservationForm.value.selectedVenue.name}` +
-                ` Time Slot: ${this.reservationForm.value.selectedTimeSlot.label}`,
-              cms_type: 'RESERVATION',
-              date_to_post: this.reservationForm.value.date_to_post.toLocaleDateString('en-CA'),
-            };
-            this.backendService.addCMS(backendData).subscribe(
-              (response: any) => {
-                console.log('Reservation added successfully:', response);
-                this.cms_id = response.id;
-                this.reservationForm.reset();
-                this.messageService.add({
-                  severity: 'success', summary: 'Reservation Submitted',
-                  detail: 'Your reservation has been submitted successfully.'
-                });
-                this.rsrveWndow = false;
-                this.fetchCmsData();
-              },
-              (error: any) => {
-                console.error('Error adding reservation:', error);
+      // Check if the selected date and time available is in the database to guard clause it.
+      this.backendService.getCMS().subscribe({
+        next: (response: any) => {
+          response.forEach((item: CMSData) => {
+            if (
+              item.cms_type === 'RESERVATION' &&
+              item.date_to_post === new Date(this.reservationForm.value.date_to_post).toLocaleDateString('en-CA') &&
+              item.description.includes(this.reservationForm.value.selectedVenue.name)
+            ) {
+              this.reserveList.push(item)
+            }
+          });
+          // check if reserveList is not empty to proceed with the guard clause
+          if (this.reserveList.length) {
+            // check the time of the reservation, the time must not overlap with the time of the reservation as well as allow at least 1 hour gap for the next reservation
+            for (let i = 0; i < this.reserveList.length; i++) {
+              const reserveItem = this.reserveList[i];
+              const time = reserveItem.description.split(' Time Slot: ')[1];
+              // db time
+              const [first_time, end_time] = time.split(' - ').map((t: string) => this.convertTo24HourFormat(t.trim()));
+              // reserving time
+              const [first_time_res, end_time_res] = this.timeSlots.split(' - ').map((t: string) => this.convertTo24HourFormat(t.trim()));
 
+              const isValid = this.isReservationValid(
+                first_time_res, end_time_res,
+                first_time, end_time
+              )
+              if (!isValid) {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Time slot is not available' });
+                return;
               }
-            );
-          },
-          error: (error: any) => {
-            console.error('Error fetching user ID:', error);
-          },
-        });
+            }
+          }
+          const email = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}').email;
+          if (email) {
+            this.backendService.getUser(email).subscribe({
+              next: (userId: any) => {
+                const dateTime = new Date(this.reservationForm.value.date_to_post);
+                const backendData = {
+                  user_id: userId.user_id,
+                  title: this.reservationForm.value.title,
+                  description: this.reservationForm.value.description +
+                    ` Venue: ${this.reservationForm.value.selectedVenue.name}` +
+                    ` Pax: ${this.reservationForm.value.pax}` +
+                    ` Time Slot: ${this.timeSlots}`,
+                  cms_type: 'RESERVATION',
+                  date_to_post: this.reservationForm.value.date_to_post.toLocaleDateString('en-CA'),
+                };
+                this.backendService.addCMS(backendData).subscribe({
+                  next: (response: any) => {
+                    this.cms_id = response.id;
+                    this.reservationForm.reset();
+                    this.messageService.add({
+                      severity: 'success', summary: 'Reservation Submitted',
+                      detail: 'Your reservation has been submitted successfully.'
+                    });
+                    this.rsrveWndow = false;
+                    this.fetchCmsData();
+                  },
+                });
+              },
+              error: (error: any) => {
+                console.error('Error fetching user ID:', error);
+              },
+            });
 
-      } else {
-        console.error('No email found for logged-in user');
-      }
+          } else {
+            console.error('No email found for logged-in user');
+          }
+        }
+      });
+    } else {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill up all the required fields' });
     }
   }
 
+  isReservationValid(
+    reserveStart: string,
+    reserveEnd: string,
+    start: string,
+    end: string
+  ): boolean {
+    const minGapHours = 1;
+    // Check for overlap
+    if (
+      (reserveStart < end && reserveStart >= start) ||
+      (reserveEnd > start && reserveEnd <= end) ||
+      (reserveStart <= start && reserveEnd >= end)
+    ) {
+      return false; // Overlap found
+    }
+
+    // Check for minimum gap
+    const reserveStartDate = new Date(`1970-01-01T${reserveStart}:00`);
+    const reserveEndDate = new Date(`1970-01-01T${reserveEnd}:00`);
+    const startDate = new Date(`1970-01-01T${start}:00`);
+    const endDate = new Date(`1970-01-01T${end}:00`);
+
+    const gapStart = Math.abs((reserveStartDate.getTime() - endDate.getTime()) / 3600000);
+    const gapEnd = Math.abs((reserveEndDate.getTime() - startDate.getTime()) / 3600000);
+
+    if (gapStart < 1 || gapEnd < minGapHours) {
+      return false; // Not enough gap
+    }
+
+
+    return true; // No overlap, sufficient gap
+  }
 
   fetchReservedDates(): void {
     this.backendService.getCMS().subscribe((cmsData: any[]) => {
       const reservationData = cmsData.filter(cms => cms.cms_type === 'RESERVATION');
       this.reservedDates = reservationData.map(reservation => new Date(reservation.date_to_post));
     });
-  }
-
-  checkReservedDate(selectedDate: Date): boolean {
-    return this.reservedDates.some(reservedDate => this.isSameDate(selectedDate, reservedDate));
   }
 
   isSameDate(date1: Date, date2: Date): boolean {
@@ -177,12 +274,7 @@ export class EventsReservationComponent implements OnInit {
 
     this.updateTimeSlots(selectedDate, selectedTime);
     if (!selectedDate) {
-      console.error('Selected date is undefined or null');
       return;
-    }
-    const isReserved = this.checkReservedDate(selectedDate);
-    if (isReserved) {
-      this.messageService.add({ severity: 'warn', summary: 'Cannot Proceed', detail: 'This date is already reserved.' });
     }
   }
   updateTimeSlots(selectedDate: Date, selectedTime: Date) {
@@ -195,7 +287,7 @@ export class EventsReservationComponent implements OnInit {
     const startTimeSlot = this.formatTime(startDateTime);
     const endTimeSlot = this.formatTime(endDateTime);
 
-    this.timeSlots = [{ label: startTimeSlot + ' - ' + endTimeSlot, value: { start: startDateTime, end: endDateTime } }];
+    this.timeSlots = startTimeSlot + ' - ' + endTimeSlot;
   }
 
   formatTime(time: Date): string {
@@ -269,21 +361,24 @@ export class EventsReservationComponent implements OnInit {
   }
 
   populateVenueAndTimeSlot(entry: CMSData): CMSData {
-    const { venue, timeSlot } = this.parseDescription(entry.description);
+    const { venue, timeSlot, pax } = this.parseDescription(entry.description);
     return {
       ...entry,
       selectedVenue: venue,
+      pax: pax,
       selectedTimeSlot: timeSlot
     };
   }
 
 
-  parseDescription(description: string): { venue: string, timeSlot: string } {
-    const parts = description.split(' Venue: ');
-    const venueAndTimeSlot = parts[1] ? parts[1].split(' Time Slot: ') : ['', ''];
+  parseDescription(description: string): { venue: string, timeSlot: string, pax: string } {
+    const venue = description.match(/Venue: (.*?)( Pax:| Time Slot:|$)/)?.[1].trim() || '';
+    const pax = description.match(/Pax: (\d+)/)?.[1] || '';
+    const timeSlot = description.match(/Time Slot: (.+)$/)?.[1].trim() || '';
     return {
-      venue: venueAndTimeSlot[0] || '',
-      timeSlot: venueAndTimeSlot[1] || ''
+      venue: venue,
+      timeSlot: timeSlot,
+      pax: pax
     };
   }
 
@@ -292,7 +387,7 @@ export class EventsReservationComponent implements OnInit {
     const updatedCMSData = { ...cms, status: 'PAID' };
     this.backendService.updateCMS(cms.cms_id, updatedCMSData).subscribe({
       next: (response: any) => {
-        console.log('CMS entry approved:', cms.cms_id);
+        // console.log('CMS entry approved:', cms.cms_id);
 
         // Remove approved CMS entry from main table
         const index = this.cmsData.findIndex(entry => entry.cms_id === cms.cms_id);
@@ -331,7 +426,7 @@ export class EventsReservationComponent implements OnInit {
     const updatedCMSData = { ...cms, status: 'REVIEW' };
     this.backendService.updateCMS(cms.cms_id, updatedCMSData).subscribe({
       next: (response: any) => {
-        console.log('CMS entry rejected:', cms.cms_id);
+        // console.log('CMS entry rejected:', cms.cms_id);
 
         // Remove rejected CMS entry from main table
         const index = this.cmsData.findIndex(entry => entry.cms_id === cms.cms_id);
