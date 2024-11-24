@@ -5,7 +5,7 @@
         <p-button label="Delinquent Users" (click)="showReport(2)"></p-button>
         <p-button label="Bills Breakdown per Tower" (click)="showReport(3)"></p-button>
     </div>
-    <div *ngIf="revenueBtnSelected">
+    <div *ngIf="revenueBtnSelected" class="my-3">
         <h2 class="text-center">Overall Revenue</h2>
         <p-table [value]="groupedData" [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" #dt1 dataKey="id"
             exportFilename="Revenue_Reports" [columns]="exportHeaderOverallRevenue"
