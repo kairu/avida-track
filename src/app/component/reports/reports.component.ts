@@ -25,7 +25,6 @@ import { saveAs } from 'file-saver-es';
   styleUrl: './reports.component.scss'
 })
 
-// Add Export Functionality, Design Better
 export class ReportsComponent {
   billDatas: any;
   unitData: any;
