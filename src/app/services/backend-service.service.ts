@@ -121,11 +121,35 @@ export class BackendServiceService {
   }
 
   getImage(image: any) {
-    return this.http.get(`${this.backendUrl}/bulletin/${image}`, { responseType: 'blob' });
+    return this.http.get(`${this.backendUrl}/bulletin/${image}`, {
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate, post-check=0, pre-check=0',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      })
+    });
   }
 
   getPaymentImage(image: any) {
     return this.http.get(`${this.backendUrl}/paymentImage/${image}`, { responseType: 'blob' });
+  }
+
+  getDelinquentBills(): Observable<any>{
+    return this.http.get(`${this.backendUrl}/delinquent-bills`);
+  }
+
+  getBillingPerformance(month?: string, year?: number, status?: string): Observable<any>{
+    const params: any = {};
+    if (month) params['month'] = month;
+    if (year) params['year'] = year;
+    if (status) params['status'] = status;
+
+    return this.http.get(`${this.backendUrl}/billing-performance`, { params });
+  }
+
+  getAvailableYears(): Observable<any>{
+    return this.http.get(`${this.backendUrl}/billing-years`);
   }
 
   async renderImageCard(image: any) {
@@ -140,6 +164,12 @@ export class BackendServiceService {
 
   addBills(data: any): Observable<any> {
     return this.http.post(`${this.backendUrl}/bill`, JSON.stringify(data), {
+      headers: this.headers
+    });
+  }
+
+  addCMSNotes(data: any){
+    return this.http.post(`${this.backendUrl}/feedbackcomplaintnotes`, JSON.stringify(data), {
       headers: this.headers
     });
   }
@@ -162,8 +192,17 @@ export class BackendServiceService {
       headers: this.headers
     });
   }
-  async uploadImageToLease(formData: FormData, lease_agreement_id: number) {
+
+  getContractImage(image: any) {
+    return this.http.get(`${this.backendUrl}/contract/${image}`, { responseType: 'blob' });
+  }
+  
+  uploadImageToLease(formData: FormData) {
     return this.http.post(`${this.backendUrl}/contract`, formData);
+  }
+
+  uploadPaymentImage(formData: FormData){
+    return this.http.post(`${this.backendUrl}/paymentImage`, formData);
   }
 
 

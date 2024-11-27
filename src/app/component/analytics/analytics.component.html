@@ -33,23 +33,4 @@
 <div class="card">
   <h2 class="text-center">Overall Data</h2>
   <div id="OverallChart"></div>
-  <p-table [value]="groupedData">
-    <ng-template pTemplate="header">
-      <tr>
-        <th *ngFor="let column of groupedData[0] | keys">{{ column }}</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-rowData>
-      <tr>
-        <td *ngFor="let column of groupedData[0] | keys">
-          <!-- Apply the pipe for number format -->
-          <span *ngIf="column !== 'Tower Number'"
-            [ngClass]="{'negative-revenue': column === 'Revenue' && rowData[column] < 0}">{{ rowData[column] |
-            decimalFormat}}</span>
-          <!-- Other columns without formatting -->
-          <span *ngIf="column === 'Tower Number'">{{ rowData[column]}}</span>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
 </div>

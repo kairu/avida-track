@@ -89,65 +89,90 @@
     [dismissableMask]="true" [draggable]="false" (onHide)="resetLeaseWindow()">
 
     <ng-template pTemplate="header">
-        <div class="container">
+        <div *ngIf="!isTENANT" class="container">
             <h2 class="text-center">Lease Form</h2>
+        </div>
+        <div *ngIf="isTENANT" class="container">
+            <h2 class="text-center">Review Payment to Owner</h2>
         </div>
     </ng-template>
 
     <ng-template pTemplate="body">
-        <form [formGroup]="leaseForm">
+        <div *ngIf="!isTENANT">
+            <form [formGroup]="leaseForm">
+                <div class="mb-4 text-center">
+                    <p-fileUpload mode="basic" chooseLabel="Upload Contract" accept="image/*" [maxFileSize]="1000000"
+                        (uploadHandler)="storeImageData($event)" [auto]="true" [customUpload]="true"
+                        invalidFileTypeMessageDetail="Allowed file types: jpg, jpeg, png, gif, bmp" width="100">
+                    </p-fileUpload>
+                </div>
+
+                <div class="mb-4 text-center" *ngIf="imageSrc">
+                    <p-image [src]="imageSrc" width="250" [preview]="true"></p-image>
+                </div>
+
+                <div class="d-flex justify-content-around mb-4">
+                    <span class="p-float-label">
+                        <p-inputNumber (ngModelChange)="computeEndDateTotalBalance()" formControlName="number_of_months"
+                            [min]="1" [showButtons]="true" [useGrouping]="false"></p-inputNumber>
+                        <label for="number_of_months">Number of Month(s)</label>
+                    </span>
+
+                    <span class="p-float-label">
+                        <p-inputNumber (ngModelChange)="computeEndDateTotalBalance()" formControlName="monthly_rent"
+                            [min]="0" mode="currency" currency="PHP" locale="en-US"></p-inputNumber>
+                        <label for="float-label" class="ms-2">Monthly Rent</label>
+                    </span>
+                </div>
+
+                <div class="d-flex justify-content-around mb-4">
+                    <span class="p-float-label">
+                        <p-calendar (ngModelChange)="computeEndDateTotalBalance()" formControlName="start_date"
+                            [iconDisplay]="'input'" [showIcon]="true" appendTo="body" [showButtonBar]="true"
+                            [touchUI]="true" [minDate]="today" [inputStyle]="{'width':'150px'}" inputId="start_date">
+                        </p-calendar>
+                        <label for="start_date">Start Date</label>
+                    </span>
+
+                    <span class="p-float-label">
+                        <p-calendar [ngModelOptions]="{standalone: true}" [(ngModel)]="endDate" [disabled]="true"
+                            [iconDisplay]="'input'" [showIcon]="true" appendTo="body" [inputStyle]="{'width':'150px'}">
+                        </p-calendar>
+                        <label for="start_date">End Date</label>
+                    </span>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <span class="p-float-label">
+                        <p-inputNumber [ngModelOptions]="{standalone: true}" [(ngModel)]="totalBalance"
+                            [disabled]="true" mode="currency" currency="PHP" locale="en-US"></p-inputNumber>
+                        <label for="float-label">Total Monthly Balance</label>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <div *ngIf="isTENANT">
             <div class="mb-4 text-center">
-                <p-fileUpload mode="basic" chooseLabel="Upload Contract" accept="image/*" [maxFileSize]="1000000"
-                    (uploadHandler)="storeImageData($event, selectedItem?.lease_agreement_id)" [customUpload]="true"
+                <p-fileUpload mode="basic" chooseLabel="Upload Proof of Payment" accept="image/*"
+                    [maxFileSize]="1000000" (uploadHandler)="storeImageData($event)" [auto]="true" [customUpload]="true"
                     invalidFileTypeMessageDetail="Allowed file types: jpg, jpeg, png, gif, bmp" width="100">
                 </p-fileUpload>
+                <span class="h6 text-secondary" *ngIf="!imageSrc">*Optional</span>
+
+                <div class="mb-4 text-center" *ngIf="imageSrc">
+                    <p-image [src]="imageSrc" width="250" [preview]="true"></p-image>
+                </div>
             </div>
-
-            <div class="d-flex justify-content-around mb-4">
-                <span class="p-float-label">
-                    <p-inputNumber (ngModelChange)="computeEndDateTotalBalance()" formControlName="number_of_months"
-                        [min]="1" [showButtons]="true" [useGrouping]="false"></p-inputNumber>
-                    <label for="number_of_months">Number of Month(s)</label>
-                </span>
-
-                <span class="p-float-label">
-                    <p-inputNumber (ngModelChange)="computeEndDateTotalBalance()" formControlName="monthly_rent"
-                        [min]="0" mode="currency" currency="PHP" locale="en-US"></p-inputNumber>
-                    <label for="float-label" class="ms-2">Monthly Rent</label>
-                </span>
-            </div>
-
-            <div class="d-flex justify-content-around mb-4">
-                <span class="p-float-label">
-                    <p-calendar (ngModelChange)="computeEndDateTotalBalance()" formControlName="start_date"
-                        [iconDisplay]="'input'" [showIcon]="true" appendTo="body" [showButtonBar]="true"
-                        [touchUI]="true" [minDate]="today" [inputStyle]="{'width':'150px'}" inputId="start_date">
-                    </p-calendar>
-                    <label for="start_date">Start Date</label>
-                </span>
-
-                <span class="p-float-label">
-                    <p-calendar [ngModelOptions]="{standalone: true}" [(ngModel)]="endDate" [disabled]="true"
-                        [iconDisplay]="'input'" [showIcon]="true" appendTo="body" [inputStyle]="{'width':'150px'}">
-                    </p-calendar>
-                    <label for="start_date">End Date</label>
-                </span>
-            </div>
-
-            <div class="d-flex justify-content-center">
-                <span class="p-float-label">
-                    <p-inputNumber [ngModelOptions]="{standalone: true}" [(ngModel)]="totalBalance" [disabled]="true"
-                        mode="currency" currency="PHP" locale="en-US"></p-inputNumber>
-                    <label for="float-label">Total Monthly Balance</label>
-                </span>
-            </div>
-        </form>
+        </div>
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <div>
+        <div *ngIf="!isTENANT">
             <button type="submit" class="btn btn-rounded btn-success" [disabled]="leaseForm.invalid"
                 (click)="onConfirm()">Submit</button>
+        </div>
+        <div *ngIf="isTENANT">
+            <button type="submit" class="btn btn-rounded btn-success" (click)="onTenantConfirm()">Submit</button>
         </div>
     </ng-template>
 </p-dialog>
@@ -172,11 +197,15 @@
             <ng-template pTemplate="body" let-rowData>
                 <tr>
                     <td *ngFor="let column of leases.slice()[0] | keys">
-                        <span *ngIf="column == 'Full Name' || column == 'Contract'">
+                        <span *ngIf="column == 'Full Name'">
                             {{ rowData[column] }}
                         </span>
                         <span *ngIf="column == 'Unit'">
                             {{ rowData[column] | async}}
+                        </span>
+                        <span *ngIf="column == 'Contract'">
+                            <p-image *ngIf="rowData[column]" [src]="rowData[column]" width="100"
+                                [preview]="true"></p-image>
                         </span>
                         <span *ngIf="column == 'Monthly Rent' || column == 'Remaining Balance'">
                             {{ rowData[column] | currency:'PHP' }}
@@ -201,7 +230,9 @@
     <h3>Invoices</h3>
     <div class="table-responsive">
         <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="historyInvoice"
-            styleClass="p-datatable-striped p-datatable-gridlines">
+            styleClass="p-datatable-striped p-datatable-gridlines" [paginator]="historyInvoice.length > 10" [rows]="10"
+            [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
             <ng-template pTemplate="header">
                 <tr>
@@ -224,8 +255,12 @@
                         <span *ngIf="column == 'Amount'">
                             {{ rowData[column] | currency:'PHP'}}
                         </span>
-                        <span *ngIf="column == 'Image' || column == 'Full Name'">
+                        <span *ngIf="column == 'Full Name'">
                             {{ rowData[column] }}
+                        </span>
+                        <span *ngIf="column == 'Image'">
+                            <p-image [src]="rowData[column]" [preview]="true"
+                                width="250" />
                         </span>
 
                         <span *ngIf="column == 'Status'">
@@ -247,12 +282,16 @@
 </div>
 
 <div *ngIf="isTENANT">
-    <div *ngIf="ownerName == 'placeholder' && ownerMobileNo == 99999">
+    <div class="border" *ngIf="ownerName && ownerMobileNo">
         <h2>Owner Information</h2>
         <div class="container-fluid mb-4 card">
             <div class="row">
                 <div class="col">
                     <h3>{{ ownerName }}</h3>
+                </div>
+                <div class="col">
+                    <div class="h3">Leasing:</div>
+                    <h3>{{ unitInfo }}</h3>
                 </div>
                 <div class="col">
                     <h3>{{ ownerMobileNo }}</h3>
@@ -261,7 +300,10 @@
         </div>
     </div>
     <h2>Payment History</h2>
-    <p-table [value]="tenantHistoryInvoice" styleClass="p-datatable-striped">
+    <p-table [value]="tenantHistoryInvoice" styleClass="p-datatable-striped"
+        [paginator]="tenantHistoryInvoice.length > 10" [rows]="10" [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
         <ng-template pTemplate="header">
             <tr>
                 <th *ngFor="let column of tenantHistoryInvoice[0] | keys">
@@ -280,7 +322,8 @@
                         {{ rowData[column] | date:'fullDate'}}
                     </span>
                     <span *ngIf="column == 'Image'">
-                        {{ rowData[column] ? rowData[column] : '' }}
+                        <p-image [src]="rowData[column]" [preview]="true"
+                                width="250" />
                     </span>
                     <span *ngIf="column == 'Amount'">
                         {{ rowData[column] | currency:'PHP' }}
@@ -290,7 +333,7 @@
                     </span>
                 </td>
                 <td *ngIf="rowData['Status'] == 'PENDING';">
-                    <button (click)="ownerReview(rowData)" class="bi bi-caret-right btn btn-primary rounded-circle"
+                    <button (click)="showLeaseWindow(rowData)" class="bi bi-caret-right btn btn-primary rounded-circle"
                         type="button"></button>
                 </td>
             </tr>

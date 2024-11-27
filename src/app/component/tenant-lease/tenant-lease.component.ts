@@ -6,16 +6,14 @@ import { MessageService } from 'primeng/api';
 import { CalendarModule } from 'primeng/calendar';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
-import { from, lastValueFrom, map, switchMap } from 'rxjs';
+import { forkJoin, from, lastValueFrom, map, mergeMap, switchMap } from 'rxjs';
 import { KeysPipe } from "../../pipe/keys.pipe";
 import { ClientModule } from 'src/app/shared-module/client-module';
 import { BackendDataService } from 'src/app/services/backend-data.service';
 import { SeverityService } from 'src/app/services/severity.service';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
-interface UploadEvent {
-  originalEvent: Event;
-  files: File[];
-}
+import { DomSanitizer } from '@angular/platform-browser';
+
 @Component({
   selector: 'app-tenant-lease',
   standalone: true,
@@ -31,25 +29,22 @@ export class TenantLeaseComponent implements OnInit {
   fileName: string | undefined;
   imageSrc: any;
   leases: any[] = [];
-  selectedItem: any;
   today: Date = new Date();
   pendingTenants: any[] = [];
   isTENANT!: boolean;
   user_id!: number;
   datas: any;
+  imgFormData = new FormData();
 
   constructor(
     private fb: FormBuilder,
     private backendService: BackendServiceService,
     public backendData: BackendDataService,
     private messageService: MessageService,
-    public severity: SeverityService
+    public severity: SeverityService,
+    private sanitizer: DomSanitizer
   ) {
 
-  }
-
-  onUpload(event: UploadEvent) {
-    this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded with Basic Mode' });
   }
 
   async ngOnInit() {
@@ -167,7 +162,7 @@ export class TenantLeaseComponent implements OnInit {
     this.singleInvoice = false;
   }
 
-  btnCreateInvoice(){
+  btnCreateInvoice() {
     const paymentInvoice = {
       lease_agreement_id: this.invoiceForm.value.issue_to.lease_id,
       amount: this.invoiceForm.value.amount,
@@ -235,7 +230,10 @@ export class TenantLeaseComponent implements OnInit {
   }
 
   resetLeaseWindow() {
-    this.leaseForm.reset();
+    if (this.leaseForm) {
+      this.leaseForm.reset();
+    }
+    this.imageSrc = null;
     this.leaseWindow = false;
   }
 
@@ -256,51 +254,147 @@ export class TenantLeaseComponent implements OnInit {
     }
   }
 
+  onTenantConfirm() {
+    if (this.imgFormData && this.imgFormData.has('file')) {
+      this.backendService.uploadPaymentImage(this.imgFormData).pipe(
+        switchMap((response: any) => {
+          const imgName = response.file;
+          const data = {
+            status: 'REVIEW',
+            image_path: imgName
+          }
+          return this.backendService.updatePayment(this.selectedRowData.payment_id, data)
+        })
+      ).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Invoice to Review by Owner' });
+          this.resetLeaseWindow();
+          this.loadTenantInvoiceHistory();
+        }
+      })
+    } else {
+      const data = {
+        status: 'REVIEW'
+      }
+      this.backendService.updatePayment(this.selectedRowData.payment_id, data).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Invoice to Review by Owner' });
+          this.resetLeaseWindow();
+          this.loadTenantInvoiceHistory();
+        },
+      });
+    }
+  }
+
   onConfirm() {
-    this.backendService.updateUser(this.selectedRowData.tenant_id, { is_validated: true }).subscribe({
-      next: (response) => {
-        // this.messageService.add({ severity: 'success', summary: 'Success', detail: 'User updated successfully' });
-        const leaseData = this.backendData.leaseData(
-          this.selectedRowData.unit_id,
-          this.user_id,
-          this.selectedRowData.tenant_id,
-          this.backendData.convertDate(this.leaseForm.value.start_date),
-          this.backendData.convertDate(this.endDate),
-          this.leaseForm.value.monthly_rent,
-          this.totalBalance
-        );
+    if (this.imgFormData && this.imgFormData.has('file')) {
+      this.backendService.uploadImageToLease(this.imgFormData).pipe(
+        switchMap((response: any) => {
+          const imgName = response.file;
+          return this.backendService.updateUser(this.selectedRowData.tenant_id, { is_validated: true }).pipe(
+            switchMap(() => {
+              const leaseData = this.backendData.leaseData(
+                this.selectedRowData.unit_id,
+                this.user_id,
+                this.selectedRowData.tenant_id,
+                this.backendData.convertDate(this.leaseForm.value.start_date),
+                this.backendData.convertDate(this.endDate),
+                this.leaseForm.value.monthly_rent,
+                this.totalBalance,
+                imgName
+              );
 
-        this.backendService.addLeaseAgreement(leaseData).subscribe({
-          next: async (response) => {
-            let paymentInvoices = []
+              return this.backendService.addLeaseAgreement(leaseData);
+            })
+          );
+        }),
+        switchMap((response) => {
+          let paymentInvoices = [];
 
-            for (let i = 0; i < this.leaseForm.value.number_of_months; i++) {
-              let paymentDate = new Date(this.leaseForm.value.start_date)
-              paymentDate.setMonth(paymentDate.getMonth() + i)
+          for (let i = 0; i < this.leaseForm.value.number_of_months; i++) {
+            let paymentDate = new Date(this.leaseForm.value.start_date);
+            paymentDate.setMonth(paymentDate.getMonth() + i);
 
-              let paymentInvoice = {
-                lease_agreement_id: response.lease_agreement_id,
-                amount: this.leaseForm.value.monthly_rent,
-                due_date: this.backendData.convertDate(paymentDate)
-              }
+            let paymentInvoice = {
+              lease_agreement_id: response.lease_agreement_id,
+              amount: this.leaseForm.value.monthly_rent,
+              due_date: this.backendData.convertDate(paymentDate)
+            };
 
-              paymentInvoices.push(paymentInvoice)
-            }
+            paymentInvoices.push(paymentInvoice);
+          }
 
-            try {
-              for (const paymentInvoice of paymentInvoices) {
-                await lastValueFrom(this.backendService.addPayment(paymentInvoice));
-              }
-              this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Lease agreement added successfully' });
-              this.resetLeaseWindow();
-              this.reloadTables();
-            } catch (error) {
-              console.error('Error adding payment:', error);
-            }
+          return forkJoin(paymentInvoices.map(paymentInvoice => this.backendService.addPayment(paymentInvoice)));
+        })
+      ).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Lease agreement added successfully' });
+          this.resetLeaseWindow();
+          this.reloadTables();
+        },
+        error: (error) => {
+          console.error('Error adding payment:', error);
+        }
+      });
+    } else {
+
+      // Handle case when imgFormData is not available
+      this.backendService.updateUser(this.selectedRowData.tenant_id, { is_validated: true }).pipe(
+        switchMap(() => {
+          const leaseData = this.backendData.leaseData(
+            this.selectedRowData.unit_id,
+            this.user_id,
+            this.selectedRowData.tenant_id,
+            this.backendData.convertDate(this.leaseForm.value.start_date),
+            this.backendData.convertDate(this.endDate),
+            this.leaseForm.value.monthly_rent,
+            this.totalBalance
+          );
+
+          return this.backendService.addLeaseAgreement(leaseData);
+        }),
+        switchMap((response) => {
+          let paymentInvoices = [];
+
+          for (let i = 0; i < this.leaseForm.value.number_of_months; i++) {
+            let paymentDate = new Date(this.leaseForm.value.start_date);
+            paymentDate.setMonth(paymentDate.getMonth() + i);
+
+            let paymentInvoice = {
+              lease_agreement_id: response.lease_agreement_id,
+              amount: this.leaseForm.value.monthly_rent,
+              due_date: this.backendData.convertDate(paymentDate)
+            };
+
+            paymentInvoices.push(paymentInvoice);
+          }
+
+          return forkJoin(paymentInvoices.map(paymentInvoice => this.backendService.addPayment(paymentInvoice)));
+        })
+      ).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Lease agreement added successfully' });
+          this.resetLeaseWindow();
+          this.reloadTables();
+        },
+        error: (error) => {
+          console.error('Error adding payment:', error);
+        }
+      });
+    }
+  }
+
+  serveContractImage() {
+    this.leases.forEach((data: { Contract: any; }) => {
+      if (data.Contract) {
+        this.backendService.getContractImage(data.Contract).subscribe({
+          next: (imageResponse) => {
+            const imageUrl = URL.createObjectURL(imageResponse);
+            data.Contract = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
           }
         });
       }
-    });
+    })
   }
 
   issue_names!: [{ name: string; user_id: number; lease_id: number; }];
@@ -327,9 +421,9 @@ export class TenantLeaseComponent implements OnInit {
             lease_id: lease.lease_agreement_id
           })) as [{ name: string; user_id: number; lease_id: number; }]
         }
+        this.serveContractImage()
       }
     })
-
 
   }
 
@@ -356,66 +450,92 @@ export class TenantLeaseComponent implements OnInit {
           )
           this.historyInvoice.sort((a, b) => new Date(a['Due Date']).getTime() - new Date(b['Due Date']).getTime())
         }
+        this.serveOwnerInvoiceImage();
       }
     });
+  }
+
+  serveOwnerInvoiceImage(){
+      this.historyInvoice.forEach((data: { 'Image': any; }) => {
+        if (data['Image']) {
+          this.backendService.getPaymentImage(data['Image']).subscribe({
+            next: (imageResponse) => {
+              const imageUrl = URL.createObjectURL(imageResponse);
+              data['Image'] = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
+            }
+          });
+        }
+      })
   }
 
   tenantHistoryInvoice: any[] = [];
-  ownerName: string = 'placeholder';
-  ownerMobileNo: number = 99999;
+  ownerName!: string;
+  ownerMobileNo!: number;
+  unitInfo!: string;
   loadTenantInvoiceHistory() {
-    this.backendService.getLease(this.user_id + 'TENANT').subscribe({
-      next: (leaseResponse) => {
-        from(leaseResponse as { lease_agreement_id: any; owner_id: any }[]).pipe(
-          map((lease: { lease_agreement_id: any; owner_id: any }) => ({
-            lease_agreement_id: lease.lease_agreement_id,
-            owner_id: lease.owner_id
-          }))
-        ).subscribe(({ lease_agreement_id, owner_id }) => {
-          const leaseID = lease_agreement_id;
-          this.backendService.getUser(owner_id).subscribe({
-            next: (response) => {
-              this.ownerName = response.last_name + ', ' + response.first_name;
-              this.ownerMobileNo = response.mobile_number;
-            }
-          });
-          this.backendService.getPayment(leaseID + 'LEASE').subscribe({
-            next: (response) => {
-              this.tenantHistoryInvoice = response.map((payment: { payment_id: any; due_date: any; payment_date: any; status: any; amount: number; image_path: any; }) => ({
-                payment_id: payment.payment_id,
-                lease_agreement_id: leaseID,
-                'Due Date': payment.due_date,
-                'Amount': payment.amount,
-                'Image': payment.image_path,
-                'Status': payment.status
+    this.backendService.getLease(this.user_id + 'TENANT').pipe(
+      switchMap((leaseResponse: { lease_agreement_id: any; owner_id: any; unit_id: number; }[]) =>
+        from(leaseResponse).pipe(
+          mergeMap((lease: { lease_agreement_id: any; owner_id: any; unit_id: number; }) =>
+            forkJoin({
+              owner: this.backendService.getUser(lease.owner_id),
+              payments: this.backendService.getPayment(lease.lease_agreement_id + 'LEASE'),
+              units: this.backendService.getUnit(lease.unit_id)
+            }).pipe(
+              map(({ owner, payments, units }) => ({
+                lease_agreement_id: lease.lease_agreement_id,
+                ownerName: `${owner.last_name}, ${owner.first_name}`,
+                ownerMobileNo: owner.mobile_number,
+                payments: payments,
+                unitInfo: `Tower ${units.tower_number}: ${units.floor_number} - ${units.unit_number}`
               }))
-              this.tenantHistoryInvoice.sort((a, b) => new Date(a['Due Date']).getTime() - new Date(b['Due Date']).getTime())
-            }
-          })
-        });
-      }
+            )
+          )
+        )
+      )
+    ).subscribe(({ lease_agreement_id, ownerName, ownerMobileNo, payments, unitInfo }) => {
+      this.ownerName = ownerName;
+      this.ownerMobileNo = ownerMobileNo;
+      this.unitInfo = unitInfo
+      this.tenantHistoryInvoice = payments.map((payment: { payment_id: any; due_date: any; payment_date: any; status: any; amount: number; image_path: any; }) => ({
+        payment_id: payment.payment_id,
+        lease_agreement_id: lease_agreement_id,
+        'Due Date': payment.due_date,
+        'Amount': payment.amount,
+        'Image': payment.image_path,
+        'Status': payment.status
+      }));
+      this.tenantHistoryInvoice.sort((a, b) => new Date(a['Due Date']).getTime() - new Date(b['Due Date']).getTime());
+      this.serveTenantInvoiceImage();
     });
   }
 
-  async storeImageData(event: any, lease_agreement_id: number) {
-    // console.log(lease_agreement_id);
+  serveTenantInvoiceImage(){
+    this.tenantHistoryInvoice.forEach((data: { 'Image': any; }) => {
+      if (data['Image']) {
+        this.backendService.getPaymentImage(data['Image']).subscribe({
+          next: (imageResponse) => {
+            const imageUrl = URL.createObjectURL(imageResponse);
+            data['Image'] = this.sanitizer.bypassSecurityTrustUrl(imageUrl);
+          }
+        });
+      }
+    })
+  }
+
+  storeImageData(event: any) {
+    this.imgFormData = new FormData()
     this.uploadedFile = event.files[0];
     this.fileName = this.uploadedFile.name;
 
     const reader = new FileReader();
     reader.onload = async (e: any) => {
       this.imageSrc = e.target.result;
-
-      const formData = new FormData();
-      formData.append('file', this.uploadedFile);
-
-      try {
-        const response = await this.backendService.uploadImageToLease(formData, lease_agreement_id);
-        // console.log('Image uploaded to lease agreement successfully:', response);
-      } catch (error) {
-        console.error('Error uploading image to lease agreement:', error);
-      }
+      this.imgFormData.append('file', this.uploadedFile);
     };
-    reader.readAsDataURL(event.files[0]);
+
+    reader.readAsDataURL(this.uploadedFile);
+
   }
+
 }
