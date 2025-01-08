@@ -2,7 +2,7 @@
   <p-button *ngIf="!isAdmin" pRipple label="Reserve a Date" (click)="reserveWindow()"
     icon="bi bi-calendar4-event"></p-button>
   <p-dialog [(visible)]="rsrveWndow" [style]="{'width': '45vw', 'height': '100vh'}" [breakpoints]="{ '960px': '90vw' }"
-    [modal]="true" [dismissableMask]="true" [draggable]="false">
+    [modal]="true" [dismissableMask]="true" [draggable]="false" [resizable]="false">
 
     <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
       <div class="reservation-form container">

@@ -1,12 +1,13 @@
-<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    <div class="container mt-4">
-        <span class="d-flex justify-content-center">
-            <button type="button" (click)="backClick()" class="btn btn-link btn-lg bi bi-chevron-left"></button>
-            <img src="assets/images/logos/avidatowersnewmnl2.png" alt="Logo" class="logo mx-auto d-block mb-3" />
-        </span>
-        <div class="mb-3 text-center">
-            <h1 class="text-center">Avida-Track Register Form</h1>
-        </div>
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="styled-form">
+    <div class="container mt-4" style="background-color: white; border-radius: 10px;">
+            <span class="d-flex justify-content-center">
+                <button type="button" (click)="backClick()" class="btn btn-link btn-lg bi bi-chevron-left"></button>
+                <img src="assets/images/logos/avidatowersnewmnl2.png" alt="Logo" class="logo mx-auto d-block mb-3" />
+            </span>
+        
+            <div class="mb-3 text-center">
+                <h1 class="text-center">Avida-Track Register Form</h1>
+            </div>
 
         <div class="mb-3 card">
             <h3 class="text-center">Are you a(n):</h3>
@@ -26,15 +27,25 @@
                         </div>
 
                     <h3 class="text-center mb-3">Select a Tower:</h3>
-                    <div class="d-flex flex-row gap-3 justify-content-center mb-3">
+                    <!-- <div class="d-flex flex-row gap-3 justify-content-center mb-3">
                         <div *ngFor="let towerOption of towerOptions" class="border field-checkbox">
                             <label class="h4">
                                 <input type="radio" [value]="towerOption.value" formControlName="tower_number" (click)="onTowerSelect(towerOption.value, i)" />                                {{ towerOption.label }}
                             </label>
                         </div>
+                    </div> -->
+                    <div class="d-flex flex-row flex-wrap justify-content-center gap-3 mb-3">
+                        <div class="d-flex flex-row gap-3 flex-wrap justify-content-center">
+                            <div *ngFor="let towerOption of towerOptions" class="border field-checkbox">
+                                <label class="h4">
+                                    <input type="radio" [value]="towerOption.value" formControlName="tower_number" (click)="onTowerSelect(towerOption.value, i)" />
+                                    {{ towerOption.label }}
+                                </label>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="d-flex flex-row gap-3 justify-content-center mb-4">
+                    <div class="d-flex flex-column flex-md-row gap-3 justify-content-center align-items-center mb-3">
                         <span>
                             <p-dropdown [options]="getFloorOptions(i)" [filter]="true" [id]="'floor_number'+i"
                                 formControlName="floor_number" placeholder="Select Floor No." [showClear]="true"
@@ -53,15 +64,15 @@
             </div>
 
             <div class="form-group">
-                <div class="d-flex justify-content-around my-4">
+                <div class="d-flex justify-content-center my-4">
                     <div></div>
-                    <button *ngIf="showUnitButton" type="button" class="btn btn-rounded btn-primary"
-                        (click)="addUnitClick()">Add Unit</button>
+                    <button *ngIf="showUnitButton" type="button" class="btn btn-rounded btn-success"
+                        (click)="addUnitClick()"><i class="bi bi-plus-lg"></i>Add Unit</button>
                 </div>
             </div>
 
-            <div class="d-flex flex-row gap-3 justify-content-center mb-4">
-                <span class="p-float-label">
+            <div class="d-flex flex-column flex-md-row gap-3 justify-content-center align-items-center mb-3">
+                <span class="p-float-label mb-3 mb-md-0">
                     <input type="text" pInputText formControlName="first_name" />
                     <label for="first_name">First Name</label>
                 </span>
@@ -72,15 +83,15 @@
                 </span>
             </div>
 
-            <div class="d-flex flex-row gap-3 justify-content-center mb-4">
-                <span class="p-float-label">
+            <div class="d-flex flex-column flex-md-row gap-3 justify-content-center align-items-center mb-4">
+                <span class="p-float-label mt-3 mb-md-0">
                     <p-inputMask mask="0999-999-9999"
                         formControlName="mobile_number"></p-inputMask>
                     <label for="mobile_number">Mobile Number</label>
                 </span>
             </div>
 
-            <div class="text-center">
+            <div class="text-center mb-4">
                 <button type="submit" class="btn btn-rounded btn-success"
                     [disabled]="registerForm.invalid">Submit</button>
             </div>

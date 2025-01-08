@@ -12,7 +12,8 @@ import { Observable, of, switchMap, tap } from 'rxjs';
   selector: 'app-user-form',
   templateUrl: './user-form.component.html',
   standalone: true,
-  imports: [ClientModule, ReactiveFormsModule]
+  imports: [ClientModule, ReactiveFormsModule],
+  styleUrls: ['./user-form.component.scss']
 })
 export class UserFormComponent implements OnInit {
   registerForm!: FormGroup;
