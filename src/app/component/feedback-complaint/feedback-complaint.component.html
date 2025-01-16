@@ -1,7 +1,7 @@
 <div class="container-fluid row">
     <div *ngIf='!isAdmin'>
         <div class="d-flex flex-row-reverse mb-4">
-            <p-button pRipple (click)="visibleContent()" icon="pi pi-plus" label="Create Feedback/Complaint"></p-button>
+            <p-button pRipple (click)="visibleContent()" icon="pi pi-plus" label="Create Feedback/Complaint" severity="success"></p-button>
             <p-dialog [(visible)]="visible" [style]="{'width': '45vw', 'height': '100vh'}"
                 [breakpoints]="{ '960px': '90vw' }" [modal]="true" [dismissableMask]="true" [draggable]="false"
                 (onHide)="onCloseButton()">
@@ -38,7 +38,7 @@
                 <ng-template pTemplate="footer">
                     <div>
                         <p-button icon="pi pi-check" (click)="createFeedbackComplaint()"
-                            [style]="{'width': '3.125em', 'height':'3.125em'}"></p-button>
+                            [style]="{'width': '3.125em', 'height':'3.125em'}" severity="success"></p-button>
                     </div>
                 </ng-template>
             </p-dialog>
@@ -178,16 +178,17 @@
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
             <ng-template pTemplate="caption">
-                <div class="container d-flex justify-content-between">
-                    <div>
-                        <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
+                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                    <div class="d-flex flex-row gap-2">
+                        <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true" severity="success"
                             (click)="refreshTable(dt2)"></p-button>
+                            <p-button label="Clear" [raised]="true" [outlined]="true" severity="danger" icon="pi pi-filter-slash"
+                            (click)="clear(dt2);" class="me-3">
+                        </p-button>
                     </div>
 
                     <div>
-                        <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash"
-                            (click)="clear(dt2);" class="me-3">
-                        </p-button>
+                        
                         <span class="p-input-icon-left">
                             <i class="pi pi-search"></i>
                             <input pInputText type="text" [(ngModel)]="searchText2"
@@ -217,14 +218,14 @@
                             [pRowToggler]="rowData" [text]="true" [rounded]="true" [plain]="true"
                             [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
                     </td>
-                    <td *ngFor="let column of datas?.slice()[0] | keys">
+                    <td *ngFor="let column of datas?.slice()[0] | keys" class="text-center">
                         <span
                             *ngIf="column !== 'Notes' && column !== 'cms_id' && column !== 'Status' && column !== 'Date Posted' && column !== 'Time Posted'">{{
                             rowData[column] }}</span>
                         <span *ngIf="column === 'Date Posted'">
                             {{rowData[column] | date:"MMM dd, yyyy 'at' hh:mm a"}}
                         </span>
-                        <span *ngIf="column === 'Status'">
+                        <span *ngIf="column === 'Status'" class="d-flex justify-content-center">
                             <p-tag
                                 [severity]="rowData[column] == 'PENDING' ? 'warning' : severity.getSeverity(rowData[column])"
                                 [value]="rowData[column]"> </p-tag>

@@ -1,6 +1,6 @@
 <!-- Add Content -->
 <div *ngIf="isAdmin" class="d-flex flex-row-reverse mb-4">
-    <p-button pRipple (click)="visibleContent()" icon="pi pi-plus" label="Add Content"></p-button>
+    <p-button pRipple (click)="visibleContent()" icon="pi pi-plus" label="Add Content" severity="success"></p-button>
     <p-dialog [(visible)]="visible" [style]="{'width': '45vw', 'height': '100vh'}" [breakpoints]="{ '960px': '90vw' }"
         [modal]="true" [dismissableMask]="true" [draggable]="false">
         <ng-template pTemplate="header">
@@ -67,18 +67,20 @@
 
 <!-- Scope Filters -->
 <div class="container-fluid my-3">
-    <p-button label="Show All" (click)="setFilter('')" [raised]="true" [rounded]="true" icon="pi pi-bars"></p-button>
+    <div class="d-flex flex-wrap gap-2 gap-md-3">
+    <p-button label="Show All" (click)="setFilter('')" [raised]="true" [rounded]="true" icon="pi pi-bars" severity="success"></p-button>
     <p-button label="Announcements" (click)="setFilter('Announcement')" [raised]="true" [rounded]="true"
-        icon="pi pi-check"></p-button>
-    <p-button label="News" (click)="setFilter('News')" [raised]="true" [rounded]="true" icon="pi pi-flag"></p-button>
+        icon="pi pi-check" severity="success"></p-button>
+    <p-button label="News" (click)="setFilter('News')" [raised]="true" [rounded]="true" icon="pi pi-flag" severity="success"></p-button>
     <p-button label="Events" (click)="setFilter('Event')" [raised]="true" [rounded]="true"
-        icon="pi pi-calendar"></p-button>
+        icon="pi pi-calendar" severity="success"></p-button>
     <p-button label="Maintenance" (click)="setFilter('Maintenance')" [raised]="true" [rounded]="true"
-        icon="pi pi-wrench"></p-button>
+        icon="pi pi-wrench" severity="success"></p-button>
     <p-button *ngIf="isAdmin" label="Archived" (click)="setFilter('Archived')" [raised]="true" [rounded]="true"
-        icon="pi pi-history"></p-button>
+        icon="pi pi-history" severity="success"></p-button>
     <p-button *ngIf="isAdmin" label="To be posted" (click)="setFilter('Future')" [raised]="true" [rounded]="true"
-        icon="pi pi-eye"></p-button>
+        icon="pi pi-eye" severity="success"></p-button>
+</div>
 </div>
 
 <!-- Content -->

@@ -9,26 +9,43 @@
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
         <ng-template pTemplate="caption">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true"
-                        (click)="refreshTable()"></p-button>
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                <!-- Row 1: Refresh and Clear Buttons (Mobile: Same Row, Desktop: Refresh Left) -->
+                <div class="d-flex flex-row gap-2">
+                    <p-button
+                        label="Refresh"
+                        icon="pi pi-refresh"
+                        [raised]="true"
+                        [outlined]="true"
+                        severity="success"
+                        (click)="refreshTable()"
+                    ></p-button>
+                    <p-button
+                        label="Clear"
+                        [raised]="true"
+                        [outlined]="true"
+                        severity="danger"
+                        icon="pi pi-filter-slash"
+                        (click)="clear(dt1);"
+                    ></p-button>
                 </div>
-
-                <div>
-                    <p-button label="Clear" [raised]="true" [outlined]="true" icon="pi pi-filter-slash"
-                        (click)="clear(dt1);" class="me-3">
-                    </p-button>
-                    <span class="p-input-icon-left ml-auto">
+        
+                <!-- Row 2: Search Box (Mobile: Below Buttons, Desktop: Right-Aligned) -->
+                <div class="d-flex flex-row flex-grow-1 justify-content-md-end">
+                    <span class="p-input-icon-left">
                         <i class="pi pi-search"></i>
-                        <input pInputText type="text" [(ngModel)]="searchText"
+                        <input
+                            pInputText
+                            type="text"
+                            [(ngModel)]="searchText"
                             (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
-                            placeholder="Search keyword" />
+                            placeholder="Search keyword"
+                        />
                     </span>
                 </div>
             </div>
         </ng-template>
-
+        
         <ng-template pTemplate="header">
             <tr>
                 <th *ngFor="let column of datas?.slice()[0] | keys">

@@ -1,5 +1,5 @@
 <div *ngIf="!isTENANT" class="d-flex flex-row-reverse bd-highlight">
-    <p-button pRipple (click)="showSingleInvoiceWindow()" icon="pi pi-plus" label="Issue Rent Invoice"></p-button>
+    <p-button pRipple (click)="showSingleInvoiceWindow()" icon="pi pi-plus" label="Issue Rent Invoice" severity="success"></p-button>
     <p-dialog [(visible)]="singleInvoice" [style]="{'width': '45vw'}" [breakpoints]="{ '960px': '90vw' }" [modal]="true"
         [dismissableMask]="true" [draggable]="true" (onHide)="resetSingleInvoiceWindow()">
 
@@ -11,29 +11,28 @@
 
         <ng-template pTemplate="body">
             <form [formGroup]="invoiceForm">
-                <div class="d-flex justify-content-center gap-3 my-4">
-
-                    <span class="p-float-label">
+                <div class="d-flex flex-column flex-md-row justify-content-center gap-3 my-4">
+                    <span class="p-float-label mb-3 mb-md-0">
                         <p-dropdown [options]="issue_names" optionLabel="name" formControlName="issue_to"
-                            appendTo="body" [filter]="true" filterBy="name" [showClear]="true" />
+                            appendTo="body" [filter]="true" filterBy="name" [showClear]="true" [style]="{'width':'120px'}"/>
                         <label for="issue_to">Issue To:</label>
                     </span>
-
-                    <span class="p-float-label">
+            
+                    <span class="p-float-label mb-3 mb-md-0">
                         <p-calendar formControlName="due_date" [iconDisplay]="'input'" [showIcon]="true" appendTo="body"
                             [showButtonBar]="true" [touchUI]="true" [minDate]="today" [inputStyle]="{'width':'150px'}"
                             inputId="start_date">
                         </p-calendar>
                         <label for="start_date">Due Date:</label>
                     </span>
-
+            
                     <span class="p-float-label">
                         <p-inputNumber formControlName="amount" [min]="0" mode="currency" currency="PHP"
                             locale="en-US"></p-inputNumber>
                         <label for="float-label" class="ms-2">Amount:</label>
                     </span>
                 </div>
-            </form>
+            </form>            
         </ng-template>
 
         <ng-template pTemplate="footer">
@@ -47,7 +46,7 @@
     </p-dialog>
 </div>
 
-<div class="mb-4">
+<div class="mt-4">
     <h1 *ngIf="!isTENANT" class="text-center mb-4">Tenant Information</h1>
     <div class="container-fluid" *ngIf="pendingTenants.length > 0">
         <h2>Pending Tenants</h2>
