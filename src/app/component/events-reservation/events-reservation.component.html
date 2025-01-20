@@ -1,6 +1,6 @@
 <div class="d-flex flex-row-reverse mb-4">
   <p-button *ngIf="!isAdmin" pRipple label="Reserve a Date" (click)="reserveWindow()"
-    icon="bi bi-calendar4-event"></p-button>
+    icon="bi bi-calendar4-event" severity="success"></p-button>
   <p-dialog [(visible)]="rsrveWndow" [style]="{'width': '45vw', 'height': '100vh'}" [breakpoints]="{ '960px': '90vw' }"
     [modal]="true" [dismissableMask]="true" [draggable]="false" [resizable]="false">
 
@@ -22,12 +22,12 @@
                   appendTo="body"></p-calendar>
               </div>
 
-              <div class="col">
+              <div class="col-md mt-md-0">
                 <input class="opacity-100" type="text" pInputText [disabled]="true" variant="filled" [(ngModel)]="timeSlots" [ngModelOptions]="{standalone: true}"/>
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group mt-3">
               <p-inputNumber *ngIf="venueSelected" placeholder="No. of Pax" suffix=" pax" formControlName="pax" [min]="paxMin" [max]="paxMax" />
               <label for="No. of Pax" *ngIf="venueSelected">*Maximum of {{ paxMax }}</label>
             </div>
@@ -45,7 +45,7 @@
 
               <div class="button" *ngIf="!isAdmin">
                 <p-toast />
-                <button pButton pRipple label="Submit" class="p-button-danger mt-3"
+                <button pButton pRipple label="Submit" class="p-button-success mt-3"
                   style="border-radius: 10px;"></button>
               </div>
             </div>
@@ -59,7 +59,7 @@
 <p-confirmDialog />
 
 <div class="container-fluid my-4 card" *ngIf="!isAdmin">
-  <h3 class="text-center">Reservation Information</h3>
+  <h2 class="text-center text-uppercase fw-bold">Reservation Information</h2>
   <p-table [value]="cmsData" [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}"
     styleClass="p-datatable-striped p-datatable-gridlines">
 

@@ -1,7 +1,7 @@
 <div class="container-fluid card">
-    <h2 class="text-center my-1">Validation</h2>
+    <!-- <h2 class="text-center my-1">Validation</h2> -->
     <app-admin-view></app-admin-view>
-    <h2 class="text-center my-5">Your History and Invoice</h2>
+    <h2 class="text-center my-5 text-uppercase fw-bold">Your History and Invoice</h2>
     <p-table [breakpoint]="'960px'" styleClass=" p-datatable-striped" [tableStyle]="{'min-width': '50rem'}"
         [paginator]="datas?.length > rows" [rows]="rows" [value]="datas?.slice()" #dt1 dataKey="id"
         [globalFilterFields]="['SOA ID', 'Amount', 'Bill Type', 'Due Date', 'Status', 'Pay']"
