@@ -170,7 +170,7 @@
     </p-dialog>
 
     <div *ngIf="datas != null">
-        <h2 class="text-center">Your Feedbacks and Complaints</h2>
+        <h2 class="text-center text-uppercase fw-bold">Your Feedbacks and Complaints</h2>
         <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()" #dt2
             dataKey="cms_id" [expandedRowKeys]="expandedRows" styleClass="p-datatable-striped p-datatable-gridlines"
             [globalFilterFields]="['Title', 'Description', 'Type', 'Date Posted']" [paginator]="datas?.length > rows"
