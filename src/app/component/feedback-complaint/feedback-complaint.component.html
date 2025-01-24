@@ -48,7 +48,7 @@
     <!-- Admin View For list of feedbacks and complaints -->
     <div *ngIf='isAdmin'>
         <div class="container-fluid">
-            <h2 class="text-center">Feedback and Complaints</h2>
+            <h2 class="text-center text-uppercase fw-bold">Feedback and Complaints</h2>
             <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="adminDatas?.slice()" #dt1
                 dataKey="cms_id" [paginator]="adminDatas?.length > rows" [rows]="rows"
                 styleClass="p-datatable-striped p-datatable-gridlines"
@@ -178,26 +178,57 @@
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
 
             <ng-template pTemplate="caption">
-                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
-                    <div class="d-flex flex-row gap-2">
-                        <p-button label="Refresh" icon="pi pi-refresh" [raised]="true" [outlined]="true" severity="success"
-                            (click)="refreshTable(dt2)"></p-button>
-                            <p-button label="Clear" [raised]="true" [outlined]="true" severity="danger" icon="pi pi-filter-slash"
-                            (click)="clear(dt2);" class="me-3">
-                        </p-button>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                    <!-- Left Section: Refresh Button -->
+                    <div class="d-flex gap-4">
+                        <p-button
+                            label="Refresh"
+                            icon="pi pi-refresh"
+                            [raised]="true"
+                            [outlined]="true"
+                            severity="success"
+                            (click)="refreshTable(dt2)"
+                        ></p-button>
+                        <!-- Clear Button (mobile only) -->
+                        <div class="d-md-none">
+                            <p-button
+                                label="Clear"
+                                [raised]="true"
+                                [outlined]="true"
+                                severity="danger"
+                                icon="pi pi-filter-slash"
+                                (click)="clear(dt2);"
+                            ></p-button>
+                        </div>
                     </div>
-
-                    <div>
-                        
+            
+                    <!-- Right Section: Clear Button and Search Box -->
+                    <div class="d-flex flex-column flex-md-row align-items-center gap-3">
+                        <!-- Clear Button (desktop only) -->
+                        <div class="d-none d-md-block">
+                            <p-button
+                                label="Clear"
+                                [raised]="true"
+                                [outlined]="true"
+                                severity="danger"
+                                icon="pi pi-filter-slash"
+                                (click)="clear(dt2);"
+                            ></p-button>
+                        </div>
                         <span class="p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" [(ngModel)]="searchText2"
+                            <input
+                                pInputText
+                                type="text"
+                                [(ngModel)]="searchText2"
                                 (input)="dt2.filterGlobal($any($event.target).value, 'contains')"
-                                placeholder="Search keyword" />
+                                placeholder="Search keyword"
+                            />
                         </span>
                     </div>
                 </div>
             </ng-template>
+            
 
             <ng-template pTemplate="header">
                 <tr>
