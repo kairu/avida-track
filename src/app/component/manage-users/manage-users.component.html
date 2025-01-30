@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <h2 class="text-center">Manage Users</h2>
+  <h2 class="text-center text-uppercase fw-bold">Manage Users</h2>
   <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [paginator]="datas?.length > rows" [rows]="rows"
     [value]="datas?.slice()" #dt1 dataKey="id"
     [globalFilterFields]="['Full Name', 'Mobile Number', 'Unit', 'Balance', 'User Type', 'Validated']"
