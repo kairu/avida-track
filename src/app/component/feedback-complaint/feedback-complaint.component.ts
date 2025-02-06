@@ -29,13 +29,19 @@ export class FeedbackComplaintComponent {
   selectedType: { name: string; code: string; } | undefined;
   title: string = '';
   description: string = '';
-  isAdmin!: boolean;
+  userType!: string;
+  isOwnerTenant!: boolean;
 
   ngOnInit() {
-    this.checkisadmin.checkisAdmin().subscribe(isAdmin => {
-      this.isAdmin = isAdmin;
+    this.checkisadmin.checkUserType().subscribe(userTypeData => {
+      this.userType = userTypeData;
       this.getReportsData();
     });
+
+    this.checkisadmin.checkisOwnerTenant().subscribe(isOwnerTenant => {
+      this.isOwnerTenant = isOwnerTenant;
+    });
+
     this.getFeedbackandComplaints();
   }
 
@@ -46,20 +52,42 @@ export class FeedbackComplaintComponent {
         return of(
           response.filter((data: {
             date_to_end: null;
-            date_to_post: null; cms_type: string;
+            date_to_post: null; 
+            cms_type: string;
+            notify_to: number;
           }) => {
             let type = data.cms_type.toLowerCase();
-            return (
-              type === 'feedback' ||
-              type === 'complaint' ||
-              (type === 'maintenance' &&
-                (data.date_to_post == null ||
-                  data.date_to_post == '' ||
-                  data.date_to_post == undefined) &&
+            if(this.userType === 'ADMIN' || this.userType === 'SUPER_ADMIN'){
+              return (
+                (type === 'feedback' ||
+                type === 'complaint' ||
+                type === 'maintenance') &&
+                (data.notify_to < 0 || 
+                  data.notify_to === 1 ||
+                  data.notify_to == null ||
+                  data.notify_to === undefined
+                ) &&
                 (data.date_to_end == null ||
                   data.date_to_end == '' ||
-                  data.date_to_end == undefined))
-            );
+                  data.date_to_end == undefined
+                )             
+              );
+            }else{
+              const userData = sessionStorage.getItem('backendUserData');
+              const user_id = JSON.parse(userData || '{}').user_id;
+              return (
+                (type === 'feedback' ||
+                type === 'complaint' ||
+                type === 'maintenance') &&
+                (Math.abs(data.notify_to) === user_id
+                ) &&
+                (data.date_to_end == null ||
+                  data.date_to_end == '' ||
+                  data.date_to_end == undefined
+                )
+              );
+            }
+            
           })
         );
       }),
@@ -101,6 +129,7 @@ export class FeedbackComplaintComponent {
     ).subscribe(datas => {
       this.adminDatas = datas.sort((a: { [x: string]: string | number | Date; }, b: { [x: string]: string | number | Date; }) => new Date(b['Date Posted']).getTime() - new Date(a['Date Posted']).getTime());
       this.adminDatas = datas;
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Table has been Refreshed!' });
     });
   }
 
@@ -177,14 +206,25 @@ export class FeedbackComplaintComponent {
     this.selectedRow = undefined;
   }
 
+  userNotify!: number;
+  // 1 = Admin/Super_admin
+  // Whole Number 0000 = Owner, 
+  // -2 = Tenant(Might not use), 
+  // Negative Number -0000 = Both
+  notifyTo(user: number){      
+    this.userNotify = user;
+  }
+
   onCloseButton() {
     this.title = '';
     this.description = '';
     this.selectedType = undefined;
+    this.userNotify = 0;
   }
 
+  // Unfinished
   createFeedbackComplaint() {
-    if (!this.title || !this.description || !this.selectedType) {
+    if (!this.title || !this.description || !this.selectedType || !this.userNotify) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill out all the fields!' });
       return;
     }
@@ -192,12 +232,39 @@ export class FeedbackComplaintComponent {
     // Proceed with invoice creation
     const userData = sessionStorage.getItem('backendUserData');
     const userID = JSON.parse(userData || '{}').user_id;
-    const cmsData = this.backenddata.cmsData(
-      userID,
-      this.title,
-      this.description,
-      this.selectedType.code,
-    );
+    let cmsData = {}
+    // Notify Admin/Super_admin
+    if(this.userNotify == 1){
+      cmsData = {
+        user_id: userID,
+        title: this.title,
+        description: this.description,
+        cms_type: this.selectedType.code,
+        notify_to: this.userNotify
+      };
+    }else{
+      const lessorID = JSON.parse(userData || '{}').lessor_id;
+      // Add Checks to notify both or just owner
+      // Owner
+      if(this.userNotify == -1){
+        cmsData = {
+          user_id: userID,
+          title: this.title,
+          description: this.description,
+          cms_type: this.selectedType.code,
+          notify_to: lessorID
+        };
+      }else{
+        // Both
+        cmsData = {
+          user_id: userID,
+          title: this.title,
+          description: this.description,
+          cms_type: this.selectedType.code,
+          notify_to: -lessorID
+        };
+      }
+    }
 
     this.backendservice.addCMS(cmsData).subscribe({
       next: (response: any) => {
@@ -225,12 +292,13 @@ export class FeedbackComplaintComponent {
             (data.cms_type === 'MAINTENANCE' &&
               (data.date_to_post == null || data.date_to_post === '') &&
               (data.date_to_end == null || data.date_to_end === ''));
-        }).map((data: { cms_id: number; title: string; description: string; cms_type: any; date_posted: Date; time_posted: any; status: any; notes: any[] }) => ({
+        }).map((data: { cms_id: number; title: string; description: string; cms_type: any; date_posted: Date; time_posted: any; notify_to: any; status: any; notes: any[] }) => ({
           cms_id: data.cms_id,
           Title: data.title,
           Description: data.description,
           Type: data.cms_type,
           'Date Posted': data.date_posted + " " + data.time_posted,
+          'Notified To': data.notify_to == 1 ? 'Admin' : data.notify_to > 1 ? 'Owner' : data.notify_to < 1 && data.notify_to? 'Owner and Admin' : '',
           'Status': data.status == 'REVIEW' ? 'DENIED' : data.status == 'PAID' ? 'RESOLVED' : data.status,
           'Notes': data.notes.map((note: { notes: any; }) => note.notes).reverse()
         }));

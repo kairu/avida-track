@@ -1,5 +1,5 @@
 <div class="container-fluid row">
-    <div *ngIf='!isAdmin'>
+    <div *ngIf='userType !== "ADMIN" && userType !== "SUPER_ADMIN"'>
         <div class="d-flex flex-row-reverse mb-4">
             <p-button pRipple (click)="visibleContent()" icon="pi pi-plus" label="Create Feedback/Complaint" severity="success"></p-button>
             <p-dialog [(visible)]="visible" [style]="{'width': '45vw', 'height': '100vh'}"
@@ -17,6 +17,29 @@
                             <p-dropdown [(ngModel)]="selectedType" inputId="float-label" placeholder="Type"
                                 [options]="type" optionLabel="name"></p-dropdown>
                             <label class="ms-2" for="unit">Type</label>
+                        </span>
+
+                        <span class="mt-4 col flex">
+                            <div class="d-flex gap-4">
+                                <div class="flex items-center">
+                                    <label class="h4 text-center">Notify to: </label>
+                                </div>
+                                
+                                <div *ngIf="!isOwnerTenant" class="flex items-center">
+                                    <input type="radio" name="role" value="Owner" id="owner" (click)="notifyTo(-1)"/>
+                                    <label for="owner" class="ms-1 h4">Owner</label>
+                                </div>
+
+                                <div class="flex items-center">
+                                    <input type="radio" name="role" value="Admin" id="admin" (click)="notifyTo(1)"/>
+                                    <label for="admin" class="ms-1 h4">Admin</label>
+                                </div>
+
+                                <div *ngIf="!isOwnerTenant" class="flex items-center">
+                                    <input type="radio" name="role" value="Both" id="both" (click)="notifyTo(-3)">
+                                    <label for="both" class="ms-1 h4">Both</label>
+                                </div>
+                            </div>
                         </span>
                     </div>
 
@@ -45,8 +68,8 @@
         </div>
     </div>
 
-    <!-- Admin View For list of feedbacks and complaints -->
-    <div *ngIf='isAdmin'>
+    <!-- Admin & Owner View For list of feedbacks and complaints -->
+    <div *ngIf='userType == "ADMIN" || userType == "OWNER" || userType == "SUPER_ADMIN"'>
         <div class="container-fluid">
             <h2 class="text-center text-uppercase fw-bold">Feedback and Complaints</h2>
             <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="adminDatas?.slice()" #dt1
@@ -117,19 +140,19 @@
                         <td colspan="100%">
                             <p-table [value]="rowData['Notes']" [tableStyle]="{'min-width': '30rem'}">
                                 <ng-template pTemplate="header">
-                                    <tr>
-                                        <th>Comment</th>
-                                    </tr>
-                                </ng-template>
-                                <ng-template pTemplate="body" let-note>
-                                    <tr>
-                                        <td>{{ note }}</td>
-                                    </tr>
-                                </ng-template>
-                            </p-table>
-                        </td>
+                    <tr>
+                        <th>Comment</th>
                     </tr>
                 </ng-template>
+                <ng-template pTemplate="body" let-note>
+                    <tr>
+                        <td>{{ note }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            </td>
+            </tr>
+            </ng-template>
             </p-table>
         </div>
     </div>
@@ -172,7 +195,7 @@
     <div *ngIf="datas != null">
         <h2 class="text-center text-uppercase fw-bold">Your Feedbacks and Complaints</h2>
         <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="datas?.slice()" #dt2
-            dataKey="cms_id" [expandedRowKeys]="expandedRows" styleClass="p-datatable-striped p-datatable-gridlines"
+            dataKey="cms_id" [expandedRowKeys]="expandedRows" styleClass="p-datatable-striped"
             [globalFilterFields]="['Title', 'Description', 'Type', 'Date Posted']" [paginator]="datas?.length > rows"
             [rows]="rows" [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
@@ -267,23 +290,23 @@
                 </tr>
             </ng-template>
             <ng-template pTemplate="rowexpansion" let-rowData>
-                <tr>
+                <tr *ngIf="rowData['Notes'] && rowData['Notes'].length > 0">
                     <td colspan="100%">
                         <p-table [value]="rowData['Notes']" [tableStyle]="{'min-width': '30rem'}">
                             <ng-template pTemplate="header">
-                                <tr>
-                                    <th>Comment</th>
-                                </tr>
-                            </ng-template>
-                            <ng-template pTemplate="body" let-note>
-                                <tr>
-                                    <td>{{ note }}</td>
-                                </tr>
-                            </ng-template>
-                        </p-table>
-                    </td>
+                <tr>
+                    <th>Comment</th>
                 </tr>
             </ng-template>
+            <ng-template pTemplate="body" let-note>
+                <tr>
+                    <td>{{ note }}</td>
+                </tr>
+            </ng-template>
+                        </p-table>
+        </td>
+        </tr>
+        </ng-template>
         </p-table>
     </div>
 </div>
