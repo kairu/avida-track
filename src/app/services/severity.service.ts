@@ -15,7 +15,7 @@ export class SeverityService {
       case 'PARKING':
       case 'MAINTENANCE':
       case 'ETC':
-        return 'primary';
+        return 'contrast';
       case 'OWNER':
       case 'TENANT':
       case 'YES':
