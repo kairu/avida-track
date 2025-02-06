@@ -19,6 +19,15 @@ export class CheckisAdminService {
     );
   }
 
+  checkUserType(): Observable<string>{
+    const email = this.backendservice.getEmail();
+    return this.backendservice.getUser(email).pipe(
+      map((response: any) => {
+        return response.user_type;
+      })
+    );
+  }
+
   checkisOwnerTenant(): Observable<boolean>{
     const email = this.backendservice.getEmail();
     return this.backendservice.getUser(email).pipe(
