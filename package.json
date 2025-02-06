@@ -36,7 +36,7 @@
     "ng-apexcharts": "^1.7.6",
     "ng2-charts": "^6.0.0",
     "primeicons": "^6.0.1",
-    "primeng": "^17.8.0",
+    "primeng": "^17.18.10",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5",
