@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { firstValueFrom, forkJoin, from, map, Observable, of, switchMap } from 'rxjs';
 import { BackendDataService } from './backend-data.service';
 
 
@@ -27,28 +27,58 @@ export class BackendServiceService {
     });
   }
 
-  createUser(userData: any, unit: any): Observable<any> {
+  createUser(userData: any, unit: any, representatives?: any): Observable<any> {
     return this.http.post(this.backendUrl + '/user', userData, {
       headers: this.headers
     }).pipe(
       switchMap((uid: any) => {
-        const unitDataRequests = unit.map((u: { tower_number: number; floor_number: number; unit_number: number; }) => {
-          const unitData = this.backendData.unitData(
-            uid.user_id,
-            u.tower_number,
-            u.floor_number,
-            u.unit_number
-          );
+        const unitDataRequests = unit.map((u: { tower_number: number; floor_number: number; unit_number: number; unit_type: { name: string; code: string; size: number; } }) => {
+          const unitData = {
+            user_id: uid.user_id,
+            tower_number: u.tower_number,
+            floor_number: u.floor_number,
+            unit_number: u.unit_number,
+            sq_foot: u.unit_type.size,
+            unit_type: u.unit_type.code
+          };
           return this.http.post(this.backendUrl + '/unit', unitData, {
             headers: this.headers
           });
         });
 
-        return forkJoin(unitDataRequests).pipe(
+        // Create representatives requests
+      const representativeRequests = representatives && representatives.length > 0
+      ? representatives.map((rep: { image: any; first_name: any; last_name: any; }) => {
+        return this.uploadRepImage(rep.image).pipe(
+          switchMap(imageFile => {
+            const repData = {
+              tenant_id: uid.user_id,
+              first_name: rep.first_name,
+              last_name: rep.last_name,
+              image: (imageFile as any).file
+            };
+            return this.http.post(this.backendUrl + '/representatives', repData, {
+              headers: this.headers
+            });
+          })
+        );
+      })
+      : [];
+
+      return forkJoin({
+        unitRequests: forkJoin(unitDataRequests),
+        representativeRequests: forkJoin(representativeRequests),
+      }).pipe(
           map(() => uid.user_id)
         );
       })
     );
+  }
+
+  uploadRepImage(filename: any) {
+    const formData = new FormData();
+    formData.append('file', filename);
+    return this.http.post(`${this.backendUrl}/representative-image`, formData);
   }
 
   updateUserData(userData: any): Observable<any> {
@@ -135,11 +165,11 @@ export class BackendServiceService {
     return this.http.get(`${this.backendUrl}/paymentImage/${image}`, { responseType: 'blob' });
   }
 
-  getDelinquentBills(): Observable<any>{
+  getDelinquentBills(): Observable<any> {
     return this.http.get(`${this.backendUrl}/delinquent-bills`);
   }
 
-  getBillingPerformance(month?: string, year?: number, status?: string): Observable<any>{
+  getBillingPerformance(month?: string, year?: number, status?: string): Observable<any> {
     const params: any = {};
     if (month) params['month'] = month;
     if (year) params['year'] = year;
@@ -148,8 +178,21 @@ export class BackendServiceService {
     return this.http.get(`${this.backendUrl}/billing-performance`, { params });
   }
 
-  getAvailableYears(): Observable<any>{
+  getLessorID(tower: number, floor: number, unit: number): Observable<any> {
+    const params: any = {};
+    if (tower) params['tower_number'] = tower;
+    if (floor) params['floor_number'] = floor;
+    if (unit) params['unit_number'] = unit;
+
+    return this.http.get(`${this.backendUrl}/find-owner`, { params });
+  }
+
+  getAvailableYears(): Observable<any> {
     return this.http.get(`${this.backendUrl}/billing-years`);
+  }
+
+  getTenantRepresentatives(tenantID: string): Observable<any> {
+    return this.http.get(`${this.backendUrl}/representatives/${tenantID}`);
   }
 
   async renderImageCard(image: any) {
@@ -168,7 +211,7 @@ export class BackendServiceService {
     });
   }
 
-  addCMSNotes(data: any){
+  addCMSNotes(data: any) {
     return this.http.post(`${this.backendUrl}/feedbackcomplaintnotes`, JSON.stringify(data), {
       headers: this.headers
     });
@@ -196,12 +239,16 @@ export class BackendServiceService {
   getContractImage(image: any) {
     return this.http.get(`${this.backendUrl}/contract/${image}`, { responseType: 'blob' });
   }
-  
+
+  serveRepresentativePhoto(image: string) {
+    return this.http.get(`${this.backendUrl}/serve-representative-image/${image}`, { responseType: 'blob' });
+  }
+
   uploadImageToLease(formData: FormData) {
     return this.http.post(`${this.backendUrl}/contract`, formData);
   }
 
-  uploadPaymentImage(formData: FormData){
+  uploadPaymentImage(formData: FormData) {
     return this.http.post(`${this.backendUrl}/paymentImage`, formData);
   }
 
