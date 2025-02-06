@@ -6,7 +6,7 @@ import { MessageService } from 'primeng/api';
 import { CalendarModule } from 'primeng/calendar';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
-import { forkJoin, from, lastValueFrom, map, mergeMap, switchMap } from 'rxjs';
+import { forkJoin, from, lastValueFrom, map, mergeMap, Observable, of, switchMap } from 'rxjs';
 import { KeysPipe } from "../../pipe/keys.pipe";
 import { ClientModule } from 'src/app/shared-module/client-module';
 import { BackendDataService } from 'src/app/services/backend-data.service';
@@ -77,42 +77,88 @@ export class TenantLeaseComponent implements OnInit {
   }
 
   fetchPendingTenants(): void {
-    this.backendService.getUser(this.user_id).subscribe({
-      next: (currentUser) => {
-        this.backendService.getUnits().subscribe({
-          next: (unitsResponse) => {
-            this.backendService.getUsers().subscribe({
-              next: (usersResponse) => {
-                // Combine filtering and mapping into a single operation
-                this.pendingTenants = usersResponse
-                  .filter((user: any) =>
-                    user.user_type === 'TENANT' &&
-                    currentUser.units.some((userUnit: any) =>
-                      unitsResponse.some((unit: any) =>
-                        unit.tower_number === userUnit.tower_number &&
-                        unit.unit_number === userUnit.unit_number &&
-                        unit.floor_number === userUnit.floor_number &&
-                        unit.user_id === user.user_id
-                      )
-                    ) &&
-                    ((!user.lease_agreements || user.lease_agreements.length === 0) && !user.is_validated)
+    this.backendService.getUser(this.user_id).pipe(
+      switchMap(currentUser =>
+        this.backendService.getUnits().pipe(
+          switchMap(unitsResponse =>
+            this.backendService.getUsers().pipe(
+              switchMap(usersResponse => {
+                const pendingTenants = usersResponse.filter((user: { user_type: string; user_id: any; lease_agreements: string | any[]; is_validated: any; }) =>
+                  user.user_type === 'TENANT' &&
+                  currentUser.units.some((userUnit: { tower_number: any; unit_number: any; floor_number: any; }) =>
+                    unitsResponse.some((unit: { tower_number: any; unit_number: any; floor_number: any; user_id: any; }) =>
+                      unit.tower_number === userUnit.tower_number &&
+                      unit.unit_number === userUnit.unit_number &&
+                      unit.floor_number === userUnit.floor_number &&
+                      unit.user_id === user.user_id
+                    )
+                  ) &&
+                  ((!user.lease_agreements || user.lease_agreements.length === 0) && !user.is_validated)
+                );
+  
+                const tenantRequests = pendingTenants.map((user: { user_id: string; last_name: any; first_name: any; mobile_number: any; }) =>
+                  this.backendService.getTenantRepresentatives(user.user_id).pipe(
+                    map(tenantRepresentatives => {
+                      const unit = unitsResponse.find((u: { user_id: string; }) => u.user_id === user.user_id);
+                      return {
+                        tenant_id: user.user_id,
+                        unit_id: unit?.unit_id ?? null,
+                        'Full Name': `${user.last_name}, ${user.first_name}`,
+                        'Unit': unit ? `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}` : '',
+                        'Phone Number': user.mobile_number,
+                        'Tenant Representative': tenantRepresentatives.length > 0 ? tenantRepresentatives : '',
+                      };
+                    })
                   )
-                  .map((user: any) => {
-                    const unit = unitsResponse.find((u: any) => u.user_id === user.user_id);
-                    return {
-                      tenant_id: user.user_id,
-                      unit_id: unit.unit_id,
-                      'Full Name': `${user.last_name}, ${user.first_name}`,
-                      'Unit': `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}`,
-                      'Phone Number': user.mobile_number
-                    };
-                  });
-              }
-            });
+                );
+  
+                return forkJoin(tenantRequests).pipe(map(res => res as any[]));;
+              })
+            )
+          )
+        )
+      )
+    ).subscribe((pendingTenants: any[]) => {
+      this.pendingTenants = pendingTenants;
+      this.updateRepresentativeImages();
+    });
+  }
+
+  updateRepresentativeImages() {
+    const imageRequests: Observable<any>[] = [];
+  
+    this.pendingTenants.forEach(tenant => {
+      // Ensure 'Tenant Representative' is an array before using forEach
+      if (Array.isArray(tenant['Tenant Representative'])) {
+        tenant['Tenant Representative'].forEach(rep => {
+          // If there's an image, initiate the request to get the image URL
+          if (rep.image) {
+            imageRequests.push(this.serveRepresentativeImage(rep.image).pipe(
+              map(sanitizedImage => {
+                // Replace the image property with the sanitized URL
+                rep.image = sanitizedImage;
+              })
+            ));
           }
         });
       }
     });
+  
+    // Execute all image fetching requests
+    forkJoin(imageRequests).subscribe(() => {
+      // console.log('All images are loaded and replaced');
+      // Now the images in pendingTenants are ready for rendering
+    });
+  }
+  
+
+  serveRepresentativeImage(image: string): Observable<any> {
+    return this.backendService.serveRepresentativePhoto(image).pipe(
+      map(imageResponse => {
+        const imageUrl = URL.createObjectURL(imageResponse);
+        return this.sanitizer.bypassSecurityTrustUrl(imageUrl);
+      })
+    );
   }
 
   leaseForm!: FormGroup;
@@ -397,34 +443,60 @@ export class TenantLeaseComponent implements OnInit {
     })
   }
 
-  issue_names!: [{ name: string; user_id: number; lease_id: number; }];
+  issue_names!: { name: string; user_id: number; lease_id: number; }[];
   loadLeases() {
     this.backendService.getUser(this.user_id).subscribe({
       next: (response) => {
         if (response.lease_agreements) {
-          this.leases = response.lease_agreements.map((lease: { unit_id: number; contract: any; end_date: any; lease_agreement_id: any; monthly_rent: any; remaining_balance: any; start_date: any; tenant_info: { user_id: number; first_name: any; last_name: any; }; }) => ({
-            lease_agreement_id: lease.lease_agreement_id,
-            user_id: lease.tenant_info.user_id,
-            'Full Name': `${lease.tenant_info.last_name}, ${lease.tenant_info.first_name}`,
-            'Unit': this.backendService.getUnit(lease.unit_id).pipe(
-              map((unit: { tower_number: any; floor_number: any; unit_number: any; }) => `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}`)
-            ),
-            'Contract': lease.contract,
-            'Monthly Rent': lease.monthly_rent,
-            'Start Date': lease.start_date,
-            'End Date': lease.end_date,
-            'Remaining Balance': lease.remaining_balance,
-          }))
-          this.issue_names = this.leases.map(lease => ({
-            name: lease['Full Name'],
-            // user_id: lease.user_id,
-            lease_id: lease.lease_agreement_id
-          })) as [{ name: string; user_id: number; lease_id: number; }]
+          const leaseRequests: Observable<any>[] = response.lease_agreements.map((lease: { tenant_info: { user_id: string; last_name: any; first_name: any; }; unit_id: any; lease_agreement_id: any; contract: any; monthly_rent: any; start_date: any; end_date: any; remaining_balance: any; }) => {
+            return this.backendService.getTenantRepresentatives(lease.tenant_info.user_id).pipe(
+              switchMap((tenantRepresentatives) => {
+                // Ensure tenantRepresentatives is an array
+                const safeRepresentatives = Array.isArray(tenantRepresentatives) ? tenantRepresentatives : [];
+  
+                // Process images for each representative
+                const imageObservables = safeRepresentatives.map(rep =>
+                  this.serveRepresentativeImage(rep.image).pipe(
+                    map(sanitizedImage => ({ ...rep, image: sanitizedImage }))
+                  )
+                );
+  
+                // Use forkJoin properly to avoid issues with empty arrays
+                return (imageObservables.length > 0 ? forkJoin(imageObservables) : of([])).pipe(
+                  switchMap((updatedRepresentatives: {image: any}[]) =>
+                    this.backendService.getUnit(lease.unit_id).pipe(
+                      map((unit) => ({
+                        lease_agreement_id: lease.lease_agreement_id,
+                        user_id: lease.tenant_info.user_id,
+                        'Full Name': `${lease.tenant_info.last_name}, ${lease.tenant_info.first_name}`,
+                        'Unit': `Tower ${unit.tower_number}: ${unit.floor_number} - ${unit.unit_number}`,
+                        'Contract': lease.contract,
+                        'Monthly Rent': lease.monthly_rent,
+                        'Start Date': lease.start_date,
+                        'End Date': lease.end_date,
+                        'Remaining Balance': lease.remaining_balance,
+                        'Tenant Representative': updatedRepresentatives.length > 0 ? updatedRepresentatives : [],
+                      }))
+                    )
+                  )
+                );
+              })
+            );
+          });
+  
+          forkJoin(leaseRequests).subscribe((leases: any[]) => {
+            this.leases = leases;
+            this.issue_names = this.leases.map(lease => ({
+              name: lease['Full Name'],
+              user_id: lease.user_id,
+              lease_id: lease.lease_agreement_id
+            })) as { name: string; user_id: number; lease_id: number; }[];
+  
+            this.serveContractImage();
+          });
         }
-        this.serveContractImage()
       }
-    })
-
+    });
   }
 
   historyInvoice: any[] = [];

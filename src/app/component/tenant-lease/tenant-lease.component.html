@@ -1,5 +1,6 @@
 <div *ngIf="!isTENANT" class="d-flex flex-row-reverse bd-highlight">
-    <p-button pRipple (click)="showSingleInvoiceWindow()" icon="pi pi-plus" label="Issue Rent Invoice" severity="success"></p-button>
+    <p-button pRipple (click)="showSingleInvoiceWindow()" icon="pi pi-plus" label="Issue Rent Invoice"
+        severity="success"></p-button>
     <p-dialog [(visible)]="singleInvoice" [style]="{'width': '45vw'}" [breakpoints]="{ '960px': '90vw' }" [modal]="true"
         [dismissableMask]="true" [draggable]="true" (onHide)="resetSingleInvoiceWindow()">
 
@@ -14,10 +15,11 @@
                 <div class="d-flex flex-column flex-md-row justify-content-center gap-3 my-4">
                     <span class="p-float-label mb-3 mb-md-0">
                         <p-dropdown [options]="issue_names" optionLabel="name" formControlName="issue_to"
-                            appendTo="body" [filter]="true" filterBy="name" [showClear]="true" [style]="{'width':'120px'}"/>
+                            appendTo="body" [filter]="true" filterBy="name" [showClear]="true"
+                            [style]="{'width':'120px'}" />
                         <label for="issue_to">Issue To:</label>
                     </span>
-            
+
                     <span class="p-float-label mb-3 mb-md-0">
                         <p-calendar formControlName="due_date" [iconDisplay]="'input'" [showIcon]="true" appendTo="body"
                             [showButtonBar]="true" [touchUI]="true" [minDate]="today" [inputStyle]="{'width':'150px'}"
@@ -25,14 +27,14 @@
                         </p-calendar>
                         <label for="start_date">Due Date:</label>
                     </span>
-            
+
                     <span class="p-float-label">
                         <p-inputNumber formControlName="amount" [min]="0" mode="currency" currency="PHP"
                             locale="en-US"></p-inputNumber>
                         <label for="float-label" class="ms-2">Amount:</label>
                     </span>
                 </div>
-            </form>            
+            </form>
         </ng-template>
 
         <ng-template pTemplate="footer">
@@ -52,21 +54,28 @@
         <h2 class="text-center mb-4 text-uppercase fw-bold">Pending Tenants</h2>
         <div class="table-responsive">
             <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="pendingTenants.slice()"
-                styleClass="p-datatable-striped p-datatable-gridlines">
+                styleClass="p-datatable-striped p-datatable-gridlines" dataKey="tenant_id">
 
                 <ng-template pTemplate="header">
                     <tr>
+                        <th></th>
                         <th *ngFor="let column of pendingTenants.slice()[0] | keys">
-                            <span *ngIf="column == 'Full Name' || column == 'Unit' || column == 'Phone Number'">
+                            <ng-container *ngIf="column == 'Full Name' || column == 'Unit' || column == 'Phone Number'">
                                 {{ column }}
-                            </span>
+                            </ng-container>
                         </th>
                         <th>Action</th>
                     </tr>
                 </ng-template>
 
-                <ng-template pTemplate="body" let-rowData>
+                <ng-template pTemplate="body" let-rowData let-expanded="expanded">
                     <tr>
+                        <td>
+                            <p-button
+                                *ngIf="rowData['Tenant Representative'] && rowData['Tenant Representative'].length > 0"
+                                type="button" pRipple [pRowToggler]="rowData" [text]="true" [rounded]="true"
+                                [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+                        </td>
                         <td *ngFor="let column of pendingTenants.slice()[0] | keys">
                             <span
                                 *ngIf="column == 'Full Name' || column == 'Unit' || column == 'Email' || column == 'Phone Number'">
@@ -79,6 +88,37 @@
                         </td>
                     </tr>
                 </ng-template>
+                <ng-template pTemplate="rowexpansion" let-rowData>
+                    <tr *ngIf="rowData['Tenant Representative'] && rowData['Tenant Representative'].length > 0">
+                        <td colspan="100%">
+                            <p-table [value]="rowData['Tenant Representative']" [tableStyle]="{'min-width': '30rem'}">
+                                <ng-template pTemplate="header">
+                    <tr>
+                        <th></th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Image</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-note>
+                    <tr>
+                        <td *ngFor="let column of note | keys">
+                            <span *ngIf="column == 'first_name' || column == 'last_name'">
+                                {{ note[column] }}
+                            </span>
+
+                            <p-image *ngIf="column == 'image'" 
+                                [src]="note[column]" 
+                                alt="Representative Image" 
+                                [preview]="true"
+                                width="250" />
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            </td>
+            </tr>
+            </ng-template>
             </p-table>
         </div>
     </div>
@@ -180,27 +220,34 @@
     <h3 class="mb-4 text-uppercase fw-bold">Active Tenants</h3>
     <div class="table-responsive">
         <p-table [breakpoint]="'960px'" [tableStyle]="{'min-width': '50rem'}" [value]="leases.slice()"
-            styleClass="p-datatable-striped p-datatable-gridlines">
+            styleClass="p-datatable-striped p-datatable-gridlines" dataKey="user_id">
 
             <ng-template pTemplate="header">
                 <tr>
+                    <th></th>
                     <th *ngFor="let column of leases.slice()[0] | keys">
-                        <span *ngIf="column !== 'lease_agreement_id' && column !== 'user_id'">
-                            {{ column }}
+                        <span *ngIf="column !== 'lease_agreement_id' && column !== 'user_id' && column !== 'Tenant Representative'">
+                            {{ column }}'
                         </span>
                     </th>
                     <!-- <th>Action</th> -->
                 </tr>
             </ng-template>
 
-            <ng-template pTemplate="body" let-rowData>
+            <ng-template pTemplate="body" let-rowData let-expanded="expanded">
                 <tr>
+                    <td>
+                        <p-button
+                            *ngIf="rowData['Tenant Representative'] && rowData['Tenant Representative'].length > 0"
+                            type="button" pRipple [pRowToggler]="rowData" [text]="true" [rounded]="true"
+                            [plain]="true" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+                    </td>
                     <td *ngFor="let column of leases.slice()[0] | keys">
                         <span *ngIf="column == 'Full Name'">
                             {{ rowData[column] }}
                         </span>
                         <span *ngIf="column == 'Unit'">
-                            {{ rowData[column] | async}}
+                            {{ rowData[column] }}
                         </span>
                         <span *ngIf="column == 'Contract'">
                             <p-image *ngIf="rowData[column]" [src]="rowData[column]" width="100"
@@ -220,6 +267,37 @@
                     </td> -->
                 </tr>
             </ng-template>
+            <ng-template pTemplate="rowexpansion" let-rowData>
+                <tr *ngIf="rowData['Tenant Representative'] && rowData['Tenant Representative'].length > 0">
+                    <td colspan="100%">
+                        <p-table [value]="rowData['Tenant Representative']" [tableStyle]="{'min-width': '30rem'}">
+                            <ng-template pTemplate="header">
+                <tr>
+                    <th></th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Image</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-note>
+                <tr>
+                    <td *ngFor="let column of note | keys">
+                        <span *ngIf="column == 'first_name' || column == 'last_name'">
+                            {{ note[column] }}
+                        </span>
+
+                        <p-image *ngIf="column == 'image'" 
+                            [src]="note[column]" 
+                            alt="Representative Image" 
+                            [preview]="true"
+                            width="250" />
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+        </td>
+        </tr>
+        </ng-template>
 
         </p-table>
     </div>
@@ -258,8 +336,7 @@
                             {{ rowData[column] }}
                         </span>
                         <span *ngIf="column == 'Image'">
-                            <p-image [src]="rowData[column]" [preview]="true"
-                                width="250" />
+                            <p-image [src]="rowData[column]" [preview]="true" width="250" />
                         </span>
 
                         <span *ngIf="column == 'Status'">
@@ -321,8 +398,7 @@
                         {{ rowData[column] | date:'fullDate'}}
                     </span>
                     <span *ngIf="column == 'Image'">
-                        <p-image [src]="rowData[column]" [preview]="true"
-                                width="250" />
+                        <p-image [src]="rowData[column]" [preview]="true" width="250" />
                     </span>
                     <span *ngIf="column == 'Amount'">
                         {{ rowData[column] | currency:'PHP' }}
