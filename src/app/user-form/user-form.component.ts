@@ -6,13 +6,15 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators, FormArray, For
 import { Location } from '@angular/common';
 import { BackendDataService } from '../services/backend-data.service';
 import { Observable, of, switchMap, tap } from 'rxjs';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { FileUploadModule } from 'primeng/fileupload';
 
 
 @Component({
   selector: 'app-user-form',
   templateUrl: './user-form.component.html',
   standalone: true,
-  imports: [ClientModule, ReactiveFormsModule],
+  imports: [ClientModule, ReactiveFormsModule, FloatLabelModule, FileUploadModule],
   styleUrls: ['./user-form.component.scss']
 })
 export class UserFormComponent implements OnInit {
@@ -23,6 +25,16 @@ export class UserFormComponent implements OnInit {
     { label: 'Tenant', value: 'Tenant' },
     // { label: 'Guest', value: 'Guest' },
   ];
+
+  unitOptions = [
+    { name: 'Studio', code: 'ST', size: 22 },
+    { name: '1 Bedroom', code: '1BR', size: 37 },
+    { name: '2 Bedroom', code: '2BR', size: 53 },
+  ]
+
+  paxOptions = [
+    { name: 1 },
+  ]
 
   towerOptions = Array.from({ length: 5 }, (_, i) => ({ label: `Tower ${i + 1}`, value: i + 1 }));
 
@@ -49,13 +61,13 @@ export class UserFormComponent implements OnInit {
     this.registerForm = this.fb.group({
       first_name: ['', [
         Validators.required,
-        Validators.pattern('^[a-zA-Z]+$'),
+        Validators.pattern("^[a-zA-Z' -]+$"),
         Validators.minLength(3)
       ]
       ],
       last_name: ['', [
         Validators.required,
-        Validators.pattern('^[a-zA-Z]+$'),
+        Validators.pattern("^[a-zA-Z' -]+$"),
         Validators.minLength(3)
       ]
       ],
@@ -65,8 +77,73 @@ export class UserFormComponent implements OnInit {
       ]
       ],
       userType: ['', Validators.required],
-      unit_address: this.fb.array([this.createUnitAddress()], { validators: this.uniqueUnitValidator() })
+      unit_address: this.fb.array([this.createUnitAddress()], { validators: this.uniqueUnitValidator() }),
+      representatives: this.fb.array([])
     });
+  }
+
+  createUnitAddress(): FormGroup {
+    const group = this.fb.group({
+      tower_number: [, Validators.required],
+      floor_number: [, Validators.required],
+      unit_number: [, Validators.required],
+      unit_type: [, this.isTenant ? null : Validators.required],
+      floors: [[]],
+      units: [[]]
+    });
+    group.valueChanges.subscribe(() => this.registerForm.get('unit_address')?.updateValueAndValidity());
+    return group;
+  }
+
+  createRepresentatives(): FormGroup {
+    const group = this.fb.group({
+      first_name: [, Validators.required],
+      last_name: [, Validators.required],
+      image: [, Validators.required],
+    });
+
+    group.valueChanges.subscribe(() => this.registerForm.get('representatives')?.updateValueAndValidity());
+    return group;
+  }
+
+  getNoOfRepresentatives(event: any) {
+    (this.registerForm.get('representatives') as FormArray).clear();
+    if (!event.value) return;
+
+    const totalPax = event.value.name
+    for (let i = 0; i < totalPax; i++) {
+      (this.registerForm.get('representatives') as FormArray).push(this.createRepresentatives());
+    }
+  }
+
+  // Storing of Image
+  uploadedImages: string[] = [];
+  onImageSelect(event: any, index: number): void {
+    const selectedFile = event.files[0];
+
+    if (selectedFile) {
+      const repGroup = (this.registerForm.get('representatives') as FormArray).at(index) as FormGroup;
+      repGroup.get('image')?.setValue(selectedFile);
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        // Update the image source for the corresponding index
+        this.uploadedImages[index] = e.target.result;
+      };
+      reader.readAsDataURL(selectedFile);
+
+    }
+  }
+
+  onReplaceImage(index: number): void {
+    // Clear the current image
+    this.uploadedImages[index] = '';
+    const repGroup = (this.registerForm.get('representatives') as FormArray).at(index) as FormGroup;
+    repGroup.get('image')?.reset();
+  }
+
+  get representatives() {
+    return (this.registerForm.get('representatives') as FormArray).controls;
   }
 
   backClick() {
@@ -93,16 +170,25 @@ export class UserFormComponent implements OnInit {
     );
   }
 
+  selectedUser: boolean = false;
   onUserTypeClick(event: any) {
+    if (!this.selectedUser) this.selectedUser = true;
+    
     this.showUnitButton = event.option.value === 'Owner';
     this.isTenant = !this.showUnitButton;
-    if (this.isTenant) {
-      this.registerForm.setControl('unit_address', this.fb.array([this.createUnitAddress()], { validators: this.uniqueUnitValidator() }));
+  
+    // Reset the unit_address form array without reinitializing it
+    const unitAddressArray = this.registerForm.get('unit_address') as FormArray;
+    if (unitAddressArray) {
+      unitAddressArray.clear();
+      unitAddressArray.push(this.createUnitAddress()); // Clear existing entries but preserve the form structure
     }
+  
+    // Reset the representatives array
+    const representativesArray = this.registerForm.get('representatives') as FormArray;
+    if (representativesArray) representativesArray.clear();
   }
-
-  // floors: { label: string, value: number }[] = [];
-  // units: { label: string, value: number }[] = [];
+  
 
   towerSelected!: number;
   // tower 2: 21 floors 2nd floor to 14th floor = 18 units, 15 to 21 = 24 units ???
@@ -161,24 +247,12 @@ export class UserFormComponent implements OnInit {
 
   }
 
-  getFloorOptions(index: number){
+  getFloorOptions(index: number) {
     return (this.registerForm.get('unit_address') as FormArray).at(index).get('floors')?.value
   }
 
-  getUnitOptions(index: number){
+  getUnitOptions(index: number) {
     return (this.registerForm.get('unit_address') as FormArray).at(index).get('units')?.value
-  }
-
-  createUnitAddress(): FormGroup {
-    const group = this.fb.group({
-      tower_number: [, Validators.required],
-      floor_number: [, Validators.required],
-      unit_number: [, Validators.required],
-      floors: [[]],
-      units: [[]]
-    });
-    group.valueChanges.subscribe(() => this.registerForm.get('unit_address')?.updateValueAndValidity());
-    return group;
   }
 
   addUnitClick(): void {
@@ -199,51 +273,144 @@ export class UserFormComponent implements OnInit {
   private uniqueUnitValidator(): ValidatorFn {
     return (formArray: AbstractControl): ValidationErrors | null => {
       const units = (formArray as FormArray).controls;
+      
+      if (!this.cachedUnits || this.cachedUnits.length === 0) {
+        return { noUnitsLoaded: true };  // Error if cachedUnits are not yet loaded
+      }
+  
       const uniqueCombinations = new Set(this.cachedUnits.map(u => `${u.tower_number}-${u.floor_number}-${u.unit_number}`));
-
+  
       for (let unit of units) {
         const { tower_number, floor_number, unit_number } = unit.value;
         if (tower_number && floor_number && unit_number) {
           const combination = `${tower_number}-${floor_number}-${unit_number}`;
-          if (this.isTenant) {
-            if (uniqueCombinations.has(combination)) return null;
-          } else {
-            if (uniqueCombinations.has(combination)) return { duplicateUnit: true };
-          }
+          if (uniqueCombinations.has(combination)) return null;
           uniqueCombinations.add(combination);
         }
       }
-
+  
       return this.isTenant ? { noMatchingUnit: true } : null;
     };
   }
+  
+
+  isUnitSelectionComplete(): boolean {
+    const unitAddressArray = this.registerForm.get('unit_address') as FormArray;
+    if (!unitAddressArray || unitAddressArray.length === 0) return false;
+  
+    const unit = unitAddressArray.at(0).value; // Get first unit entry
+    // Add constraints how many representatives based on the cachedUnits unit_type
+    const foundUnit = this.cachedUnits.find(cachedUnit => 
+      cachedUnit.tower_number === unit.tower_number && 
+      cachedUnit.floor_number === unit.floor_number && 
+      cachedUnit.unit_number === unit.unit_number &&
+      cachedUnit.sq_foot != null && cachedUnit.sq_foot !== '' && // checks for null or empty string
+      cachedUnit.unit_type != null && cachedUnit.unit_type !== '' // checks for null or empty string
+    );  
+    
+    if(foundUnit){
+      if(foundUnit.unit_type === '1BR' || foundUnit.unit_type === 'ST'){
+        this.paxOptions = [
+          { name: 1 },
+          { name: 2 },
+          { name: 3 },
+          { name: 4 },
+        ]
+      }else{
+        this.paxOptions = [
+          { name: 1 },
+          { name: 2 },
+          { name: 3 },
+          { name: 4 },
+          { name: 5 },
+        ]
+      }
+    }else{
+      this.paxOptions = []
+    }
+    
+    return !!(unit.tower_number && unit.floor_number && unit.unit_number);
+  }
 
   onSubmit() {
-    const { first_name, last_name, mobile_number, userType, unit_address } = this.registerForm.value;
-    const userData = this.backendData.userData(
-      first_name,
-      last_name,
-      mobile_number,
-      this.backendService.getEmail(),
-      userType.toUpperCase()
+    const { first_name, last_name, mobile_number, userType, unit_address, representatives } = this.registerForm.value;
+    const unitData = unit_address.map(({ tower_number, floor_number, unit_number, unit_type }: any) =>
+      ({ tower_number, floor_number, unit_number, unit_type })
     );
-    const unitData = unit_address.map(({ tower_number, floor_number, unit_number }: any) =>
-      ({ tower_number, floor_number, unit_number })
-    );
+    let userData = {}
 
-    this.backendService.createUser(userData, unitData).subscribe({
-      next: (response: any) => {
-        this.ngZone.run(() => {
-          const storageData = {
-            user_id: response,
+    if (userType === 'Owner') {
+      // Owner
+      userData = {
+        first_name: first_name,
+        last_name: last_name,
+        mobile_number: mobile_number,
+        email: this.backendService.getEmail(),
+        user_type: userType.toUpperCase(),
+      }
+
+      this.backendService.createUser(userData, unitData).subscribe({
+        next: (response: any) => {
+          this.ngZone.run(() => {
+            const storageData = {
+              user_id: response,
+              email: this.backendService.getEmail(),
+              user_type: userType.toUpperCase(),
+            };
+            sessionStorage.setItem('backendUserData', JSON.stringify(storageData));
+            this.router.navigate(['dashboard']);
+          });
+        },
+        error: (error: any) => console.error('Error creating user:', error)
+      });
+
+    } else {
+      // Tenant
+      const { tower_number, floor_number, unit_number } = unitData[0];
+      this.backendService.getLessorID(tower_number, floor_number, unit_number).subscribe({
+        next: (response: any) => {
+          const userData = {
+            first_name: first_name,
+            last_name: last_name,
+            mobile_number: mobile_number,
             email: this.backendService.getEmail(),
             user_type: userType.toUpperCase(),
-          };
-          sessionStorage.setItem('backendUserData', JSON.stringify(storageData));
-          this.router.navigate(['dashboard']);
-        });
-      },
-      error: (error: any) => console.error('Error creating user:', error)
-    });
-  }
+            lessor_id: response[0].user_id // Accessing the first object in the array
+          }
+
+          const unitData2 = [{
+            tower_number: tower_number,
+            floor_number: floor_number,
+            unit_number: unit_number,
+            sq_foot: {size: response[0].sq_foot},
+            unit_type: {code: response[0].unit_type},
+          }]
+
+          this.backendService.createUser(userData, unitData2, representatives).subscribe({
+            next: (responseData: any) => {
+              this.ngZone.run(() => {
+                const storageData = {
+                  user_id: responseData,
+                  email: this.backendService.getEmail(),
+                  user_type: userType.toUpperCase(),
+                  lessor_id: response[0].user_id
+                };
+                sessionStorage.setItem('backendUserData', JSON.stringify(storageData));
+                this.router.navigate(['dashboard']);
+              });
+            },
+            error: (error: any) => console.error('Error creating user:', error)
+          });
+
+
+
+        }, error: (error: any) => {
+          console.error('Error fetching lessor ID:', error);
+        }
+      })
+
+    }
+
+  }  
+
 }
