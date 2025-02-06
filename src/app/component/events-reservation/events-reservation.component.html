@@ -10,26 +10,26 @@
 
           <div *ngIf="!isAdmin" class="registration-form">
             <div class="row justify-content-center">
-              <div class="form-group col">
-                <p-dropdown [options]="venue" formControlName="selectedVenue" optionLabel="name"
-                  placeholder="Select Venue" (onChange)="onVenueSelect($event)"></p-dropdown>
+              <div class="col">
+                <h3 class="text-center mt-3">Clubhouse</h3>
               </div>
 
               <div class="form-group col">
                 <p-calendar placeholder="Select Date" formControlName="date_to_post" [touchUI]="true"
                   [iconDisplay]="'input'" [showIcon]="true" [showTime]="true" hourFormat="12" inputId="buttondisplay"
-                  id="date_to_post" [minDate]="today" (onSelect)="onDateSelect($event)"
-                  appendTo="body"></p-calendar>
+                  id="date_to_post" [minDate]="today" (onSelect)="onDateSelect($event)" appendTo="body"></p-calendar>
               </div>
 
-              <div class="col-md mt-md-0">
-                <input class="opacity-100" type="text" pInputText [disabled]="true" variant="filled" [(ngModel)]="timeSlots" [ngModelOptions]="{standalone: true}"/>
+              <div class="col">
+                <input class="opacity-100" type="text" pInputText [disabled]="true" variant="filled"
+                  [(ngModel)]="timeSlots" [ngModelOptions]="{standalone: true}" />
               </div>
             </div>
 
-            <div class="form-group mt-3">
-              <p-inputNumber *ngIf="venueSelected" placeholder="No. of Pax" suffix=" pax" formControlName="pax" [min]="paxMin" [max]="paxMax" />
-              <label for="No. of Pax" *ngIf="venueSelected">*Maximum of {{ paxMax }}</label>
+            <div class="form-group">
+              <p-inputNumber placeholder="No. of Pax" suffix=" pax" formControlName="pax" [min]="paxMin"
+                [max]="paxMax" />
+              <label for="No. of Pax">*Maximum of {{ paxMax }}</label>
             </div>
 
             <div class="form-group">

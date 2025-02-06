@@ -58,11 +58,6 @@ export class EventsReservationComponent implements OnInit {
   rejectedEntries: CMSData[] = [];
   backendUrl: string = 'http://127.0.0.1:5000';
   cms_id!: number;
-  venue: Venue[] = [
-    { name: 'Outdoor Gym' },
-    { name: 'Clubhouse' },
-    { name: 'Swimming Pool' },
-  ];
   timeSlots!: string;
   cmsEntry: any;
 
@@ -91,26 +86,6 @@ export class EventsReservationComponent implements OnInit {
 
   }
 
-  venueSelected: boolean = false;
-  onVenueSelect(event: any){
-    switch(event.value.name){
-      case 'Outdoor Gym':
-        this.paxMax = 15;
-        break;
-      case 'Clubhouse':
-        this.paxMax = 30;
-        break;
-      case 'Swimming Pool':
-        this.paxMax = 20;
-        break;
-      default:
-        break;
-    }
-    this.venueSelected = true;
-    return;
-  }
-
-
   getDescriptionWithoutVenueAndTimeSlot(description: string): string {
     const parts = description.split(' Venue: ');
     return parts[0];
@@ -118,7 +93,6 @@ export class EventsReservationComponent implements OnInit {
 
   initForm(): void {
     this.reservationForm = this.fb.group({
-      selectedVenue: [, Validators.required],
       date_to_post: [, Validators.required],
       title: [, Validators.required],
       pax: [, Validators.required],
@@ -154,7 +128,7 @@ export class EventsReservationComponent implements OnInit {
             if (
               item.cms_type === 'RESERVATION' &&
               item.date_to_post === new Date(this.reservationForm.value.date_to_post).toLocaleDateString('en-CA') &&
-              item.description.includes(this.reservationForm.value.selectedVenue.name)
+              item.description.includes('Clubhouse')
             ) {
               this.reserveList.push(item)
             }
@@ -189,7 +163,7 @@ export class EventsReservationComponent implements OnInit {
                   user_id: userId.user_id,
                   title: this.reservationForm.value.title,
                   description: this.reservationForm.value.description +
-                    ` Venue: ${this.reservationForm.value.selectedVenue.name}` +
+                    ` Venue: Clubhouse` +
                     ` Pax: ${this.reservationForm.value.pax}` +
                     ` Time Slot: ${this.timeSlots}`,
                   cms_type: 'RESERVATION',
