@@ -133,16 +133,16 @@ formatDueDate(dueDate: string): string {
 }
 
 
-getSeverity(status: string): string {
+getSeverity(status: string) {
   switch (status) {
     case 'PAID':
       return 'success'; // Green color for PAID
     case 'PENDING':
-      return 'warning'; // Orange color for PENDING
+       return 'warning'; // Orange color for PENDING
     case 'REVIEW':
       return 'info'; // Blue color for REVIEW
     default:
-      return 'default'; // Default color for other statuses
+      return 'secondary'; // Default color for other statuses
   }
 }
 
