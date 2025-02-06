@@ -44,6 +44,7 @@ export class LandingPageComponent implements OnInit {
             user_id: response.user_id,
             email: response.email,
             user_type: response.user_type,
+            lessor_id: response.lessor_id,
           }
           this.ngZone.run(() => {
             sessionStorage.setItem('backendUserData', JSON.stringify(userData));
