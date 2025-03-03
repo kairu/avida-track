@@ -76,6 +76,7 @@ export class EventsReservationComponent implements OnInit {
   ) {
     this.today = new Date();
     this.today.setDate(this.today.getDate() + 1);
+    this.today.setHours(0, 0, 0, 0);
     this.checkisAdmin();
   }
 
@@ -244,24 +245,22 @@ export class EventsReservationComponent implements OnInit {
   }
 
   onDateSelect(selectedDate: Date) {
-    const selectedTime: Date = this.reservationForm.value.date_to_post;
-
-    this.updateTimeSlots(selectedDate, selectedTime);
     if (!selectedDate) {
       return;
     }
+    this.updateTimeSlots(selectedDate);
   }
-  updateTimeSlots(selectedDate: Date, selectedTime: Date) {
-    const startDateTime = new Date(selectedDate);
-    startDateTime.setHours(selectedTime.getHours(), selectedTime.getMinutes());
 
-    const endDateTime = new Date(startDateTime);
-    endDateTime.setHours(endDateTime.getHours() + 2); // Assuming 2-hour time slot interval
+  updateTimeSlots(selectedDate: Date) {
+    const startDateTime = new Date(selectedDate); // Create a new Date object
+    const endDateTime = new Date(selectedDate); // Create a separate new Date object
+
+    endDateTime.setHours(startDateTime.getHours() + 2); // Add 2 hours to endDateTime
 
     const startTimeSlot = this.formatTime(startDateTime);
     const endTimeSlot = this.formatTime(endDateTime);
 
-    this.timeSlots = startTimeSlot + ' - ' + endTimeSlot;
+    this.timeSlots = `${startTimeSlot} - ${endTimeSlot}`;
   }
 
   formatTime(time: Date): string {
